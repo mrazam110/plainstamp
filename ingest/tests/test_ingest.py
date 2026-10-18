@@ -105,3 +105,25 @@ def test_classify_by_title_pattern():
     assert classify("Prostitutionstätigkeit - Anmeldebescheinigung beantragen", pats) == "other"
     assert classify("Blaue Karte EU beantragen", pats) == "blue-card"
     assert classify("Baugenehmigung", pats) == "other"
+
+
+def test_embed_cache_resumes_and_skips_cached_chunks(tmp_path, monkeypatch):
+    import json as j
+    from plainstamp_ingest import cli
+    monkeypatch.setattr(cli, "DATA", tmp_path)
+    (tmp_path / "chunks").mkdir()
+    rows = [{"title": f"T{i}", "text": f"Wohnung anmelden {i}", "doc_id": "d", "region_id": "de", "source_id": "s"} for i in range(3)]
+    (tmp_path / "chunks" / "s.jsonl").write_text("\n".join(j.dumps(r) for r in rows))
+    monkeypatch.setenv("EMBEDDING_PROVIDER", "hash")
+    cli.cmd_embed("s")
+    first = (tmp_path / "bundles" / "s" / "vectors.bin").read_bytes()
+    calls = []
+    real = cli.get_embedder
+    def counting():
+        e = real()
+        orig = e.embed_documents
+        e.embed_documents = lambda items: (calls.append(len(items)), orig(items))[1]
+        return e
+    monkeypatch.setattr(cli, "get_embedder", counting)
+    cli.cmd_embed("s")
+    assert calls == [] and (tmp_path / "bundles" / "s" / "vectors.bin").read_bytes() == first

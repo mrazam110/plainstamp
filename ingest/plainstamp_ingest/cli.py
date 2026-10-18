@@ -3,8 +3,10 @@
 Output goes to data/ (git-ignored): raw HTML, Markdown snapshots, chunks.jsonl.
 """
 import argparse
+import hashlib
 import json
 from collections import Counter
+from pathlib import Path
 from dataclasses import asdict
 from pathlib import Path
 
@@ -76,17 +78,43 @@ def cmd_build(source: str) -> None:
     print(f"built {n} chunks and keyword index")
 
 
+def _cache_path(model: str, title: str, text: str) -> Path:
+    key = hashlib.sha1(f"{title}\n{text}".encode()).hexdigest()
+    safe = model.replace(":", "_").replace("/", "_")
+    return DATA / "embed-cache" / safe / key[:2] / f"{key}.f32"
+
+
 def cmd_embed(source: str) -> None:
-    """Write vectors.bin (raw float32, L2-normalised, N x D) and manifest.json."""
+    """Write vectors.bin (raw float32, L2-normalised, N x D) and manifest.json.
+
+    Vectors are cached per (model, title, text), so an interrupted or rate-limited run resumes where it stopped
+    and unchanged chunks are never embedded twice.
+    """
     _, _, out = _paths(source)
     rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
     emb = get_embedder()
-    vecs = []
-    for i in range(0, len(rows), 100):
-        vecs += emb.embed_documents([(r["title"], r["text"]) for r in rows[i:i + 100]])
+    fmt = f"<{emb.dimension}f"
+    vecs: list[tuple[float, ...] | None] = [None] * len(rows)
+    todo = []
+    for i, r in enumerate(rows):
+        p = _cache_path(emb.name, r["title"], r["text"])
+        if p.exists() and p.stat().st_size == emb.dimension * 4:
+            vecs[i] = struct.unpack(fmt, p.read_bytes())
+        else:
+            todo.append(i)
+    print(f"{source}: {len(rows) - len(todo)} cached, {len(todo)} to embed with {emb.name}", flush=True)
+    for start in range(0, len(todo), 100):
+        batch = todo[start:start + 100]
+        out_vecs = emb.embed_documents([(rows[i]["title"], rows[i]["text"]) for i in batch])
+        for i, v in zip(batch, out_vecs):
+            p = _cache_path(emb.name, rows[i]["title"], rows[i]["text"])
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(struct.pack(fmt, *v))
+            vecs[i] = tuple(v)
+        print(f"  embedded {min(start + 100, len(todo))}/{len(todo)}", flush=True)
     d = DATA / "bundles" / source
     d.mkdir(parents=True, exist_ok=True)
-    (d / "vectors.bin").write_bytes(b"".join(struct.pack(f"<{emb.dimension}f", *v) for v in vecs))
+    (d / "vectors.bin").write_bytes(b"".join(struct.pack(fmt, *v) for v in vecs))  # type: ignore[arg-type]
     (d / "manifest.json").write_text(json.dumps(
         {"embedding_model": emb.name, "dimension": emb.dimension, "chunk_count": len(rows),
          "built_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()}))
@@ -99,7 +127,8 @@ def cmd_embed_all() -> None:
     Use after switching EMBEDDING_PROVIDER/EMBEDDING_MODEL/EMBEDDING_DIMENSION. Then run load-pg per source
     (the loader refuses a database whose vector size differs; drop the chunks table first).
     """
-    for src in pilot_sources():
+    big_last = sorted(pilot_sources(include_non_pilot=True), key=lambda s: s == "berlin-full")  # small sources first
+    for src in big_last:
         if not _paths(src)[2].exists():
             print(f"skip {src}: no chunks yet (run build)")
             continue
@@ -137,12 +166,14 @@ def cmd_report(source: str) -> None:
     print("with leika_key:", sum(1 for r in rows if r["leika_key"]))
 
 
-def pilot_sources() -> list[str]:
-    """Every source file in sources/de/ that is cleared for local work (others are skipped)."""
+def pilot_sources(include_non_pilot: bool = False) -> list[str]:
+    """Source files in sources/de/ cleared for local work (others are skipped).
+
+    Sources marked `pilot: false` (the full Berlin crawl) are left out unless asked for."""
     ok = []
     for path in sorted((ROOT / "sources" / "de").glob("*.yaml")):
         try:
-            if load_source(path.stem)["crawl"].get("pilot", True):
+            if include_non_pilot or load_source(path.stem)["crawl"].get("pilot", True):
                 ok.append(path.stem)
         except PermissionError as e:
             print(f"skip {e}")

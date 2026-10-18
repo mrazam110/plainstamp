@@ -74,6 +74,21 @@ class FastEmbedEmbedder:
         return self._run(texts)
 
 
+def _quota_info(res) -> tuple[str, float | None]:
+    """(quota id, suggested wait in seconds) from a 429 body. Reads only quota metadata, never echoes anything."""
+    quota_id, delay = "", None
+    try:
+        for d in res.json().get("error", {}).get("details", []):
+            kind = str(d.get("@type", ""))
+            if kind.endswith("QuotaFailure") and d.get("violations"):
+                quota_id = str(d["violations"][0].get("quotaId", ""))
+            if kind.endswith("RetryInfo"):
+                delay = float(str(d.get("retryDelay", "")).rstrip("s")) + 1.0
+    except (ValueError, AttributeError, TypeError):
+        pass
+    return quota_id, delay
+
+
 class GeminiError(RuntimeError):
     """Carries the HTTP status only: never the request text or the provider's reply."""
 
@@ -85,7 +100,7 @@ class GeminiEmbedder:
     """
 
     def __init__(self, api_key: str, model: str = "gemini-embedding-2", dimension: int = 768,
-                 session=None, retries: int = 4, base_delay: float = 1.0, batch_delay: float = 0.0):
+                 session=None, retries: int = 8, base_delay: float = 1.0, batch_delay: float = 0.0):
         if not api_key:
             raise ValueError("GEMINI_API_KEY is not set")
         if not 128 <= dimension <= 3072:
@@ -113,10 +128,18 @@ class GeminiEmbedder:
                 except ValueError:
                     raise GeminiError("malformed provider response") from None
             retryable = res.status_code == 429 or res.status_code >= 500
+            wait = self._base * 2 ** attempt
+            if res.status_code == 429:
+                quota_id, hint = _quota_info(res)
+                if "PerDay" in quota_id:  # waiting will not help until tomorrow
+                    raise GeminiError("daily embedding quota exhausted")
+                wait = hint if hint is not None else wait
             if not retryable or attempt == self._retries:
                 raise GeminiError(f"provider request failed with status {res.status_code}")
             retry_after = res.headers.get("retry-after", "")
-            time.sleep(float(retry_after) if retry_after.replace(".", "", 1).isdigit() else self._base * 2 ** attempt)
+            if retry_after.replace(".", "", 1).isdigit():
+                wait = float(retry_after)
+            time.sleep(min(wait, 120.0))
         raise AssertionError("unreachable")
 
     def _run(self, texts: list[str], task_type: str) -> list[list[float]]:

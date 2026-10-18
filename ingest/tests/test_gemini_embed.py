@@ -89,3 +89,15 @@ def test_factory_needs_key_and_valid_size(monkeypatch):
     monkeypatch.setenv("EMBEDDING_DIMENSION", "64")
     with pytest.raises(ValueError, match="128 and 3072"):
         get_embedder()
+
+
+def test_429_waits_for_the_retry_delay_and_daily_quota_stops_at_once(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr("plainstamp_ingest.embed.time.sleep", lambda s: sleeps.append(s))
+    detail = lambda q, d: {"error": {"details": [{"@type": "x.QuotaFailure", "violations": [{"quotaId": q}]}, {"@type": "x.RetryInfo", "retryDelay": d}]}}
+    s = FakeSession(Resp(429, body=detail("EmbedContentRequestsPerMinutePerProject", "19s")), ok(1))
+    assert len(make(s).embed_queries(["x"])) == 1 and sleeps == [20.0]
+    daily = FakeSession(Resp(429, body=detail("EmbedContentRequestsPerDayPerProject", "5s")))
+    with pytest.raises(GeminiError, match="daily embedding quota"):
+        make(daily).embed_queries(["x"])
+    assert len(daily.calls) == 1
