@@ -1,0 +1,19 @@
+name = "plainstamp-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# No request logging: the Worker code never logs, and platform invocation logs stay off.
+[observability]
+enabled = false
+
+[vars]
+ALLOWED_ORIGINS = ""
+RETRIEVER_BACKEND = "postgres"
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "gemini-3.5-flash-lite"
+EMBEDDING_PROVIDER = "gemini"
+EMBEDDING_MODEL = "gemini-embedding-2"
+EMBEDDING_DIMENSION = "768"
+# Secrets (set with `wrangler secret put`, never in this file): GEMINI_API_KEY, DATABASE_URL
+# Hyperdrive binding for the database goes here once created: [[hyperdrive]] binding = "HYPERDRIVE"

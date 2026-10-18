@@ -39,7 +39,7 @@ Done when: one command builds the pilot corpus and prints a short report. (Done 
 - [x] Postgres backend (`core/retriever/postgres.ts`, passes the contract); Vectorize not tried
 - [~] LLM and embeddings interfaces; Gemini implementation written and tested with a fake fetch, no live call yet
 - [x] Pipeline per ADRs 0005 and 0009 (`core/pipeline/ask.ts`, fake LLM/embedder tests; real model output untested): context modes, German rewrite + topic pick, per-region hybrid retrieval, unknown-state handling, move answers, "not covered" and "not answerable" handling
-- [ ] `POST /ask`: stateless, streaming, no body/IP logging
+- [x] `POST /ask` (`worker/`): stateless, SSE streaming, no body/IP logging in code, CORS allow-list; runs under `wrangler dev` with fakes (`npm run dev:fakes`); not yet deployed or run against a real database/Hyperdrive
 - [ ] Rate limiting and Turnstile
 Done when: curl returns cited answers for single-state, Germany-only and a Brandenburg-to-Berlin move within limits.
 

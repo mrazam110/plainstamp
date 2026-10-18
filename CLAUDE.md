@@ -41,7 +41,7 @@ Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (AD
 ## Commands (fill in as they are created)
 - Ingest, whole pilot: `PYTHONPATH=ingest EMBEDDING_PROVIDER=fastembed .venv/bin/python -m plainstamp_ingest pilot [--refresh]`; one source: `... fetch|build|embed|bundle|load-pg|report <source>` (venv: `python3 -m venv .venv && .venv/bin/pip install -r ingest/requirements.txt`)
 - Eval: `TODO`
-- Worker dev: `TODO`
+- Worker dev: `npm run dev:fakes` (fake model and data, no keys) or `npm run dev` (needs GEMINI_API_KEY and a database); config JSON is built from the YAML by `npm run build:config`
 - Tests: `cd ingest && ../.venv/bin/python -m pytest -q`
 
 ## Agents (`.claude/agents/`)
