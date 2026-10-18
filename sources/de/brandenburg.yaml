@@ -1,0 +1,40 @@
+id: brandenburg-service
+region_id: de-bb
+name: service.brandenburg.de and verwaltung.brandenburg.de
+base_urls: [https://service.brandenburg.de, https://verwaltung.brandenburg.de]
+checked: 2026-10-18
+verified: partly
+level: Land text, applied by municipal offices
+structure:
+  detail_pages: https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id={id}&bus_type=pst
+  index: https://service.brandenburg.de/service/de/verwaltungsleistungen/leistungen-a-z/
+  topics: https://verwaltung.brandenburg.de/verwalt/de/leistungen-nach-themen/themen-fuer-buergerinnen-und-buerger/
+  sitemap: https://service.brandenburg.de/service/de/sitemap.xml (about 95 URLs, no service detail pages)
+languages: [de, en (completeness unknown), leichte-sprache, widget translation pl ar uk ru]
+leika: not on detail pages; present on FIM (e.g. Anmeldung 99115005104001)
+terms:
+  summary: No terms of use or open licence found. Impressum and Haftungsausschluss not read yet.
+  status: not-cleared
+  permission_contact: unknown (Staatskanzlei or ZIT-BB, unverified)
+robots: crawl-delay 10; SemrushBot disallowed
+crawl:
+  method: collect bus_id from topic pages and A-Z, fetch targeted detail pages
+  rate: 1 request per 10 s, identifying User-Agent, cached
+  adapter: brandenburg
+  delay_seconds: 10
+  allowed_local_dev: true  # robots.txt, crawl-delay, identifying User-Agent; data stays out of git
+  allowed_public: false  # needs written permission or a licence
+notes: Detail pages have no last-changed date; Anmeldung page reviewed 2015, contact text looks copied. Our fetch date is the "last checked" date.
+topics_verified:
+  anmeldung: https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst
+seeds:  # first corpus, mapped to topics/de.yaml keys (ids quoted: some have leading zeros)
+  - {id: "112263586", topic_key: anmeldung}
+  - {id: "107580796", topic_key: abmeldung}
+  - {id: "126755977", topic_key: registration-certificate}
+  - {id: "108980589", topic_key: residence-permit}
+  - {id: "120941837", topic_key: tax-id}
+  - {id: "108206772", topic_key: broadcasting-fee}
+  - {id: "126597883", topic_key: car-registration}
+  - {id: "100036805", topic_key: marriage-registration}
+  - {id: "100036811", topic_key: birth-certificate}
+  - {id: "130763356", topic_key: child-benefit}

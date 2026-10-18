@@ -1,0 +1,14 @@
+id: fim
+region_id: de
+name: FIM portal (fimportal.de), LeiKa-keyed service texts for federal and Land editors
+base_url: https://www.fimportal.de
+checked: 2026-10-18
+verified: partly
+terms:
+  summary: No licence or API terms found. robots.txt disallows all paths for about 51 named bots, including AI crawlers; this signals the operator does not want automated AI use.
+  status: not-cleared
+crawl:
+  method: ask the operator before any use; do not crawl
+  allowed_local_dev: false  # robots.txt blocks AI crawlers
+  allowed_public: false
+why_it_matters: One cross-state source with LeiKa keys would solve the per-state terms problem, if the operator permits reuse.

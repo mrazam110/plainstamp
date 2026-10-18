@@ -1,0 +1,46 @@
+id: bayernportal
+region_id: de-by
+name: BayernPortal
+base_url: https://www.bayernportal.de
+checked: 2026-10-18
+verified: partly
+level: Land text plus municipality-specific parts loaded after picking a location
+structure:
+  service_pages: /dokumente/leistung/{id}
+  life_situations: /dokumente/lebenslage/{id}
+  index: /suche/leistung/alphabetisch
+  sitemap: none found (404); robots.txt 404
+languages: [de, en (URL pattern unverified), leichte-sprache]
+leika: not on pages; present on FIM (e.g. L100042 Anmeldung)
+terms:
+  url: https://www.bayernportal.de/impressum
+  summary: Texts may be copyright-protected; reproduction in other publications only with consent. Private use allowed. No open licence, nothing about bots.
+  status: not-cleared
+  permission_contact: bayernportal@stmd.bayern.de
+crawl:
+  method: ask for permission or an XZuFi export first; then targeted URLs only, no location-specific pages
+  rate: 1 request per 3 s, identifying User-Agent, cached
+  adapter: bayern
+  delay_seconds: 3
+  allowed_local_dev: true  # robots.txt, crawl-delay, identifying User-Agent; data stays out of git
+  allowed_public: false  # needs written permission or a licence
+topics_verified:
+  anmeldung: https://www.bayernportal.de/dokumente/leistung/8444082781
+open_questions:
+  - open.bydata.de dataset for services?
+  - how state and municipal text is separated
+seeds:  # first corpus, mapped to topics/de.yaml keys (ids quoted: some have leading zeros)
+  - {id: "8444082781", topic_key: anmeldung}
+  - {id: "846323559210", topic_key: abmeldung}
+  - {id: "971310434493", topic_key: registration-certificate}
+  - {id: "820087987498", topic_key: residence-permit}
+  - {id: "786532433498", topic_key: blue-card}
+  - {id: "694749931600", topic_key: tax-id}
+  - {id: "4777651273", topic_key: driving-licence-exchange}
+  - {id: "3888675461", topic_key: car-registration}
+  - {id: "0666452463", topic_key: car-registration}
+  - {id: "3319892760231", topic_key: broadcasting-fee}
+  - {id: "298756903450", topic_key: broadcasting-fee}
+  - {id: "23666151111", topic_key: marriage-registration}
+  - {id: "0624583194180", topic_key: birth-certificate}
+  - {id: "141312744444", topic_key: child-benefit}

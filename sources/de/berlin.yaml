@@ -1,0 +1,47 @@
+id: berlin-dldb
+region_id: de-be
+name: service.berlin.de (Dienstleistungsdatenbank)
+base_url: https://service.berlin.de
+checked: 2026-10-18
+verified: partly
+level: Land plus Bezirk offices
+structure:
+  service_pages: /dienstleistung/{id}/
+  index: /dienstleistungen/ (A-Z; also /en/, /de_plain/, /ru/, /uk/)
+  sitemap: none (sitemap.xml 404)
+languages: [de, en (partial), de_plain, ru, uk]
+leika: ids follow the LeiKa catalogue per Berlin; key not seen on pages, check HTML
+terms:
+  url: https://service.berlin.de/hinweise/artikel.2696.php
+  summary: Copies for private use only. Public or commercial reuse needs written approval from the Senatskanzlei. No open licence. Nothing about bots.
+  status: not-cleared
+  permission_contact: dienstleistungsdatenbank@berlin.de
+robots: allows /dienstleistung/, disallows /pdf/; identifying User-Agent required
+crawl:
+  method: IDs from A-Z lists, targeted /dienstleistung/{id}/ pages
+  rate: 1 request per 2 s, single thread, cached
+  adapter: berlin
+  delay_seconds: 2
+  allowed_local_dev: true  # robots.txt, crawl-delay, identifying User-Agent; data stays out of git
+  allowed_public: false  # needs written permission or a licence
+topics_verified:
+  anmeldung: /dienstleistung/120686/
+  driving-licence-exchange: /dienstleistung/327537/
+open_questions:
+  - export for partners?
+  - share of English pages that are translated
+  - de_plain body text simplified?
+seeds:  # first corpus: service ids on service.berlin.de, mapped to topics/de.yaml keys
+  - {id: "120686", topic_key: anmeldung}
+  - {id: "120335", topic_key: abmeldung}
+  - {id: "120702", topic_key: registration-certificate}
+  - {id: "326231", topic_key: residence-permit}
+  - {id: "324659", topic_key: blue-card}
+  - {id: "329123", topic_key: tax-id}
+  - {id: "327537", topic_key: driving-licence-exchange}
+  - {id: "120918", topic_key: car-registration}
+  - {id: "329036", topic_key: car-registration}
+  - {id: "324531", topic_key: broadcasting-fee}
+  - {id: "318961", topic_key: marriage-registration}
+  - {id: "318962", topic_key: marriage-registration}
+  - {id: "318960", topic_key: birth-certificate}

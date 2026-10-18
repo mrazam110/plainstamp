@@ -1,0 +1,48 @@
+id: federal
+region_id: de
+name: Federal sources
+checked: 2026-10-18
+verified: partly
+sites:
+  - id: service-bund
+    base_url: https://service.bund.de
+    role: link index only; pages are thin and point to authority sites
+    languages: [de, en]
+    robots: crawl-delay 30; search result paths disallowed
+    terms: {status: not-cleared, note: no terms or licence found; open data covers address and abbreviation directories only}
+  - id: bzst
+    base_url: https://www.bzst.de
+    topics: [tax-id]
+    robots: crawl-delay 30; /DE/Service/ and /EN/Service/ disallowed
+    terms: {status: not-cleared}
+  - id: rundfunkbeitrag
+    base_url: https://www.rundfunkbeitrag.de
+    topics: [broadcasting-fee]
+    robots: most paths allowed; sitemap https://www.rundfunkbeitrag.de/sitemap.xml
+    terms: {status: not-cleared}
+  - id: bamf
+    base_url: https://www.bamf.de
+    topics: [residence-permit]
+    robots: unknown (404 for the scout)
+    terms: {status: not-checked}
+  - id: familienkasse
+    base_url: https://www.arbeitsagentur.de
+    topics: [child-benefit]
+    terms: {status: not-checked}
+  - id: gkv
+    base_url: https://www.gkv-spitzenverband.de
+    topics: [health-insurance]
+    terms: {status: not-checked}
+crawl:
+  method: small targeted URL lists per site
+  rate: 1 request per 30 s where a delay is set, else 1 per 5 s
+  adapter: web
+  delay_seconds: 2  # robots crawl-delay (30 s on bzst.de) is applied on top
+  allowed_local_dev: true  # robots.txt, crawl-delay, identifying User-Agent; data stays out of git
+  allowed_public: false  # needs written permission or a licence
+seeds:  # explicit page urls; id is a cache name; stop_at/skip_headings trim teaser and feedback blocks; BAMF blue-card page returned 404, no residence/health seeds yet
+  - {id: rf-anmelden, url: "https://www.rundfunkbeitrag.de/anmelden", topic_key: broadcasting-fee}
+  - {id: rf-befreiung, url: "https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/befreiung-ermaessigung", topic_key: broadcasting-fee}
+  - {id: rf-umzug, url: "https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten", topic_key: broadcasting-fee}
+  - {id: bzst-idnr, url: "https://www.bzst.de/DE/Privatpersonen/SteuerlicheIdentifikationsnummer/steuerlicheidentifikationsnummer_node.html", topic_key: tax-id, stop_at: ["Chatbot ViOlA"]}
+  - {id: ba-kindergeld, url: "https://www.arbeitsagentur.de/familie-und-kinder/infos-rund-um-kindergeld/kindergeld-anspruch-hoehe-dauer", topic_key: child-benefit, skip_headings: ["Familienkassen-Profil", "Ist der Inhalt der Seite hilfreich?"]}
