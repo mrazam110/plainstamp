@@ -53,10 +53,10 @@ Done when: curl returns cited answers for single-state, Germany-only and a Brand
 Done when: usable on a phone and no request stores anything. (Done 2026-10-18 against the dev Worker with fakes; real-model run, CSP and UI translations open.)
 
 ## Phase 5: Evaluation
-- [ ] `eval-writer`: ~150 questions: ~25 per pilot state, ~20 federal, ~30 cross-state moves, "state not covered" and unanswerable cases; `eval/de/<state>.yaml`
-- [ ] Human verification of every expected fact (someone who knows the state)
-- [ ] Eval runner (retrieval hit rate, answer facts, refusal rate, wrong-state leakage) using real LLM rewrites
-- [ ] CI runs eval on pushes; fail below threshold
+- [x] `eval-writer`: 125 questions in `eval/de/` (Berlin 27, Brandenburg 21, Bavaria 27, federal 15, moves/not covered/needs state/unanswerable 35), validated by `scripts/validate_eval.py`
+- [ ] Human verification of every expected fact (open: all 125 are marked pending) (someone who knows the state)
+- [~] Eval runner: retrieval baseline works without a key (`scripts/eval_retrieval.py`); full-pipeline runner with LLM judge written and unit-tested (`scripts/eval_pipeline.ts`), not run against a real model yet
+- [~] CI runs type checks and unit tests (`.github/workflows/ci.yml`); eval stays local (needs corpus and key); thresholds in `eval/thresholds.json`
 Done when: baseline recorded in STATUS.md.
 
 ## Phase 6: Hardening
