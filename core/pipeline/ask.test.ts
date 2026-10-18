@@ -74,8 +74,18 @@ describe("ask", () => {
     const r = await ask({ question: "How do I register my flat?", context: { mode: "germany" } },
       { llm, embedder, retriever: await retriever(), config });
     expect(r.needsState).toBe(true);
-    expect(r.citations.every((c) => c.regionId === "de")).toBe(true);
     expect(llm.answerCall.system).toContain("end by asking which state applies");
+  });
+
+  it("Germany only: federal pages that are not about the picked topic are not used as an overview", async () => {
+    // the only federal chunks are about broadcasting-fee and tax-id; the question is about anmeldung
+    const llm = new FakeLLM();
+    const r = await ask({ question: "Where do I register my flat?", context: { mode: "germany" } },
+      { llm, embedder, retriever: await retriever(), config });
+    expect(r.needsState).toBe(true);
+    expect(r.citations).toEqual([]);
+    expect(llm.answerCall.system).toContain("(no sources were found)");
+    expect(llm.answerCall.system).toContain("do not talk about other subjects");
   });
 
   it("Germany only on a federal topic does not ask for a state", async () => {

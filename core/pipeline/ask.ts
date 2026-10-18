@@ -105,7 +105,11 @@ export async function prepareAsk(req: AskRequest, deps: Deps): Promise<Prepared>
       vectors,
       k: K_PER_REGION,
     });
-    perRegion.push({ regionName: region.name, hits: hits.filter((h) => h.chunk.regionId === region.id) });
+    // Hard region filter. With no state chosen on a state-specific topic, a "federal overview" must be about
+    // that topic: the retriever drops a topic filter that matches nothing, which would surface unrelated
+    // federal pages (a broadcasting-fee page answering "where do I register my flat?"), so enforce it here.
+    const onTopic = needsState && rewrite.topicKeys.length ? (h: Hit) => rewrite.topicKeys.includes(h.chunk.topicKey) : () => true;
+    perRegion.push({ regionName: region.name, hits: hits.filter((h) => h.chunk.regionId === region.id && onTopic(h)) });
   }
 
   // 4. numbered sources, federal first

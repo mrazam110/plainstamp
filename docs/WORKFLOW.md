@@ -34,7 +34,7 @@ Code, tests and config are ready; these steps need the maintainer's accounts. Ne
 5. **Database**: Postgres with pgvector, loaded with `load-pg` from a corpus embedded with the same embedder as `EMBEDDING_*` (Neon is the provisional choice; backend is confirmed only after the real measurement in docs/SPIKE-RESULTS.md).
 6. **Web**: `VITE_API_URL=https://<worker-url> VITE_TURNSTILE_SITEKEY=<site key> npm run web:build`, then publish `web/dist/` (Cloudflare Pages or static assets).
 7. **Keep `REQUIRE_GUARDS = "1"`.** With it, the Worker answers 503 until the rate limiter bindings, `RATE_SALT` and `TURNSTILE_SECRET` exist. Do not override it in the dashboard; that opens the endpoint.
-8. **Cost cap**: set a spend or quota alert on the Gemini key in Google AI Studio. `GLOBAL_LIMITER` (60/min per Cloudflare location) is only a coarse brake.
+8. **Quotas (free tier)**: embeddings 100/min and about 1,000/day, text model about 15/min. Lower `GLOBAL_LIMITER` in `worker/wrangler.toml` (it is 60/min per location) to match what the key can serve, or enable billing on the Google project. **Cost cap**: set a spend or quota alert on the Gemini key in Google AI Studio. `GLOBAL_LIMITER` (60/min per Cloudflare location) is only a coarse brake.
 Local checks: `npm run dev:fakes` (no guards), `npm run dev:guarded` (guards with Cloudflare's published dummy Turnstile secret; use the dummy token `XXXX.DUMMY.TOKEN.XXXX`).
 
 ## Public-flip checklist (private -> public)

@@ -67,7 +67,7 @@ export function answerSystem(p: AnswerPromptInput): string {
   }
   if (p.askState) {
     lines.push(
-      "The topic differs by state and the user chose no state. Give the federal overview from the sources, say which parts vary by state, and end by asking which state applies.",
+      "The topic differs by state and the user chose no state. Give the federal overview from the sources if there is one that is about this topic, say which parts vary by state, and end by asking which state applies. If the sources contain nothing about this topic, do not talk about other subjects: just say the procedure depends on the state and ask which state applies.",
     );
   }
   if (p.situation) lines.push(`User situation (data): ${p.situation}`);

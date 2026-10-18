@@ -106,3 +106,22 @@ Wall latency on the full Berlin portal (11,566 chunks, local Docker pgvector 17,
 
 ## Eval baseline, retrieval only (2026-10-18)
 125 questions (`eval/de/`: Berlin 27, Brandenburg 21, Bavaria 27, federal 15, cross-state/not covered/unanswerable 35), drafted by the eval-writer agent from the crawled pages, expected facts NOT yet checked by a person. 94 have expected docs. `scripts/eval_retrieval.py`, k=6 per region, hybrid RRF, the question itself as the only query (no German rewrite): hit@6 0.78 overall; German questions 0.90, English 0.71; Bavaria 0.87, federal 0.92, Brandenburg 0.82, Berlin 0.70 (full 1,140-page portal), moves 0.61. Wrong-region leaks: 0. Caveat: most questions list one expected page, but near-duplicate pages exist, so this undercounts. Numbers in expected facts were checked mechanically against the snapshots (all found). Not measured yet: rewrite effect, answer facts, refusal rate, needs-state and not-covered behaviour with a real model (needs GEMINI_API_KEY and a Gemini-embedded index).
+
+## First real-model eval, pilot corpus (2026-10-18)
+Pipeline `scripts/eval_pipeline.ts`: real `gemini-3.5-flash-lite` for rewrite, answer and fact judge, `gemini-embedding-2` at 768 dimensions, local Postgres with the 42 pilot pages (463 chunks; the full Berlin portal could not be embedded, see quotas). 121 of 125 questions (4 Berlin questions need pages outside the pilot). Expected facts are unchecked by a person and the judge is the same model family, so treat as indicative.
+
+| Type | n | right page cited | fact recall | false refusal | other |
+|---|---|---|---|---|---|
+| all | 121 | 0.93 | 0.71 | 0.05 | wrong-state leaks 0 |
+| answerable | 72 | 0.94 | 0.82 | 0.06 | |
+| move | 15 | 1.00 | 0.64 | 0.00 | |
+| needs_state | 12 | - | 0.36 | - | asked for a state 12/12 |
+| unanswerable | 14 | - | 0.43 | - | cited nothing 14/14 |
+| not_covered | 8 | 0.33 | 0.40 | - | named the uncovered state 8/8 |
+
+All thresholds in `eval/thresholds.json` pass. Reading the low fact scores: for needs_state and unanswerable the "facts" are behaviours (asks which state, points to an office) and the judge is strict. A real defect found by reading answers: with no state chosen, a federal "overview" for registering a flat was the broadcasting-fee page. Fixed in `core/pipeline/ask.ts` (federal pages must match the picked topic, otherwise just ask which state); the re-run is blocked by the quota below.
+
+## Free-tier quotas observed (Gemini API, new project, 2026-10-18)
+- `gemini-embedding-2`: 100 embeddings per minute, and a **daily cap that was reached after about 1,000 embeddings** (463 corpus chunks, probes, eval queries); reset about five hours later. Full Berlin portal (11.4k chunks) would take about 12 days at that rate, so it needs billing or a smaller corpus.
+- `gemini-3.5-flash-lite`: about 15 requests per minute; no daily cap hit after about 400 calls.
+- Each user question costs 3-4 embeddings (question plus rewrites) and 2 text calls, so the free tier serves on the order of 250 questions a day. Public use needs a paid tier or a stricter global limit.

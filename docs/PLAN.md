@@ -55,9 +55,9 @@ Done when: usable on a phone and no request stores anything. (Done 2026-10-18 ag
 ## Phase 5: Evaluation
 - [x] `eval-writer`: 125 questions in `eval/de/` (Berlin 27, Brandenburg 21, Bavaria 27, federal 15, moves/not covered/needs state/unanswerable 35), validated by `scripts/validate_eval.py`
 - [ ] Human verification of every expected fact (open: all 125 are marked pending) (someone who knows the state)
-- [~] Eval runner: retrieval baseline works without a key (`scripts/eval_retrieval.py`); full-pipeline runner with LLM judge written and unit-tested (`scripts/eval_pipeline.ts`), not run against a real model yet
+- [~] Eval runner: retrieval baseline works without a key (`scripts/eval_retrieval.py`); full-pipeline runner with LLM judge run against the real model on the pilot corpus: right page 0.93, fact recall 0.71, 0 leaks (docs/SPIKE-RESULTS.md)
 - [~] CI runs type checks and unit tests (`.github/workflows/ci.yml`); eval stays local (needs corpus and key); thresholds in `eval/thresholds.json`
-Done when: baseline recorded in STATUS.md.
+Done when: baseline recorded in STATUS.md. (Pilot-corpus baseline recorded 2026-10-18; facts still need the human check.)
 
 ## Phase 6: Hardening
 - [ ] No-logging test for prompts, bodies, IPs (Worker, CI)
