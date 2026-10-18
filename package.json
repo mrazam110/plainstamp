@@ -8,13 +8,16 @@
     "typecheck": "tsc --noEmit",
     "build:config": "tsx scripts/build_config.ts",
     "dev": "npm run build:config && wrangler dev --config worker/wrangler.toml",
-    "dev:fakes": "npm run build:config && wrangler dev --config worker/wrangler.dev.toml"
+    "dev:fakes": "npm run build:config && wrangler dev --config worker/wrangler.dev.toml",
+    "web:dev": "npm run build:config && vite web --port 5173",
+    "web:build": "npm run build:config && vite build web"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "snowball-stemmers": "^0.6.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^5.0.5",
     "wrangler": "^4.151.1",
     "yaml": "^2.9.1"

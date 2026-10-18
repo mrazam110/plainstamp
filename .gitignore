@@ -18,3 +18,5 @@ __pycache__/
 .venv/
 .DS_Store
 worker/src/config.generated.json
+web/src/regions.generated.json
+web/dist/

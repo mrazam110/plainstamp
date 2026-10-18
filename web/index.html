@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="referrer" content="no-referrer">
+  <title>Plainstamp</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232b4c7e'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23f6f1e7' stroke-width='2.5' stroke-dasharray='3 2'/%3E%3Cpath d='M11.5 16.5l3.2 3.2 6-6.4' fill='none' stroke='%23f6f1e7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/" aria-label="Plainstamp home">
+      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" class="brand-bg"/><circle cx="16" cy="16" r="9" fill="none" class="brand-fg" stroke-width="2.5" stroke-dasharray="3 2"/><path d="M11.5 16.5l3.2 3.2 6-6.4" fill="none" class="brand-fg" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Plainstamp</span>
+    </a>
+    <nav class="tools" aria-label="Tools">
+      <button id="btn-checklist" type="button" class="ghost">Checklist <span id="checklist-count" class="count" hidden>0</span></button>
+      <button id="btn-coverage" type="button" class="ghost">Coverage</button>
+      <button id="btn-theme" type="button" class="ghost" aria-label="Switch colour theme">Theme</button>
+      <button id="btn-clear" type="button" class="ghost">Clear data</button>
+    </nav>
+  </header>
+
+  <main id="chat" aria-live="polite">
+    <section id="empty" class="empty">
+      <h1>German bureaucracy, in plain words</h1>
+      <p>Ask about registering an address, residence permits, taxes and more. Answers come from official pages, with the source and the date it was checked.</p>
+      <div id="examples" class="examples"></div>
+    </section>
+    <ol id="messages" class="messages"></ol>
+  </main>
+
+  <footer class="composer-wrap">
+    <div id="privacy-note" class="notice" hidden>
+      <span>Please don't type names, addresses or ID numbers. Your question is sent to an AI provider to write the answer. Nothing is stored on our server.</span>
+      <button id="privacy-ok" type="button" class="ghost">Got it</button>
+    </div>
+    <button id="ctx-toggle" type="button" class="chip" aria-expanded="false" aria-controls="ctx"></button>
+    <div id="ctx" class="context" role="group" aria-label="Where does this apply?">
+      <div class="seg" role="radiogroup" aria-label="Location">
+        <button type="button" role="radio" data-mode="germany">Germany</button>
+        <button type="button" role="radio" data-mode="state">One state</button>
+        <button type="button" role="radio" data-mode="move">Moving</button>
+      </div>
+      <label id="state-field" hidden>State <select id="state"></select></label>
+      <label id="from-field" hidden>From <select id="from"></select></label>
+      <label id="to-field" hidden>To <select id="to"></select></label>
+      <label class="grow">Situation <input id="situation" type="text" maxlength="200" placeholder="Optional, e.g. EU citizen, starting a job"></label>
+      <label>Answer in
+        <select id="language">
+          <option value="">Same as question</option>
+          <option value="en">English</option><option value="de">Deutsch</option><option value="tr">Türkçe</option>
+          <option value="uk">Українська</option><option value="ru">Русский</option><option value="ar">العربية</option>
+          <option value="fa">فارسی</option><option value="pl">Polski</option><option value="es">Español</option>
+          <option value="fr">Français</option>
+        </select>
+      </label>
+    </div>
+    <form id="composer" class="composer" autocomplete="off">
+      <label for="question" class="sr-only">Your question</label>
+      <textarea id="question" rows="1" maxlength="2000" placeholder="Ask a question…" enterkeyhint="send"></textarea>
+      <button id="send" type="submit">Ask</button>
+      <button id="stop" type="button" class="stop" hidden>Stop</button>
+    </form>
+    <p class="fine">General information from official pages, not legal advice. Check with the office before you act.</p>
+  </footer>
+
+  <dialog id="dlg-checklist"><form method="dialog"><h2>My checklist</h2><ul id="checklist" class="checklist"></ul><p id="checklist-empty" class="muted">Nothing saved yet. Use "Save steps" under an answer.</p><div class="dlg-actions"><button type="button" id="checklist-clear" class="ghost">Remove all</button><button value="close">Close</button></div></form></dialog>
+  <dialog id="dlg-coverage"><form method="dialog"><h2>Coverage</h2><p class="muted">Federal rules are covered. State rules only where marked.</p><ul id="coverage" class="coverage"></ul><div class="dlg-actions"><button value="close">Close</button></div></form></dialog>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

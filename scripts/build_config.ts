@@ -7,4 +7,5 @@ const root = join(import.meta.dirname, "..");
 const config = await loadConfig(root);
 const topics = config.topics.map(({ key, label, state_specific }) => ({ key, label, state_specific }));
 await writeFile(join(root, "worker", "src", "config.generated.json"), JSON.stringify({ regions: config.regions, topics }));
+await writeFile(join(root, "web", "src", "regions.generated.json"), JSON.stringify(config.regions));
 console.log(`config: ${topics.length} topics`);
