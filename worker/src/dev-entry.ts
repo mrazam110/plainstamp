@@ -6,6 +6,7 @@ import { BundleRetriever } from "../../core/retriever/bundle";
 import { FakeEmbedder, makeBundle } from "../../core/retriever/testing";
 import type { Chunk } from "../../core/retriever/types";
 import { config } from "./config";
+import { createGuard, type GuardEnv } from "./guard";
 import { handle } from "./handler";
 
 const chunk = (id: string, regionId: string, topicKey: string, title: string, text: string): Chunk => ({
@@ -25,4 +26,6 @@ const getDeps = () => (deps ??= (async () => {
   return { llm: new FakeLLM(), embedder, retriever: new BundleRetriever(bundles), config };
 })());
 
-export default { fetch: (request: Request) => handle(request, getDeps, { allowedOrigins: ["http://localhost:5173"] }) };
+export default {
+  fetch: (request: Request, env: GuardEnv) => handle(request, getDeps, { allowedOrigins: ["http://localhost:5173"], guard: createGuard(env) }),
+};

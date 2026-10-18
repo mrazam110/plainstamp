@@ -6,8 +6,9 @@ import type { Retriever } from "../../core/retriever/types";
 import { isCovered, flattenRegions } from "../../core/pipeline/config";
 import type { Deps } from "../../core/pipeline/ask";
 import { config } from "./config";
+import type { GuardEnv } from "./guard";
 
-export interface Env extends ProviderEnv {
+export interface Env extends ProviderEnv, GuardEnv {
   ALLOWED_ORIGINS?: string;
   RETRIEVER_BACKEND?: string;
   DATABASE_URL?: string;

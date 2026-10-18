@@ -20,11 +20,11 @@ export function assertSecureBase(base: string): void {
 }
 
 /** POSTs the question and yields SSE events. Nothing is cached or stored by the page except what the caller keeps. */
-export async function* streamAsk(base: string, body: AskBody, signal?: AbortSignal, fetchFn: typeof fetch = fetch): AsyncGenerator<SseEvent> {
+export async function* streamAsk(base: string, body: AskBody, signal?: AbortSignal, fetchFn: typeof fetch = fetch, turnstileToken?: string): AsyncGenerator<SseEvent> {
   assertSecureBase(base);
   const res = await fetchFn(`${base}/ask`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...(turnstileToken ? { "x-turnstile-token": turnstileToken } : {}) },
     body: JSON.stringify(body),
     signal,
     cache: "no-store",

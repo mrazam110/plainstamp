@@ -1,10 +1,13 @@
 import regionsJson from "./regions.generated.json";
 import { ApiError, streamAsk, type AskBody } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
+import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { createStore, type ChatMessage, type Settings } from "./storage";
 
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
 const API = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8787";
+const SITEKEY = (import.meta as any).env?.VITE_TURNSTILE_SITEKEY as string | undefined;
+const turnstile = SITEKEY ? createTurnstile(SITEKEY, { load: loadTurnstileScript, container: "#turnstile" }) : null;
 const states = ((regionsJson as Region).children ?? []).filter((r) => r.level === "land");
 const stateName = (id: string) => states.find((s) => s.id === id)?.name ?? id;
 const covered = (r: Region) => r.coverage === "pilot" || r.coverage === "federal";
@@ -176,6 +179,10 @@ const ERRORS: Record<string, string> = {
   too_large: "That is too long. Please shorten it.",
   upstream_error: "The assistant is unavailable right now. Please try again in a moment.",
   network: "Can't reach the server. Check your connection and try again.",
+  rate_limited: "Too many questions in a short time. Please wait a minute and try again.",
+  turnstile_failed: "The bot check did not complete. Reload the page and try again.",
+  guard_unconfigured: "The service is not switched on yet.",
+  guard_error: "The service is temporarily unavailable. Please try again later.",
   insecure_api_url: "This page is misconfigured (the API address is not https).",
 };
 
@@ -194,7 +201,8 @@ async function send(question: string, retry = false) {
   const live = $("messages").lastElementChild as HTMLElement;
   const prior = history.slice(0, -2).filter((m) => m.content).slice(-6).map((m) => ({ role: m.role, content: m.content }));
   try {
-    for await (const ev of streamAsk(API, { question, context: requestContext(), history: prior }, controller.signal)) {
+    const token = turnstile ? await turnstile.getToken() : undefined;
+    for await (const ev of streamAsk(API, { question, context: requestContext(), history: prior }, controller.signal, fetch, token)) {
       if (ev.event === "meta") { draft.notCovered = ev.data.notCovered; draft.needsState = ev.data.needsState; }
       else if (ev.event === "delta") {
         draft.content += ev.data.text;
@@ -208,7 +216,8 @@ async function send(question: string, retry = false) {
   } catch (e) {
     if ((e as Error).name === "AbortError") draft.content ||= "(stopped)";
     else {
-      const msg = ERRORS[e instanceof ApiError ? e.code : "network"] ?? ERRORS.upstream_error!;
+      const code = e instanceof ApiError ? e.code : (e as Error).message === "turnstile_failed" ? "turnstile_failed" : "network";
+      const msg = ERRORS[code] ?? ERRORS.upstream_error!;
       history.pop();
       if (draft.content) history.push(draft);
       renderMessages();

@@ -1,0 +1,27 @@
+# Local check of the guards with Cloudflare's published dummy Turnstile secret (always passes). Not deployed.
+name = "plainstamp-api-dev-guarded"
+main = "src/dev-entry.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = false
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "2001"
+  [ratelimits.simple]
+  limit = 6
+  period = 60
+
+[[ratelimits]]
+name = "GLOBAL_LIMITER"
+namespace_id = "2002"
+  [ratelimits.simple]
+  limit = 60
+  period = 60
+
+[vars]
+REQUIRE_GUARDS = "1"
+TURNSTILE_SECRET = "1x0000000000000000000000000000000AA"
+RATE_SALT = "dev-only-salt"

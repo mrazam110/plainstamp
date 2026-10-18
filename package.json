@@ -10,7 +10,8 @@
     "dev": "npm run build:config && wrangler dev --config worker/wrangler.toml",
     "dev:fakes": "npm run build:config && wrangler dev --config worker/wrangler.dev.toml",
     "web:dev": "npm run build:config && vite web --port 5173",
-    "web:build": "npm run build:config && vite build web"
+    "web:build": "npm run build:config && vite build web",
+    "dev:guarded": "npm run build:config && wrangler dev --config worker/wrangler.dev-guarded.toml"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

@@ -1,5 +1,6 @@
 import { askStream, type Deps } from "../../core/pipeline/ask";
 import { AskError, type AskRequest } from "../../core/pipeline/types";
+import type { GuardResult } from "./guard";
 
 const MAX_BODY_BYTES = 16 * 1024;
 const MAX_TEXT = 2000;
@@ -8,6 +9,8 @@ const MODES = new Set(["germany", "state", "move"]);
 export interface HandlerOptions {
   /** Origins allowed to call /ask from a browser; empty means same-origin only. */
   allowedOrigins: string[];
+  /** Rate limit and bot check; runs before the body is read. Omitted only for local fakes. */
+  guard?: (request: Request) => Promise<GuardResult>;
 }
 
 function corsHeaders(req: Request, opts: HandlerOptions): Record<string, string> {
@@ -16,7 +19,7 @@ function corsHeaders(req: Request, opts: HandlerOptions): Record<string, string>
   return {
     "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
+    "access-control-allow-headers": "content-type, x-turnstile-token",
     "access-control-max-age": "600",
     vary: "Origin",
   };
@@ -62,6 +65,11 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (request.method !== "POST") return json(405, { error: "method_not_allowed" }, { ...cors, allow: "POST, OPTIONS" });
   if (!(request.headers.get("content-type") ?? "").includes("application/json")) return json(415, { error: "unsupported_media_type" }, cors);
+
+  if (opts.guard) {
+    const g = await opts.guard(request);
+    if (!g.ok) return json(g.status, { error: g.error }, { ...cors, ...(g.retryAfter ? { "retry-after": String(g.retryAfter) } : {}) });
+  }
 
   let body: AskRequest;
   try {

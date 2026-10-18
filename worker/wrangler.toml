@@ -7,7 +7,24 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = false
 
+# Abuse protection (see docs/WORKFLOW.md for the Cloudflare setup). The Worker refuses to serve (503)
+# until the bindings and secrets below exist, because REQUIRE_GUARDS = "1".
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 6
+  period = 60
+
+[[ratelimits]]
+name = "GLOBAL_LIMITER"
+namespace_id = "1002"
+  [ratelimits.simple]
+  limit = 60
+  period = 60
+
 [vars]
+REQUIRE_GUARDS = "1"
 ALLOWED_ORIGINS = ""
 RETRIEVER_BACKEND = "postgres"
 LLM_PROVIDER = "gemini"
@@ -15,5 +32,5 @@ LLM_MODEL = "gemini-3.5-flash-lite"
 EMBEDDING_PROVIDER = "gemini"
 EMBEDDING_MODEL = "gemini-embedding-2"
 EMBEDDING_DIMENSION = "768"
-# Secrets (set with `wrangler secret put`, never in this file): GEMINI_API_KEY, DATABASE_URL
+# Secrets (set with `wrangler secret put`, never in this file): GEMINI_API_KEY, DATABASE_URL, TURNSTILE_SECRET, RATE_SALT
 # Hyperdrive binding for the database goes here once created: [[hyperdrive]] binding = "HYPERDRIVE"

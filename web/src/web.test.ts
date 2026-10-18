@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { streamAsk, ApiError, assertSecureBase } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { parseSse } from "./sse";
+import { createTurnstile, type TurnstileApi } from "./turnstile";
 import { createStore, DEFAULTS } from "./storage";
 
 const cite = (n: number) => ({ n, title: "T", heading: "H", url: "https://x/" + n, crawledAt: "2026-10-18", regionId: "de", regionName: "Germany" });
@@ -111,5 +112,50 @@ describe("streamAsk", () => {
     const err = await (async () => { try { for await (const _ of streamAsk("https://api.test", { question: "", context: { mode: "germany" }, history: [] }, undefined, f)) void _; } catch (e) { return e; } })();
     expect(err).toBeInstanceOf(ApiError);
     expect((err as ApiError).code).toBe("invalid_request");
+  });
+});
+
+describe("turnstile", () => {
+  const fakeApi = () => {
+    const calls: string[] = [];
+    let opts: any;
+    const api: TurnstileApi = {
+      render: (_c, o) => { opts = o; calls.push("render"); return "w1"; },
+      execute: () => { calls.push("execute"); },
+      reset: () => { calls.push("reset"); },
+    };
+    return { api, calls, opts: () => opts };
+  };
+  it("renders once, resets for later questions and resolves with the token", async () => {
+    const f = fakeApi();
+    const ts = createTurnstile("site", { load: async () => f.api, container: "#t" });
+    const p1 = ts.getToken();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(f.opts()).toMatchObject({ sitekey: "site", execution: "execute", appearance: "interaction-only" });
+    f.opts().callback("tok1");
+    expect(await p1).toBe("tok1");
+    const p2 = ts.getToken();
+    await new Promise((r) => setTimeout(r, 0));
+    f.opts().callback("tok2");
+    expect(await p2).toBe("tok2");
+    expect(f.calls).toEqual(["render", "execute", "reset", "execute"]);
+  });
+  it("rejects on widget error and on timeout", async () => {
+    const f = fakeApi();
+    const ts = createTurnstile("site", { load: async () => f.api, container: "#t" });
+    const p = ts.getToken();
+    await new Promise((r) => setTimeout(r, 0));
+    f.opts()["error-callback"]();
+    await expect(p).rejects.toThrow("turnstile_failed");
+    await expect(createTurnstile("s", { load: async () => fakeApi().api, container: "#t" }).getToken(20)).rejects.toThrow("turnstile_failed");
+  });
+  it("sends the token as a header only when there is one", async () => {
+    const seen: Record<string, string>[] = [];
+    const f = (async (_u: string, i: RequestInit) => { seen.push(i.headers as Record<string, string>); return new Response(new ReadableStream({ start(c) { c.close(); } }), { status: 200 }); }) as unknown as typeof fetch;
+    const body = { question: "q", context: { mode: "germany" as const }, history: [] };
+    for await (const _ of streamAsk("https://api.test", body, undefined, f, "tok")) void _;
+    for await (const _ of streamAsk("https://api.test", body, undefined, f)) void _;
+    expect(seen[0]!["x-turnstile-token"]).toBe("tok");
+    expect(seen[1]!["x-turnstile-token"]).toBeUndefined();
   });
 });
