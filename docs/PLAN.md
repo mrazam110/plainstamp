@@ -40,7 +40,7 @@ Done when: one command builds the pilot corpus and prints a short report. (Done 
 - [~] LLM and embeddings interfaces; Gemini implementation written and tested with a fake fetch, no live call yet
 - [x] Pipeline per ADRs 0005 and 0009 (`core/pipeline/ask.ts`, fake LLM/embedder tests; real model output untested): context modes, German rewrite + topic pick, per-region hybrid retrieval, unknown-state handling, move answers, "not covered" and "not answerable" handling
 - [x] `POST /ask` (`worker/`): stateless, SSE streaming, no body/IP logging in code, CORS allow-list; runs under `wrangler dev` with fakes (`npm run dev:fakes`); not yet deployed or run against a real database/Hyperdrive
-- [ ] Rate limiting and Turnstile
+- [~] Rate limiting and Turnstile: code, tests, config and local dummy-key check done (`worker/src/guard.ts`, `npm run dev:guarded`); fail-closed until bindings/secrets exist; needs the Cloudflare setup in docs/WORKFLOW.md
 Done when: curl returns cited answers for single-state, Germany-only and a Brandenburg-to-Berlin move within limits.
 
 ## Phase 4: UI (TypeScript)
