@@ -1,7 +1,3 @@
 #!/bin/sh
 # Rejects tool/LLM signature lines in commit messages (ADR 0010).
-msg="$1"
-if grep -qiE '^(co-authored-by:.*(claude|anthropic|gpt|openai|gemini|copilot|cursor|noreply@anthropic)|.*generated (with|by) .*(claude|gpt|gemini|copilot|cursor|ai))' "$msg"; then
-  echo "commit-msg: remove the tool/LLM signature line (see ADR 0010)." >&2
-  exit 1
-fi
+"$(git rev-parse --show-toplevel)/scripts/check-signatures.sh" < "$1"
