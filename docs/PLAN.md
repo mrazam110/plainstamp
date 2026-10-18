@@ -44,13 +44,13 @@ Done when: one command builds the pilot corpus and prints a short report. (Done 
 Done when: curl returns cited answers for single-state, Germany-only and a Brandenburg-to-Berlin move within limits.
 
 ## Phase 4: UI (TypeScript)
-- [ ] Static page: centred empty state, composer at bottom, single column, own branding
-- [ ] Location chip: Germany (default) | state picker (16 + not sure) | "Moving?" toggle with from/to states; coverage shown, uncovered states marked
-- [ ] Context chips for situation and language; browser-only storage; clear-data button
-- [ ] Streaming render, source cards with region badge and crawl date, German-term copy buttons
-- [ ] Checklist view (localStorage), privacy warning, opt-in "report wrong answer"
-- [ ] Mobile-first, dark/light, example questions incl. a cross-state move
-Done when: usable on a phone and no request stores anything.
+- [x] Static page: centred empty state, composer at bottom, single column, own branding
+- [x] Location chip: Germany (default) | state picker (16 + not sure) | "Moving?" toggle with from/to states; coverage shown, uncovered states marked
+- [x] Context chips for situation and language; browser-only storage; clear-data button
+- [x] Streaming render, source cards with region badge and crawl date, German-term copy buttons
+- [x] Checklist view (localStorage), privacy warning, opt-in "report wrong answer" (copies text, sends nothing)
+- [x] Mobile-first, dark/light, example questions incl. a cross-state move (checked at 375 px in the browser pane; UI text is English only)
+Done when: usable on a phone and no request stores anything. (Done 2026-10-18 against the dev Worker with fakes; real-model run, CSP and UI translations open.)
 
 ## Phase 5: Evaluation
 - [ ] `eval-writer`: ~150 questions: ~25 per pilot state, ~20 federal, ~30 cross-state moves, "state not covered" and unanswerable cases; `eval/de/<state>.yaml`
