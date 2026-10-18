@@ -101,3 +101,12 @@ def test_429_waits_for_the_retry_delay_and_daily_quota_stops_at_once(monkeypatch
     with pytest.raises(GeminiError, match="daily embedding quota"):
         make(daily).embed_queries(["x"])
     assert len(daily.calls) == 1
+
+
+def test_403_is_retried_a_few_times_then_reported(monkeypatch):
+    monkeypatch.setattr("plainstamp_ingest.embed.time.sleep", lambda s: None)
+    assert len(make(FakeSession(Resp(403), ok(1))).embed_queries(["x"])) == 1
+    always = FakeSession(Resp(403))
+    with pytest.raises(GeminiError, match="status 403"):
+        make(always).embed_queries(["x"])
+    assert len(always.calls) == 4

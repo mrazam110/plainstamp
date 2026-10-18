@@ -93,6 +93,10 @@ class GeminiError(RuntimeError):
     """Carries the HTTP status only: never the request text or the provider's reply."""
 
 
+class DailyQuotaExhausted(GeminiError):
+    """The free-tier daily cap is used up; retrying today is pointless, progress is cached."""
+
+
 class GeminiEmbedder:
     """Gemini embeddings over REST. Mirrors core/embeddings/gemini.ts (same prompt formats, batching).
 
@@ -127,12 +131,15 @@ class GeminiEmbedder:
                     return res.json()
                 except ValueError:
                     raise GeminiError("malformed provider response") from None
-            retryable = res.status_code == 429 or res.status_code >= 500
+            # 403 shows up now and then on valid keys (seen twice, next call succeeded): retry it a few times
+            retryable = res.status_code in (429, 403) or res.status_code >= 500
+            if res.status_code == 403 and attempt >= 3:
+                retryable = False
             wait = self._base * 2 ** attempt
             if res.status_code == 429:
                 quota_id, hint = _quota_info(res)
                 if "PerDay" in quota_id:  # waiting will not help until tomorrow
-                    raise GeminiError("daily embedding quota exhausted")
+                    raise DailyQuotaExhausted("daily embedding quota exhausted")
                 wait = hint if hint is not None else wait
             if not retryable or attempt == self._retries:
                 raise GeminiError(f"provider request failed with status {res.status_code}")

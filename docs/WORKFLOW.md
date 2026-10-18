@@ -25,6 +25,9 @@ Branch protection, feature branches, PRs, issue templates, CODEOWNERS for `sourc
 - Ask agents for compact reports (bullets, tables), never raw page dumps.
 - End each task by updating `docs/STATUS.md` (current task, last commit, next 3 tasks, blockers).
 
+## Embedding under the free Gemini quota
+`scripts/embed_daily.sh` runs `embed-all` from the cache: it embeds what is missing, stops cleanly with exit status 3 when the daily cap is hit, and exits 0 when every source has vectors. Run it once a day after the quota resets (or schedule it), then `load-pg` each source. Sources with `embed: false` (`berlin-full`) are skipped.
+
 ## Deploying the Worker (setup done in Cloudflare by the maintainer)
 Code, tests and config are ready; these steps need the maintainer's accounts. Never paste keys into chat or commit them.
 1. **Cloudflare account, Free plan.** The Rate Limiting binding docs do not state plan availability: confirm in the dashboard before relying on it. If it is not available, the Worker still refuses to run (see step 7), so a fallback limiter must be added first.

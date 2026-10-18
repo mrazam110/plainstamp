@@ -127,3 +127,30 @@ def test_embed_cache_resumes_and_skips_cached_chunks(tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "get_embedder", counting)
     cli.cmd_embed("s")
     assert calls == [] and (tmp_path / "bundles" / "s" / "vectors.bin").read_bytes() == first
+
+
+def test_embed_stops_cleanly_on_daily_quota_and_resumes(tmp_path, monkeypatch):
+    import json as j
+    import pytest
+    from plainstamp_ingest import cli
+    from plainstamp_ingest.embed import DailyQuotaExhausted, HashEmbedder
+    monkeypatch.setattr(cli, "DATA", tmp_path)
+    (tmp_path / "chunks").mkdir()
+    rows = [{"title": f"T{i}", "text": f"Wohnung {i}", "doc_id": "d", "region_id": "de", "source_id": "s"} for i in range(250)]
+    (tmp_path / "chunks" / "s.jsonl").write_text("\n".join(j.dumps(r) for r in rows))
+
+    class Limited(HashEmbedder):
+        calls = 0
+        def embed_documents(self, items):
+            Limited.calls += 1
+            if Limited.calls == 2:  # first 100 succeed, second batch hits the daily cap
+                raise DailyQuotaExhausted("daily embedding quota exhausted")
+            return super().embed_documents(items)
+    monkeypatch.setattr(cli, "get_embedder", lambda: Limited())
+    with pytest.raises(SystemExit) as e:
+        cli.cmd_embed("s")
+    assert e.value.code == cli.QUOTA_EXIT
+    assert not (tmp_path / "bundles" / "s" / "vectors.bin").exists()  # no half-written bundle
+    cli.cmd_embed("s")  # next day: only the missing 150 are embedded
+    assert (tmp_path / "bundles" / "s" / "vectors.bin").stat().st_size == 250 * 384 * 4
+    assert Limited.calls == 4  # 2 before the stop (one failed) + 2 on the resume

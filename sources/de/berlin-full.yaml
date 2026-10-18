@@ -21,6 +21,7 @@ crawl:
   method: IDs from A-Z lists, targeted /dienstleistung/{id}/ pages
   rate: 1 request per 2 s, single thread, cached
   pilot: false  # excluded from the `pilot` command
+  embed: false  # 11.4k chunks do not fit the free Gemini embedding cap; berlin-topical is embedded instead
   adapter: berlin
   delay_seconds: 2
   allowed_local_dev: true  # robots.txt, crawl-delay, identifying User-Agent; data stays out of git

@@ -17,22 +17,23 @@ from . import bayern, berlin, brandenburg, web
 from .bundle import export_bundle
 from .chunk import chunk_document
 from .classify import classify, load_patterns
-from .embed import get_embedder
+from .embed import DailyQuotaExhausted, get_embedder
 from .keyword import build_index
 from .fetch import Fetcher
 from .sources import ROOT, load_source
 
 DATA = ROOT / "data"
+QUOTA_EXIT = 3  # exit status when the daily embedding quota stops a run (resume later)
 ADAPTERS = {"berlin": berlin, "brandenburg": brandenburg, "bayern": bayern, "web": web}
 
 
-def _paths(source: str):
-    return DATA / "raw" / source, DATA / "snapshots" / source, DATA / "chunks" / f"{source}.jsonl"
+def _paths(source: str, raw_from: str | None = None):
+    return DATA / "raw" / (raw_from or source), DATA / "snapshots" / source, DATA / "chunks" / f"{source}.jsonl"
 
 
 def cmd_fetch(source: str, refresh: bool) -> None:
     cfg = load_source(source)
-    raw, _, _ = _paths(source)
+    raw, _, _ = _paths(source, cfg["crawl"].get("raw_from"))
     fetcher = Fetcher(raw, delay=float(cfg["crawl"].get("delay_seconds", 2)))
     adapter = ADAPTERS[cfg["crawl"]["adapter"]]
     failed: list[str] = []
@@ -54,7 +55,8 @@ def snapshot_md(doc) -> str:
 
 def cmd_build(source: str) -> None:
     cfg = load_source(source)
-    raw, snaps, out = _paths(source)
+    raw, snaps, out = _paths(source, cfg["crawl"].get("raw_from"))
+    only_classified = bool(cfg["crawl"].get("only_classified"))
     snaps.mkdir(parents=True, exist_ok=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     n = 0
@@ -67,6 +69,8 @@ def cmd_build(source: str) -> None:
                 html, seed["id"], seed["topic_key"], cfg["id"], **extra)
             if doc.topic_key == "other":  # unmapped seed: classify by title (topics/de.yaml)
                 doc.topic_key = classify(doc.title, patterns)
+            if only_classified and doc.topic_key == "other":
+                continue
             (snaps / f"{seed['id']}.md").write_text(snapshot_md(doc), encoding="utf-8")
             for c in chunk_document(doc):
                 f.write(json.dumps(asdict(c), ensure_ascii=False) + "\n")
@@ -105,7 +109,13 @@ def cmd_embed(source: str) -> None:
     print(f"{source}: {len(rows) - len(todo)} cached, {len(todo)} to embed with {emb.name}", flush=True)
     for start in range(0, len(todo), 100):
         batch = todo[start:start + 100]
-        out_vecs = emb.embed_documents([(rows[i]["title"], rows[i]["text"]) for i in batch])
+        try:
+            out_vecs = emb.embed_documents([(rows[i]["title"], rows[i]["text"]) for i in batch])
+        except DailyQuotaExhausted:
+            left = len(todo) - start
+            print(f"{source}: daily embedding quota used up; {left} chunks left, everything so far is cached. "
+                  "Run the same command again after the quota resets.", flush=True)
+            raise SystemExit(QUOTA_EXIT) from None
         for i, v in zip(batch, out_vecs):
             p = _cache_path(emb.name, rows[i]["title"], rows[i]["text"])
             p.parent.mkdir(parents=True, exist_ok=True)
@@ -127,8 +137,10 @@ def cmd_embed_all() -> None:
     Use after switching EMBEDDING_PROVIDER/EMBEDDING_MODEL/EMBEDDING_DIMENSION. Then run load-pg per source
     (the loader refuses a database whose vector size differs; drop the chunks table first).
     """
-    big_last = sorted(pilot_sources(include_non_pilot=True), key=lambda s: s == "berlin-full")  # small sources first
-    for src in big_last:
+    for src in pilot_sources(include_non_pilot=True):
+        if not load_source(src)["crawl"].get("embed", True):
+            print(f"skip {src}: embed is switched off in its source file")
+            continue
         if not _paths(src)[2].exists():
             print(f"skip {src}: no chunks yet (run build)")
             continue
