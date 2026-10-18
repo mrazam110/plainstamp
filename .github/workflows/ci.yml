@@ -17,6 +17,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run build:config
       - run: npx tsc --noEmit
       - run: npm test
       - uses: actions/setup-python@v5
