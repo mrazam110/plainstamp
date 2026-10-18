@@ -23,20 +23,20 @@ Done when: private repo exists with licence, privacy docs and region/topic files
 Done when: every pilot source has a terms note and crawl method.
 
 ## Phase 2: Ingestion (Python)
-- [ ] Fetcher driven by `sources/*.yaml` (identified User-Agent, 1 req/s, robots.txt)
-- [ ] Berlin adapter (reuse spike learnings), then Brandenburg and Bavaria adapters, then federal
-- [ ] Cleaner to Markdown snapshots (local, not in git); section chunker keeping title + heading
-- [ ] Metadata: region (Land or federal), `topic_key`, `leika_key` where present
-- [ ] German stemming (Snowball) and keyword index
-- [ ] Embedder interface; Gemini implementation (check model, dimension options) plus local fastembed option
-- [ ] Loaders: bundle builder and Postgres loader (idempotent by content hash)
-- [ ] Report script: counts per state/topic, partition sizes, no raw text
-Done when: one command builds the pilot corpus and prints a short report.
+- [x] Fetcher driven by `sources/*.yaml` (identified User-Agent, 1 req/s, robots.txt)
+- [x] Berlin, Brandenburg, Bavaria and federal adapters (42 seed pages; federal has rundfunkbeitrag.de, BZSt, Familienkasse, no BAMF/health yet)
+- [x] Cleaner to Markdown snapshots (local, not in git); section chunker keeping title + heading
+- [x] Metadata: region (Land or federal), `topic_key`, `leika_key` where present
+- [x] German stemming (Snowball) and keyword index
+- [~] Embedder interface done (hash + fastembed; Gemini not implemented, verify first); Gemini implementation (check model, dimension options) plus local fastembed option
+- [x] Loaders: bundle builder and Postgres loader (tested on pgvector/pgvector:pg17: 37 docs, 418 chunks, second run skips all)
+- [x] Report script: counts per state/topic, partition sizes, no raw text
+Done when: one command builds the pilot corpus and prints a short report. (Done 2026-10-18: `pilot`.)
 
 ## Phase 3: Retrieval and /ask (TypeScript Worker)
-- [ ] Retriever interface; bundle backend; contract test across backends
-- [ ] **Backend measurement** (ADR 0004): full Berlin portal (~14k chunks) on real Worker with bundle (with and without topic prefilter) vs Postgres (Neon) vs Vectorize; record CPU, wall latency, limits; decide default
-- [ ] Postgres (or Vectorize) backend if chosen
+- [x] Retriever interface (`core/retriever/`); bundle backend; contract test (`contract.ts`, runs on bundle; Postgres backend must pass it too)
+- [~] **Backend measurement** (ADR 0004; local Node proxy done on the real 11.5k-chunk Berlin portal, see SPIKE-RESULTS; real Worker/Neon/Vectorize runs open): full Berlin portal (~14k chunks) on real Worker with bundle (with and without topic prefilter) vs Postgres (Neon) vs Vectorize; record CPU, wall latency, limits; decide default
+- [x] Postgres backend (`core/retriever/postgres.ts`, passes the contract); Vectorize not tried
 - [ ] LLM and embeddings interfaces; Gemini implementation
 - [ ] Pipeline per ADRs 0005 and 0009: context modes, German rewrite + topic pick, per-region hybrid retrieval, unknown-state handling, move answers, "not covered" and "not answerable" handling
 - [ ] `POST /ask`: stateless, streaming, no body/IP logging

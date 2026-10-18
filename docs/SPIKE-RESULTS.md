@@ -68,3 +68,38 @@ Caveats (important):
 
 ## Implication for Germany-wide scope (added 2026-10-17)
 The spike covered only Berlin (130 services, ~12 chunks per service). A whole state portal is ~1,000 services, so ~10-15k chunks per state and ~150-200k for Germany (extrapolation). That is above what in-Worker brute-force scoring handles within 10 ms, so ADR 0004 now leaves the backend to a Phase 3 measurement on the full Berlin portal. The German-rewrite and hybrid-search findings carry over, but cross-state questions, topic keys and per-state terms were not tested.
+
+## Phase 2 smoke check (2026-10-18)
+13 Berlin services, 160 chunks, MiniLM 384-d, 15 hand-written questions (`eval/berlin-smoke.yaml`, `scripts/retrieval_check.py`), hit@5 by service page: keyword 9/15, vector 14/15, RRF 15/15. Keyword misses are the English questions, which the German rewrite step (ADR 0005) should fix. Corpus is tiny and the questions easy, so this is a plumbing check, not a quality result.
+
+## Phase 3 local bundle benchmark (2026-10-18)
+`scripts/bench_bundle.ts` tiles the Berlin bundle to 14,112 chunks (384-d, one vector + keyword query, k=8) and times `BundleRetriever.search` in Node 22 on the laptop. Tiling inflates keyword postings, so BM25 cost is slightly overstated; vector cost is real.
+
+| Case | median | p95 |
+|---|---|---|
+| no prefilter | 10.9 ms | 12.1 ms |
+| 1-topic prefilter | 1.1 ms | 1.5 ms |
+| 3-topic prefilter | 3.4 ms | 4.1 ms |
+
+Cold parse of a state bundle: keyword.json 4.1 MB 38 ms, chunks.jsonl 12.8 MB 31 ms. Vectors 21.7 MB (typed array, no parse).
+
+Reading it: the spike found a Worker at 3-4x laptop CPU, so no-prefilter would be roughly 35-45 ms against the documented 10 ms Free limit, and the cold parse alone roughly 200 ms. A 1-topic prefilter fits (about 4 ms) only if the topic pick is reliable, and the cold parse still has to be avoided (lazy chunk text, keyword index per topic shard, or a database). This is a laptop proxy, not the Worker measurement ADR 0004 asks for. The real run (deploy a test Worker with the bundle, same queries) and a Postgres/Neon and Vectorize comparison are still open.
+
+## Full Berlin portal, real data (2026-10-18)
+Crawl of all 1,140 services in `service.berlin.de` (2 s delay, no failures): 11,566 chunks (not the ~14k extrapolated; avg 479 chars), 134 with a LeiKa key. Embedding with fastembed MiniLM (CPU) took 3.5 min. Bundle: vectors 17.8 MB, keyword.json 3.7 MB, chunks.jsonl 9.2 MB.
+
+Search in Node, no prefilter, 1 vector + keyword, k=8: median 8.4 ms, p95 9.6 ms (real postings, so not inflated). Cold parse about 60 ms. At the spike's 3-4x Worker factor that is roughly 25-35 ms per search, over the 10 ms limit; a topic prefilter was not measured meaningfully because 98% of chunks have topic_key `other` (only the 13 pilot services are classified). Real topic classification is needed before the prefilter idea can be judged.
+
+Retrieval quality on the same 15 smoke questions (`scripts/retrieval_check.py berlin-full`), hit@5 by one expected service page: keyword 5/15, vector 10/15, RRF 9/15 (13-service corpus: 9, 14, 15). Fusion no longer beats vector alone. Causes to check: many near-duplicate service pages compete (the expected page is one of several valid ones, so the metric is too strict; Phase 5 needs acceptable-page sets), English queries get no keyword help without the German rewrite, and RRF weights keyword and vector equally. Do not rely on the 13-service numbers.
+
+## Topic classification, acceptable pages, fusion weights (2026-10-18)
+Topics are now assigned by title pattern (`title_pattern` in `topics/de.yaml`, `classify.py`): 1,315 of 11,566 chunks are classified (11%), the rest `other`. Residence permit is the biggest topic (773 chunks), car registration 248. A topic prefilter hides `other` chunks whenever it matches anything, so the topic pick must stay reliable and `other` pages will not surface for those questions; this needs the Phase 5 eval to quantify.
+
+Smoke set redone with acceptable-page sets and a hand-written German rewrite for the English questions (optimistic, stands in for the LLM rewrite). Full portal, 15 questions, hit@5 / hit@1: vector on the original 11/6, keyword on the rewrite 12/9, weighted RRF with keyword weight 0.25: 14/8, 0.5: 14/9, 1.0: 13/9. Fusion now clearly beats either alone. Weight 0.5 is set in `core/retriever/bundle.ts`; the 0.25-1.0 range differs by one question, so this is a middle pick, not a tuned result, and it was chosen on the same 15 questions (overfit risk). Remaining misses: "Ich ziehe ins Ausland, muss ich mich abmelden?" and "Wir wollen heiraten, beide haben deutsche Papiere" at rank 1.
+
+Node bench on the real bundle after the change: no prefilter 8.4 ms median, 1 topic 0.1 ms, two large topics (residence-permit + car-registration, about 1k chunks) 0.8 ms. Worker factor still unmeasured; the spike's 3-4x puts no-prefilter at 25-35 ms.
+
+## Postgres backend (2026-10-18)
+`core/retriever/postgres.ts` (postgres.js, pgvector halfvec cosine + German `to_tsquery` with OR terms, shared `fuse.ts`) passes the same 6-case retriever contract as the bundle backend (`DATABASE_URL=... npm test`; the contract test runs in its own schema and drops it).
+
+Wall latency on the full Berlin portal (11,566 chunks, local Docker pgvector 17, hnsw index, `scripts/bench_pg.ts`): no prefilter median 13.9 ms / p95 37.9 ms, 1 topic 1.8 / 3.3 ms, two large topics 6.3 / 9.9 ms. This is database wall time on localhost; a hosted database adds a network round trip and possible compute wake-up, so Neon numbers will be higher. What matters for the 10 ms Worker CPU limit is that Worker CPU here is only query building, I/O waiting and a 50-row fusion, independent of corpus size, unlike the bundle backend (8.4 ms laptop CPU at 11.5k chunks, 25-35 ms estimated on a Worker). Provisional reading: Postgres is the default for state-sized partitions, bundles stay an option for small partitions or with a reliable topic prefilter. Still open: a real Worker plus Neon (or Hyperdrive) run for CPU and wall time, and Vectorize.

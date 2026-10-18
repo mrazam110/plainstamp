@@ -39,10 +39,10 @@ Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (AD
 - Prefer deterministic scripts over LLM calls for crawling, chunking and checks.
 
 ## Commands (fill in as they are created)
-- Ingest: `TODO`
+- Ingest, whole pilot: `PYTHONPATH=ingest EMBEDDING_PROVIDER=fastembed .venv/bin/python -m plainstamp_ingest pilot [--refresh]`; one source: `... fetch|build|embed|bundle|load-pg|report <source>` (venv: `python3 -m venv .venv && .venv/bin/pip install -r ingest/requirements.txt`)
 - Eval: `TODO`
 - Worker dev: `TODO`
-- Tests: `TODO`
+- Tests: `cd ingest && ../.venv/bin/python -m pytest -q`
 
 ## Agents (`.claude/agents/`)
 - `source-scout`: researches one official source (structure, licence, URLs), read-only.

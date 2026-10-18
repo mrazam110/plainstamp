@@ -1,0 +1,19 @@
+# Smoke questions for the Berlin portal. `docs` = acceptable service pages (hand-picked from titles),
+# `rewrite` = hand-written German search query standing in for the LLM rewrite of ADR 0005
+# (optimistic, as in the spike). Not the Phase 5 eval set (that needs eval-writer verification).
+questions:
+  - {q: "Ich bin umgezogen. Wie melde ich meine neue Wohnung an?", docs: [berlin-120686, berlin-351783]}
+  - {q: "How do I register my new flat in Berlin?", rewrite: "Wohnung anmelden Berlin Anmeldung Wohnsitz", docs: [berlin-120686, berlin-351783]}
+  - {q: "Ich ziehe ins Ausland, muss ich mich abmelden?", docs: [berlin-120335]}
+  - {q: "I need a confirmation of my registered address", rewrite: "Meldebescheinigung beantragen", docs: [berlin-120702]}
+  - {q: "Wie bekomme ich meinen elektronischen Aufenthaltstitel?", docs: [berlin-326231, berlin-326802]}
+  - {q: "What do I need for an EU Blue Card?", rewrite: "Blaue Karte EU beantragen Voraussetzungen", docs: [berlin-324659, berlin-326798]}
+  - {q: "Wo bekomme ich meine Steuer-ID?", docs: [berlin-329123, berlin-329216]}
+  - {q: "Can I swap my foreign driving licence for a German one?", rewrite: "Umschreibung ausländische Fahrerlaubnis Führerschein", docs: [berlin-327537, berlin-121598]}
+  - {q: "Führerschein aus dem Nicht-EU-Ausland umschreiben", docs: [berlin-327537, berlin-121598]}
+  - {q: "Ich bin nach Berlin gezogen, wie ummelden mein Auto?", docs: [berlin-120918, berlin-329036, berlin-120914]}
+  - {q: "I cannot pay the broadcasting fee, can I get an exemption?", rewrite: "Rundfunkbeitrag Befreiung Ermäßigung beantragen", docs: [berlin-324531]}
+  - {q: "Rundfunkbeitrag Befreiung beantragen", docs: [berlin-324531]}
+  - {q: "We want to get married and one of us is a foreigner", rewrite: "Eheschließung anmelden mit Auslandsbeteiligung", docs: [berlin-318962]}
+  - {q: "Wir wollen heiraten, beide haben deutsche Papiere", docs: [berlin-318961]}
+  - {q: "How do I get a birth certificate for my child?", rewrite: "Geburtsurkunde beantragen", docs: [berlin-318960]}

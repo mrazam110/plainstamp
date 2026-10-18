@@ -42,7 +42,7 @@ bundle-<region>-<version>/
 Served as Worker static assets (files up to 25 MB). Versioned folders with an active pointer for rollback.
 
 ### Postgres schema (sketch)
-`regions(id, parent_id, name, level)`, `documents(id, source_url, region_id, topic_key, leika_key, language, crawled_at, content_hash)`, `chunks(id, document_id, heading_path, text, embedding halfvec, tsv tsvector)`. No user tables. Worker uses a read-only role.
+`regions(id, parent_id, name, level, coverage)`, `documents(id, source_url, title, region_id, topic_key, leika_key, language, crawled_at, content_hash)`, `chunks(id, document_id, heading_path, text, embedding halfvec, tsv tsvector)`. No user tables. Worker uses a read-only role.
 
 ## CPU budget (Cloudflare Free: 10 ms per request, documented)
 Spike: 5k x 768 float32 cost ~15 ms warm on a Worker; cold start adds 30-60 ms. A state-size partition does not fit in-Worker without prefilter. Rules if `bundle` is used: 384-512 dimensions, topic/region prefilter, binary typed arrays, bundle kept in isolate memory. Database or Vectorize otherwise. Unexplained: the test account was not cut off at 2.4 s CPU; do not rely on that.
