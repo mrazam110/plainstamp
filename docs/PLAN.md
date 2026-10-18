@@ -28,7 +28,7 @@ Done when: every pilot source has a terms note and crawl method.
 - [x] Cleaner to Markdown snapshots (local, not in git); section chunker keeping title + heading
 - [x] Metadata: region (Land or federal), `topic_key`, `leika_key` where present
 - [x] German stemming (Snowball) and keyword index
-- [~] Embedder interface done (hash + fastembed; Gemini not implemented, verify first); Gemini implementation (check model, dimension options) plus local fastembed option
+- [x] Embedder interface (hash, fastembed, Gemini REST; Gemini tested on a fake HTTP layer, no live call yet); Gemini implementation (check model, dimension options) plus local fastembed option
 - [x] Loaders: bundle builder and Postgres loader (tested on pgvector/pgvector:pg17: 37 docs, 418 chunks, second run skips all)
 - [x] Report script: counts per state/topic, partition sizes, no raw text
 Done when: one command builds the pilot corpus and prints a short report. (Done 2026-10-18: `pilot`.)

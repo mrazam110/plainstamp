@@ -39,6 +39,7 @@ Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (AD
 - Prefer deterministic scripts over LLM calls for crawling, chunking and checks.
 
 ## Commands (fill in as they are created)
+- Re-embed everything with another model (no re-crawl): `EMBEDDING_PROVIDER=gemini GEMINI_API_KEY=... PYTHONPATH=ingest .venv/bin/python -m plainstamp_ingest embed-all`, then drop the chunks/documents tables and `load-pg` each source
 - Ingest, whole pilot: `PYTHONPATH=ingest EMBEDDING_PROVIDER=fastembed .venv/bin/python -m plainstamp_ingest pilot [--refresh]`; one source: `... fetch|build|embed|bundle|load-pg|report <source>` (venv: `python3 -m venv .venv && .venv/bin/pip install -r ingest/requirements.txt`)
 - Eval: `TODO`
 - Web dev: `npm run web:dev` (page on :5173; API base from VITE_API_URL, default http://localhost:8787; https required elsewhere); build `npm run web:build`
