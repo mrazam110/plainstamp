@@ -1,0 +1,13 @@
+# Topic taxonomy. state_specific: procedure differs per Land, so ask which state applies.
+# leika_keys are filled when sources provide them.
+topics:
+  - {key: anmeldung, label: Registering your address (Anmeldung), state_specific: true, leika_keys: []}
+  - {key: abmeldung, label: Deregistering your address (Abmeldung), state_specific: true, leika_keys: []}
+  - {key: residence-permit, label: Residence permit (Aufenthaltstitel), state_specific: true, leika_keys: []}
+  - {key: tax-id, label: Tax ID (Steuer-ID), state_specific: false, leika_keys: []}
+  - {key: health-insurance, label: Health insurance, state_specific: false, leika_keys: []}
+  - {key: kita, label: Childcare place (Kita), state_specific: true, leika_keys: []}
+  - {key: child-benefit, label: Child benefit (Kindergeld), state_specific: false, leika_keys: []}
+  - {key: driving-licence-exchange, label: Exchanging a foreign driving licence, state_specific: true, leika_keys: []}
+  - {key: car-registration, label: Registering a car (Kfz-Zulassung), state_specific: true, leika_keys: []}
+  - {key: broadcasting-fee, label: Broadcasting fee (Rundfunkbeitrag), state_specific: false, leika_keys: []}

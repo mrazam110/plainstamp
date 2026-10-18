@@ -1,0 +1,22 @@
+# Region tree and coverage. Coverage is data; code never hardcodes a state.
+id: de
+name: Germany
+level: country
+coverage: federal
+children:
+  - {id: de-bw, name: Baden-Württemberg, level: land, coverage: none}
+  - {id: de-by, name: Bayern, level: land, coverage: pilot}
+  - {id: de-be, name: Berlin, level: land, coverage: pilot}
+  - {id: de-bb, name: Brandenburg, level: land, coverage: pilot}
+  - {id: de-hb, name: Bremen, level: land, coverage: none}
+  - {id: de-hh, name: Hamburg, level: land, coverage: none}
+  - {id: de-he, name: Hessen, level: land, coverage: none}
+  - {id: de-mv, name: Mecklenburg-Vorpommern, level: land, coverage: none}
+  - {id: de-ni, name: Niedersachsen, level: land, coverage: none}
+  - {id: de-nw, name: Nordrhein-Westfalen, level: land, coverage: none}
+  - {id: de-rp, name: Rheinland-Pfalz, level: land, coverage: none}
+  - {id: de-sl, name: Saarland, level: land, coverage: none}
+  - {id: de-sn, name: Sachsen, level: land, coverage: none}
+  - {id: de-st, name: Sachsen-Anhalt, level: land, coverage: none}
+  - {id: de-sh, name: Schleswig-Holstein, level: land, coverage: none}
+  - {id: de-th, name: Thüringen, level: land, coverage: none}

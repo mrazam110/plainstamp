@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# corpus and build artifacts (ADR 0007)
+data/
+snapshots/
+bundles/
+*.bin
+*.jsonl
+
+# tooling
+node_modules/
+dist/
+.wrangler/
+__pycache__/
+.venv/
+.DS_Store
