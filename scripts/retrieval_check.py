@@ -32,7 +32,7 @@ qs = yaml.safe_load((ROOT / "eval/berlin-smoke.yaml").read_text())["questions"]
 
 
 def vec_rank(text, k=50):
-    qv = emb.embed([text])[0]
+    qv = emb.embed_queries([text])[0]
     if M is not None:
         sc = M @ np.array(qv, dtype="f4")
         return [int(i) for i in np.argsort(-sc)[:k]]

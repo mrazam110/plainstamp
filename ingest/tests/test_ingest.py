@@ -61,7 +61,7 @@ def test_keyword_search_stems_german():
 def test_hash_embedder_normalised_and_deterministic():
     from plainstamp_ingest.embed import HashEmbedder
     e = HashEmbedder(64)
-    a, b = e.embed(["Wohnung anmelden"]), e.embed(["Wohnung anmelden"])
+    a, b = e.embed_queries(["Wohnung anmelden"]), e.embed_documents([("T", "Wohnung anmelden")])
     assert a == b and abs(sum(x * x for x in a[0]) - 1) < 1e-9
 
 

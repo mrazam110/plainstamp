@@ -43,6 +43,8 @@ class FakeCursor:
 
     def execute(self, sql, params=None):
         self.db.log.append((sql.split()[0], params))
+        if sql.startswith("SELECT atttypmod"):
+            self._one = self.db.typmod
         if sql.startswith("SELECT content_hash"):
             h = self.db.hashes.get(params[0])
             self._one = (h,) if h else None
@@ -55,7 +57,7 @@ class FakeCursor:
 
 class FakeConn:
     def __init__(self):
-        self.log, self.hashes, self.commits = [], {}, 0
+        self.log, self.hashes, self.commits, self.typmod = [], {}, 0, None
 
     def cursor(self):
         return FakeCursor(self)
@@ -79,3 +81,20 @@ def test_helpers():
     assert len(list(region_rows({"id": "de", "name": "G", "level": "country",
                                  "children": [{"id": "de-be", "name": "B", "level": "land"}]}))) == 2
     assert vector_literal([1, 0.5]) == "[1.000000,0.500000]"
+
+
+def test_loader_refuses_a_different_vector_size_and_reloads_when_the_model_changes(tmp_path):
+    import pytest
+
+    bundle = export_bundle(make_data(tmp_path), "s")
+    regions = Path(__file__).resolve().parents[2] / "regions" / "de.yaml"
+    conn = FakeConn()
+    conn.typmod = (384,)  # existing table was created for 384 dimensions, bundle has 4
+    with pytest.raises(RuntimeError, match="drop the chunks"):
+        load_bundle(conn, bundle, regions)
+    conn.typmod = (4,)
+    assert load_bundle(conn, bundle, regions)["loaded"] == 1
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    manifest["embedding_model"] = "another-model"
+    (bundle / "manifest.json").write_text(json.dumps(manifest))
+    assert load_bundle(conn, bundle, regions)["loaded"] == 1  # same text, new model: must not be skipped

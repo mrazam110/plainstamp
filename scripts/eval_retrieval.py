@@ -41,7 +41,7 @@ def regions_for(ctx: dict) -> list[str]:
 
 
 def retrieve(region_data, emb, question, regions, k):
-    qv = np.array(emb.embed([question])[0], dtype="f4")
+    qv = np.array(emb.embed_queries([question])[0], dtype="f4")
     out = []
     for r in regions:
         if r not in region_data:  # not covered: never searched

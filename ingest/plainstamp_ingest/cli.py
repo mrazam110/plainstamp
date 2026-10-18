@@ -1,4 +1,4 @@
-"""Usage: python -m plainstamp_ingest {fetch|build|embed|bundle|load-pg|report} <source> | pilot berlin|brandenburg|bayern|federal [--refresh]
+"""Usage: python -m plainstamp_ingest {fetch|build|embed|bundle|load-pg|report} <source> | pilot | embed-all berlin|brandenburg|bayern|federal [--refresh]
 
 Output goes to data/ (git-ignored): raw HTML, Markdown snapshots, chunks.jsonl.
 """
@@ -82,8 +82,8 @@ def cmd_embed(source: str) -> None:
     rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
     emb = get_embedder()
     vecs = []
-    for i in range(0, len(rows), 64):
-        vecs += emb.embed([r["text"] for r in rows[i:i + 64]])
+    for i in range(0, len(rows), 100):
+        vecs += emb.embed_documents([(r["title"], r["text"]) for r in rows[i:i + 100]])
     d = DATA / "bundles" / source
     d.mkdir(parents=True, exist_ok=True)
     (d / "vectors.bin").write_bytes(b"".join(struct.pack(f"<{emb.dimension}f", *v) for v in vecs))
@@ -91,6 +91,20 @@ def cmd_embed(source: str) -> None:
         {"embedding_model": emb.name, "dimension": emb.dimension, "chunk_count": len(rows),
          "built_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()}))
     print(f"embedded {len(rows)} chunks with {emb.name} ({emb.dimension}-d)")
+
+
+def cmd_embed_all() -> None:
+    """Re-embed every cleared source from the saved chunks (no re-crawl) and rebuild its bundle.
+
+    Use after switching EMBEDDING_PROVIDER/EMBEDDING_MODEL/EMBEDDING_DIMENSION. Then run load-pg per source
+    (the loader refuses a database whose vector size differs; drop the chunks table first).
+    """
+    for src in pilot_sources():
+        if not _paths(src)[2].exists():
+            print(f"skip {src}: no chunks yet (run build)")
+            continue
+        cmd_embed(src)
+        cmd_bundle(src)
 
 
 def cmd_bundle(source: str) -> None:
@@ -159,12 +173,12 @@ def cmd_pilot(refresh: bool) -> None:
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="plainstamp_ingest")
-    ap.add_argument("command", choices=["fetch", "build", "embed", "bundle", "load-pg", "report", "pilot"])
+    ap.add_argument("command", choices=["fetch", "build", "embed", "embed-all", "bundle", "load-pg", "report", "pilot"])
     ap.add_argument("source", nargs="?", default="")
     ap.add_argument("--refresh", action="store_true")
     a = ap.parse_args(argv)
     {"fetch": lambda: cmd_fetch(a.source, a.refresh), "build": lambda: cmd_build(a.source), "embed": lambda: cmd_embed(a.source), "bundle": lambda: cmd_bundle(a.source),
-     "load-pg": lambda: cmd_load_pg(a.source), "pilot": lambda: cmd_pilot(a.refresh),
+     "load-pg": lambda: cmd_load_pg(a.source), "pilot": lambda: cmd_pilot(a.refresh), "embed-all": cmd_embed_all,
      "report": lambda: cmd_report(a.source)}[a.command]()
 
 
