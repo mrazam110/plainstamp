@@ -1,0 +1,327 @@
+- id: bb-anmeldung-001
+  type: answerable
+  language: en
+  question: "I just moved to Potsdam. How long do I have to register my new flat?"
+  context: {mode: state, state: de-bb}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration is required within two weeks after moving in"
+    - "Registration is done at the Meldebehörde"
+  expected_docs: [bb-112263586]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-anmeldung-002
+  type: answerable
+  language: de
+  question: "Welche Unterlagen brauche ich für die Anmeldung meiner Wohnung in Brandenburg?"
+  context: {mode: state, state: de-bb}
+  topic_key: anmeldung
+  expected_facts:
+    - "Die Bestätigung des Wohnungsgebers ist erforderlich"
+  expected_docs: [bb-112263586]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-anmeldung-003
+  type: answerable
+  language: en
+  question: "I am moving from Cottbus to Potsdam. Do I have to deregister in Cottbus first?"
+  context: {mode: state, state: de-bb}
+  topic_key: anmeldung
+  expected_facts:
+    - "You do not need to deregister at the old registration office"
+    - "Registering at the new place within two weeks is enough"
+  expected_docs: [bb-112263586, bb-107580796]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst", "https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=107580796&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-abmeldung-001
+  type: answerable
+  language: en
+  question: "I am leaving Germany for good. When and how do I deregister my address in Brandenburg?"
+  context: {mode: state, state: de-bb}
+  topic_key: abmeldung
+  expected_facts:
+    - "Deregistration is required when moving abroad"
+    - "Deregister within two weeks after moving out"
+    - "Deregistration is possible already in the week before moving out"
+    - "The landlord confirmation is a required document"
+  expected_docs: [bb-107580796]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=107580796&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-meldebescheinigung-001
+  type: answerable
+  language: de
+  question: "Was kostet eine Meldebescheinigung in Brandenburg und kann ich sie online beantragen?"
+  context: {mode: state, state: de-bb}
+  topic_key: registration-certificate
+  expected_facts:
+    - "Die Online-Meldebescheinigung ist kostenlos"
+    - "Die schriftliche Meldebescheinigung kostet 6 Euro"
+    - "Bei größerem Verwaltungsaufwand kostet sie 17 Euro"
+    - "Für den Online-Antrag braucht man ein BundID-Konto oder einen Gastzugang"
+  expected_docs: [bb-126755977]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=126755977&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-meldebescheinigung-002
+  type: answerable
+  language: en
+  question: "My friend will pick up my registration certificate for me. What does she need to bring?"
+  context: {mode: state, state: de-bb}
+  topic_key: registration-certificate
+  expected_facts:
+    - "A power of attorney (Vollmacht) is needed"
+    - "The representative needs her own ID card"
+  expected_docs: [bb-126755977]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=126755977&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-residence-permit-001
+  type: answerable
+  language: en
+  question: "I am tolerated (Duldung) and have a job offer in Brandenburg. What German level do I need for a residence permit for employment?"
+  context: {mode: state, state: de-bb}
+  topic_key: residence-permit
+  expected_facts:
+    - "At least B1 German is required"
+    - "A concrete job offer or contract is required"
+    - "The Federal Employment Agency must agree to the employment"
+  expected_docs: [bb-108980589]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=108980589&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-residence-permit-002
+  type: answerable
+  language: de
+  question: "Wie lange gilt die Aufenthaltserlaubnis für qualifizierte Geduldete, wenn ich schon eine Ausbildung mit Duldung gemacht habe?"
+  context: {mode: state, state: de-bb}
+  topic_key: residence-permit
+  expected_facts:
+    - "Die Aufenthaltserlaubnis wird für 2 Jahre erteilt"
+    - "Sonst gilt sie für die Dauer der Beschäftigung"
+  expected_docs: [bb-108980589]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=108980589&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-tax-id-001
+  type: answerable
+  language: en
+  question: "I registered in Germany six weeks ago and still have no tax ID letter. What should I do?"
+  context: {mode: state, state: de-bb}
+  topic_key: tax-id
+  expected_facts:
+    - "The tax ID is sent automatically by post to the registered address"
+    - "It can be requested again via the online form of the Bundeszentralamt für Steuern"
+    - "There is no fee"
+    - "Requesting by phone or email is not possible"
+  expected_docs: [bb-120941837]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=120941837&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-tax-id-002
+  type: answerable
+  language: de
+  question: "Ändert sich meine Steuer-ID, wenn ich umziehe oder heirate?"
+  context: {mode: state, state: de-bb}
+  topic_key: tax-id
+  expected_facts:
+    - "Die Steuer-ID ändert sich weder bei Umzug noch bei Heirat"
+    - "Sie bleibt ein Leben lang gültig"
+  expected_docs: [bb-120941837]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=120941837&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-broadcasting-fee-001
+  type: answerable
+  language: en
+  question: "How much is the Rundfunkbeitrag per month and how often do I pay it?"
+  context: {mode: state, state: de-bb}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "The standard fee is 17.50 EUR per month per flat"
+    - "The reduced fee is 5.83 EUR per month"
+    - "It is paid for three months at a time"
+  expected_docs: [bb-108206772]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=108206772&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-broadcasting-fee-002
+  type: answerable
+  language: de
+  question: "Mein Mitbewohner zahlt schon den Rundfunkbeitrag für unsere Wohnung. Muss ich auch zahlen?"
+  context: {mode: state, state: de-bb}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Wenn eine andere Person für die Wohnung zahlt, sind Sie von der Zahlung ausgenommen"
+    - "Man kann sich beim Beitragsservice abmelden, wenn die Beitragspflicht entfällt"
+  expected_docs: [bb-108206772]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=108206772&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-car-registration-001
+  type: answerable
+  language: en
+  question: "What documents and fees do I need to register a new car in Brandenburg?"
+  context: {mode: state, state: de-bb}
+  topic_key: car-registration
+  expected_facts:
+    - "Proof of valid liability insurance (eVB number) is needed"
+    - "The Certificate of Conformity (CoC) is needed"
+    - "Proof of ownership such as a purchase contract or invoice is needed"
+    - "The fee is 30 EUR at the registration office"
+    - "The fee is 12.80 EUR via the online i-Kfz portal"
+  expected_docs: [bb-126597883]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=126597883&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-marriage-registration-001
+  type: answerable
+  language: en
+  question: "We want to get married in Brandenburg. How much does registering the marriage cost and do we need witnesses?"
+  context: {mode: state, state: de-bb}
+  topic_key: marriage-registration
+  expected_facts:
+    - "Registering the marriage costs 64 EUR in Brandenburg"
+    - "Witnesses are not required"
+    - "You may name one or two witnesses if you wish"
+  expected_docs: [bb-100036805]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=100036805&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-marriage-registration-002
+  type: answerable
+  language: de
+  question: "Welche Unterlagen brauchen wir zur Anmeldung der Eheschließung, wenn einer von uns aus dem Ausland kommt?"
+  context: {mode: state, state: de-bb}
+  topic_key: marriage-registration
+  expected_facts:
+    - "Eine erweiterte Meldebescheinigung (nicht älter als 4 Wochen) ist nötig"
+    - "Ein Ehefähigkeitszeugnis ist nötig"
+    - "Fremdsprachige Urkunden brauchen Übersetzungen von einem vereidigten Übersetzer"
+  expected_docs: [bb-100036805]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=100036805&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-birth-certificate-001
+  type: answerable
+  language: en
+  question: "Who can request a birth certificate in Brandenburg and what do I need to show?"
+  context: {mode: state, state: de-bb}
+  topic_key: birth-certificate
+  expected_facts:
+    - "Applicants must be at least 16 years old"
+    - "Spouses, ancestors and descendants of the person can apply"
+    - "ID card or passport is needed"
+    - "A representative needs a written power of attorney"
+  expected_docs: [bb-100036811]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=100036811&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-child-benefit-001
+  type: answerable
+  language: en
+  question: "How much child benefit do I get per child, and how do I apply?"
+  context: {mode: state, state: de-bb}
+  topic_key: child-benefit
+  expected_facts:
+    - "Child benefit is 259 EUR per child"
+    - "It does not depend on income"
+    - "You can apply online via the Familienkasse eServices"
+    - "You can also apply in writing"
+    - "There is no fee"
+  expected_docs: [bb-130763356]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=130763356&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-needs-state-anmeldung-001
+  type: needs_state
+  language: en
+  question: "I just arrived in Germany. How do I register my address?"
+  context: {mode: germany}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration is required within two weeks after moving in"
+    - "The answer asks which state the user lives in"
+  expected_docs: []
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-needs-state-marriage-001
+  type: needs_state
+  language: de
+  question: "Was kostet die Anmeldung einer Eheschließung?"
+  context: {mode: germany}
+  topic_key: marriage-registration
+  expected_facts:
+    - "Die Kosten variieren je nach Bundesland"
+    - "Die Antwort fragt, in welchem Bundesland man heiraten will"
+  expected_docs: []
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=100036805&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-unanswerable-kita-001
+  type: unanswerable
+  language: en
+  question: "How do I apply for a Kita place for my daughter in Brandenburg and what does it cost?"
+  context: {mode: state, state: de-bb}
+  expected_facts:
+    - "The answer says the available pages do not cover this"
+    - "The answer points to the local Jugendamt or municipality"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: bb-unanswerable-driving-licence-001
+  type: unanswerable
+  language: de
+  question: "Wie tausche ich meinen ausländischen Führerschein in Brandenburg um?"
+  context: {mode: state, state: de-bb}
+  expected_facts:
+    - "Die Antwort sagt, dass die vorhandenen Seiten dies nicht abdecken"
+    - "Die Antwort verweist auf die zuständige Führerscheinstelle"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)

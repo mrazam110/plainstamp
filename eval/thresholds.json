@@ -1,0 +1,9 @@
+{
+  "docHitRate": 0.7,
+  "factRecall": 0.6,
+  "maxFalseRefusalRate": 0.15,
+  "properRefusalRate": 0.7,
+  "needsStateRate": 0.8,
+  "notCoveredRate": 0.9,
+  "maxLeaks": 0
+}

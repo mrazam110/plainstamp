@@ -1,0 +1,429 @@
+- id: be-anmeldung-001
+  type: answerable
+  language: en
+  question: "I just moved into a flat in Berlin. How long do I have to register?"
+  context: {mode: state, state: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration is required within 14 days after moving in"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-anmeldung-002
+  type: answerable
+  language: de
+  question: "Welche Unterlagen brauche ich für die Anmeldung meiner Wohnung im Bürgeramt?"
+  context: {mode: state, state: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Wohnungsgeberbestätigung is required"
+    - "A rental contract does not replace the Wohnungsgeberbestätigung"
+    - "Valid ID (Personalausweis or Reisepass) is required"
+    - "Foreign nationals bring their passport, if applicable together with the eAT"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-anmeldung-003
+  type: answerable
+  language: en
+  question: "Does registering my address in Berlin cost money, and can I do it online with my residence permit card?"
+  context: {mode: state, state: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "There is no fee"
+    - "Online registration is not possible with an eAT"
+    - "Online registration requires German citizenship or EU citizenship"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-anmeldung-004
+  type: answerable
+  language: en
+  question: "I am a non-EU citizen with a passport and an eAT. Can I register my new Berlin flat online or do I have to go to an office?"
+  context: {mode: state, state: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Online registration is not possible with an eAT"
+    - "In-person registration at the Bürgeramt requires an appointment"
+    - "In-person registration requires the passport, if applicable together with the eAT"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-zweitwohnsitz-001
+  type: answerable
+  language: de
+  question: "Ich habe in Berlin eine zweite Wohnung. Wie melde ich einen Zweitwohnsitz an und was kostet das?"
+  context: {mode: state, state: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration is within 14 days after moving in"
+    - "An appointment at the Bürgeramt is required"
+    - "There is no fee"
+    - "Wohnungsgeberbestätigung is required"
+  expected_docs: [berlin-351783]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/351783/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-abmeldung-001
+  type: answerable
+  language: en
+  question: "I am leaving Berlin for another country. How do I deregister, and do I need to go in person?"
+  context: {mode: state, state: de-be}
+  topic_key: abmeldung
+  expected_facts:
+    - "Deregistration can be done in writing, including by post"
+    - "A copy of the ID card or passport must be enclosed"
+    - "The form goes to a Berlin Bürgeramt"
+    - "There is no fee"
+  expected_docs: [berlin-120335]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120335/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-meldebescheinigung-001
+  type: answerable
+  language: en
+  question: "How much does a registration certificate (Meldebescheinigung) cost in Berlin?"
+  context: {mode: state, state: de-be}
+  topic_key: registration-certificate
+  expected_facts:
+    - "Applying online is free of charge"
+    - "10 euros per person when applying in person or in writing"
+    - "5 euros extra for each further person on the same certificate"
+  expected_docs: [berlin-120702]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120702/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-meldebescheinigung-002
+  type: answerable
+  language: de
+  question: "Kann ich die Meldebescheinigung online beantragen? Was brauche ich dafür?"
+  context: {mode: state, state: de-be}
+  topic_key: registration-certificate
+  expected_facts:
+    - "Online application requires a BundID account or guest access"
+    - "Online function of the ID (eID) with the six-digit PIN is required"
+    - "A card reader or an NFC-capable smartphone with the AusweisApp is needed"
+    - "The minimum age is 16"
+  expected_docs: [berlin-120702]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120702/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-eat-001
+  type: answerable
+  language: en
+  question: "My residence permit was approved. Where do I pick up my eAT, and how long does it take?"
+  context: {mode: state, state: de-be}
+  topic_key: residence-permit
+  expected_facts:
+    - "Pickup is usually possible after about 4 to 5 weeks"
+    - "It must be collected at the authority that ordered it from the Bundesdruckerei"
+    - "Bring passport or passport substitute"
+    - "There is no fee"
+  expected_docs: [berlin-326231]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/326231/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-eat-002
+  type: answerable
+  language: de
+  question: "Kann jemand anderes meinen elektronischen Aufenthaltstitel für mich abholen?"
+  context: {mode: state, state: de-be}
+  topic_key: residence-permit
+  expected_facts:
+    - "An authorised person can collect the eAT"
+    - "The authorised person must be at least 14 years old"
+    - "A power of attorney and the authorised person's passport or ID are needed"
+  expected_docs: [berlin-326231]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/326231/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-bluecard-001
+  type: answerable
+  language: en
+  question: "What is the minimum salary for an EU Blue Card in Berlin?"
+  context: {mode: state, state: de-be}
+  topic_key: blue-card
+  expected_facts:
+    - "For 2026, 4,225.00 euros gross per month (50,700.00 per year) is the general minimum"
+    - "For shortage occupations the minimum is 3,827.85 euros gross per month (45,934.20 per year)"
+  expected_docs: [berlin-324659]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/324659/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-bluecard-002
+  type: answerable
+  language: en
+  question: "I am a software developer without a university degree. Can I still get a Blue Card, and how long is it valid?"
+  context: {mode: state, state: de-be}
+  topic_key: blue-card
+  expected_facts:
+    - "ICT managers and specialists need no academic degree"
+    - "At least three years of professional experience in the last seven years is required"
+    - "The Blue Card is valid for at most 4 years"
+  expected_docs: [berlin-324659]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/324659/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-bluecard-003
+  type: answerable
+  language: en
+  question: "My spouse and child live with me in Berlin. Do they need their own Blue Card application?"
+  context: {mode: state, state: de-be}
+  topic_key: blue-card
+  expected_facts:
+    - "Family members are added in the online application, no separate application or appointment"
+    - "The Landesamt für Einwanderung (LEA) contacts you about their residence permits"
+  expected_docs: [berlin-324659]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/324659/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-taxid-001
+  type: answerable
+  language: en
+  question: "I moved to Berlin from abroad and have not received my tax ID. What should I do?"
+  context: {mode: state, state: de-be}
+  topic_key: tax-id
+  expected_facts:
+    - "The tax ID is sent by letter from the BZSt to the registered address after first registration"
+    - "If no letter arrives within 3 months, tell the BZSt your personal data"
+    - "A new notification can be requested from the BZSt online or in writing"
+  expected_docs: [berlin-329123]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/329123/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-driving-001
+  type: answerable
+  language: en
+  question: "I have a driving licence from Germany's EU neighbour Poland. How do I exchange it in Berlin and what does it cost?"
+  context: {mode: state, state: de-be}
+  topic_key: driving-licence-exchange
+  expected_facts:
+    - "The fee is 37.50 euros"
+    - "Personal appearance is required"
+    - "Main residence in Berlin is required"
+    - "One biometric passport photo on paper must be brought"
+  expected_docs: [berlin-121598]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/121598/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-driving-002
+  type: answerable
+  language: en
+  question: "I am from a non-EU country. What do I need to convert my foreign driving licence in Berlin?"
+  context: {mode: state, state: de-be}
+  topic_key: driving-licence-exchange
+  expected_facts:
+    - "A valid national licence is required, international licences are not converted"
+    - "A translation is required if the licence is not in German or English"
+    - "An eye test is always required for car or motorcycle classes from third countries"
+    - "First aid course proof is required for third-country licences"
+    - "The fee is 37.50 euros without a test and 45.10 euros with a test"
+  expected_docs: [berlin-327537]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/327537/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-driving-003
+  type: answerable
+  language: de
+  question: "Mein Führerschein aus dem EU-Ausland wurde gestohlen. Kann ich ihn trotzdem umschreiben lassen?"
+  context: {mode: state, state: de-be}
+  topic_key: driving-licence-exchange
+  expected_facts:
+    - "Give as detailed information as possible about the licence (classes, place and date of issue)"
+    - "A copy or a confirmation of the data from the issuing country should be submitted if available"
+  expected_docs: [berlin-121598]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/121598/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-car-001
+  type: answerable
+  language: en
+  question: "I moved to Berlin from Hamburg with my car. Do I have to re-register it and can I keep my plates?"
+  context: {mode: state, state: de-be}
+  topic_key: car-registration
+  expected_facts:
+    - "You are obliged to register the vehicle in Berlin"
+    - "The old licence plate can be kept"
+    - "An appointment is required and the application is made on site"
+    - "A second residence in Berlin is not sufficient, main residence is required"
+    - "The base fee is 17.50 euros"
+  expected_docs: [berlin-120918]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120918/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-rundfunk-001
+  type: answerable
+  language: en
+  question: "I receive Bürgergeld. Can I be exempt from the broadcasting fee and how do I apply?"
+  context: {mode: state, state: de-be}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Recipients of Bürgergeld can be exempt"
+    - "The application can only be made in writing"
+    - "Send it to the Beitragsservice of ARD, ZDF and Deutschlandradio"
+    - "A copy of the benefit notice must be enclosed"
+    - "There is no fee"
+  expected_docs: [berlin-324531]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/324531/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-marriage-001
+  type: answerable
+  language: en
+  question: "How early can we register our wedding in Berlin and how long is the registration valid?"
+  context: {mode: state, state: de-be}
+  topic_key: marriage-registration
+  expected_facts:
+    - "Registration is possible at the earliest 6 months before the wedding date"
+    - "The registration is valid for 6 months"
+    - "Registration is at the Standesamt of your main or secondary residence"
+  expected_docs: [berlin-318961]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/318961/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-marriage-002
+  type: answerable
+  language: de
+  question: "Welche Dokumente muss ich für die Anmeldung der Eheschließung vorlegen, wenn meine Urkunden nicht auf Deutsch sind?"
+  context: {mode: state, state: de-be}
+  topic_key: marriage-registration
+  expected_facts:
+    - "Documents not in German must be translated by a sworn interpreter in Germany"
+    - "Some countries require an apostille or legalisation on the original"
+    - "Documents must be originals and must not be laminated"
+  expected_docs: [berlin-318961]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/318961/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-birth-001
+  type: answerable
+  language: en
+  question: "How much is a birth certificate in Berlin and who may request it?"
+  context: {mode: state, state: de-be}
+  topic_key: birth-certificate
+  expected_facts:
+    - "A German birth certificate costs 12.00 euros"
+    - "The person themselves can request it"
+    - "Parents, children, grandparents and grandchildren can request it"
+    - "A spouse or registered partner can request it"
+  expected_docs: [berlin-318960]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/318960/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: be-kita-001
+  type: answerable
+  language: de
+  question: "Wann muss ich den Kita-Gutschein beantragen und wo gebe ich den Antrag ab?"
+  context: {mode: state, state: de-be}
+  topic_key: kita
+  expected_facts:
+    - "First application at the earliest 9 months and at the latest 2 months before the child starts"
+    - "Send by post to the responsible Jugendamt or hand in at the Familienservicebüro of the district of residence"
+    - "All custodians must sign the application"
+    - "The child must be at least 8 weeks old"
+    - "There is no fee"
+  expected_docs: [berlin-324873]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/324873/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# Unanswerable: the crawled pages do not mention the Mietpreisbremse (rent cap); grep found 0 pages.
+- id: be-unanswerable-001
+  type: unanswerable
+  language: en
+  question: "Can my landlord raise my rent by 20 percent in Berlin? What does the Mietpreisbremse say?"
+  context: {mode: state, state: de-be}
+  expected_facts: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# Unanswerable: no snapshot gives current waiting times for Bürgeramt appointments.
+- id: be-unanswerable-002
+  type: unanswerable
+  language: de
+  question: "Wie lange ist die Wartezeit für einen Termin im Bürgeramt Spandau diese Woche?"
+  context: {mode: state, state: de-be}
+  expected_facts: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# needs_state: Anmeldung is state-specific, no federal page in the set; the answer must ask which state.
+- id: be-needs-state-001
+  type: needs_state
+  language: en
+  question: "How do I register my new flat?"
+  context: {mode: germany}
+  topic_key: anmeldung
+  expected_facts: []
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# needs_state: Kita-Gutschein is state-specific, no federal page in the set; the answer must ask which state.
+- id: be-needs-state-002
+  type: needs_state
+  language: de
+  question: "Wie beantrage ich einen Kita-Platz für mein Kind?"
+  context: {mode: germany}
+  topic_key: kita
+  expected_facts: []
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)

@@ -149,7 +149,7 @@ export function finishAnswer(text: string, p: Prepared): AskResponse {
   const citations: Citation[] = p.sources
     .filter((s) => used.has(s.n))
     .map((s) => ({
-      n: s.n, title: s.chunk.title, heading: s.chunk.heading, url: s.chunk.url,
+      n: s.n, docId: s.chunk.docId, title: s.chunk.title, heading: s.chunk.heading, url: s.chunk.url,
       crawledAt: s.chunk.crawledAt, regionId: s.chunk.regionId, regionName: s.regionName,
     }));
   return { answer, citations, answerable: citations.length > 0, needsState: p.needsState, notCovered: p.notCovered, language: p.language };

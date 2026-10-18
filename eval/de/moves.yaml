@@ -1,0 +1,529 @@
+# Cross-state moves, not-covered states, needs-state and unanswerable questions.
+# Pilot coverage: federal, de-be, de-bb, de-by.
+
+# ---------- type: move ----------
+- id: mv-bb-be-001
+  type: move
+  language: en
+  question: "I am moving from Potsdam to Berlin. What do I have to do about registration?"
+  context: {mode: move, fromState: de-bb, toState: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Brandenburg: deregister within two weeks after moving out"
+    - "Berlin: register the new main or sole flat"
+    - "Berlin: the landlord confirmation (Wohnungsgeberbestätigung) is needed"
+  expected_docs: [bb-107580796, berlin-120686]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=107580796&bus_type=pst", "https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-bb-be-002
+  type: move
+  language: de
+  question: "Ich ziehe von Cottbus nach Berlin. Brauche ich ein Mietvertrag oder eine Bestätigung vom Vermieter für die Anmeldung?"
+  context: {mode: move, fromState: de-bb, toState: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Berlin: a rental contract does not replace the Wohnungsgeberbestätigung"
+    - "Berlin: the Wohnungsgeberbestätigung is required for registration"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-bb-be-003
+  type: move
+  language: en
+  question: "Does it cost anything to deregister in Brandenburg and register in Berlin?"
+  context: {mode: move, fromState: de-bb, toState: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Berlin: registration has no fee"
+    - "Brandenburg: the page gives no information on a fee for deregistration"
+  expected_docs: [bb-107580796, berlin-120686]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=107580796&bus_type=pst", "https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-be-bb-001
+  type: move
+  language: en
+  question: "I am leaving Berlin for a flat in Brandenburg. How do I deregister and then register?"
+  context: {mode: move, fromState: de-be, toState: de-bb}
+  topic_key: abmeldung
+  expected_facts:
+    - "Berlin: deregistration can be done in writing by post to a Berlin Bürgeramt"
+    - "Berlin: include a copy of your ID card or passport"
+    - "Brandenburg: you must register within two weeks after moving in"
+  expected_docs: [berlin-120335, bb-112263586]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120335/", "https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-be-bb-002
+  type: move
+  language: de
+  question: "Wir ziehen von Berlin nach Brandenburg. Welche Frist gilt für die Anmeldung und welche Unterlagen brauche ich?"
+  context: {mode: move, fromState: de-be, toState: de-bb}
+  topic_key: anmeldung
+  expected_facts:
+    - "Brandenburg: registration within two weeks after moving in"
+    - "Brandenburg: ID card, passport or passport replacement of all persons is needed"
+    - "Brandenburg: the Wohnungsgeberbestätigung is needed"
+  expected_docs: [bb-112263586]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-be-by-001
+  type: move
+  language: en
+  question: "I'm moving from Berlin to Munich next month. What are the steps for registration?"
+  context: {mode: move, fromState: de-be, toState: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Berlin: deregistration is free of charge"
+    - "Bavaria: register within two weeks after moving in"
+    - "Bavaria: the Wohnungsgeberbestätigung is needed"
+  expected_docs: [berlin-120335, by-8444082781]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120335/", "https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-be-by-002
+  type: move
+  language: de
+  question: "Ich ziehe von Berlin nach Nürnberg. Was passiert, wenn ich mich in Bayern zu spät anmelde?"
+  context: {mode: move, fromState: de-be, toState: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Bavaria: late registration is an administrative offence"
+    - "Bavaria: a fine of up to 1,000 euro is possible"
+    - "Bavaria: the deadline is two weeks after moving in"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-be-by-003
+  type: move
+  language: en
+  question: "I am moving from Berlin to Bavaria. Do I need to do something about the broadcasting fee (Rundfunkbeitrag)?"
+  context: {mode: move, fromState: de-be, toState: de-by}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "If you already pay the fee, tell the Beitragsservice your new address"
+    - "The contribution number is personal and moves with you"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-by-be-001
+  type: move
+  language: en
+  question: "I'm moving from Munich to Berlin. How do I deregister in Bavaria and register in Berlin?"
+  context: {mode: move, fromState: de-by, toState: de-be}
+  topic_key: abmeldung
+  expected_facts:
+    - "Bavaria: deregister within two weeks after actually moving out"
+    - "Berlin: the Wohnungsgeberbestätigung is needed to register"
+    - "Berlin: registration has no fee"
+  expected_docs: [by-846323559210, berlin-120686]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/846323559210", "https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-by-be-002
+  type: move
+  language: de
+  question: "Ich ziehe von Augsburg nach Berlin. Kann ich mich schon vor dem Auszug abmelden?"
+  context: {mode: move, fromState: de-by, toState: de-be}
+  topic_key: abmeldung
+  expected_facts:
+    - "Bavaria: deregistration abroad is possible at the earliest one week before moving out"
+    - "Bavaria: the deadline is two weeks after actually moving out"
+  expected_docs: [by-846323559210]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/846323559210"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-by-be-003
+  type: move
+  language: en
+  question: "Moving from Bavaria to Berlin: can I register online in Berlin with my residence permit card?"
+  context: {mode: move, fromState: de-by, toState: de-be}
+  topic_key: anmeldung
+  expected_facts:
+    - "Berlin: online registration needs a BundID account and an ID card or eID card with activated online function"
+    - "Berlin: online registration is not possible with an electronic residence permit (eAT)"
+  expected_docs: [berlin-120686]
+  not_covered: []
+  source_urls: ["https://service.berlin.de/dienstleistung/120686/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-bb-by-001
+  type: move
+  language: en
+  question: "We are moving from Brandenburg to Bavaria. What is the deadline for each registration step?"
+  context: {mode: move, fromState: de-bb, toState: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Brandenburg: deregister within two weeks after moving out"
+    - "Bavaria: register within two weeks after moving in"
+  expected_docs: [bb-107580796, by-8444082781]
+  not_covered: []
+  source_urls: ["https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=107580796&bus_type=pst", "https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-bb-by-002
+  type: move
+  language: de
+  question: "Ich ziehe von Brandenburg nach Bayern. Kann ich mich dort online anmelden?"
+  context: {mode: move, fromState: de-bb, toState: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Bavaria: online registration works with a BayernID or BundID account"
+    - "Bavaria: after online registration you must update the address on your ID card or passport"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-by-bb-001
+  type: move
+  language: en
+  question: "I'm moving from Bavaria to Brandenburg. What happens if I do not deregister or register on time?"
+  context: {mode: move, fromState: de-by, toState: de-bb}
+  topic_key: abmeldung
+  expected_facts:
+    - "Bavaria: not deregistering within two weeks is an administrative offence with a fine of up to 1,000 euro"
+    - "Brandenburg: the deadline to register is two weeks after moving in"
+  expected_docs: [by-846323559210, bb-112263586]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/846323559210", "https://verwaltung.brandenburg.de/verwalt/de/detail/?bus_id=112263586&bus_type=pst"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-by-bb-002
+  type: move
+  language: de
+  question: "Ich ziehe von München nach Brandenburg an der Havel. Muss ich meinen Rundfunkbeitrag neu anmelden?"
+  context: {mode: move, fromState: de-by, toState: de-bb}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "If a contribution account already exists, only the address change must be reported"
+    - "The Beitragsservice can register the flat automatically from registration data if you do not respond"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# ---------- type: not_covered ----------
+- id: mv-nc-001
+  type: not_covered
+  language: en
+  question: "How do I register my flat in Hamburg?"
+  context: {mode: state, state: de-hh}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Hamburg is not covered"
+    - "Points to the state's own office"
+  expected_docs: []
+  not_covered: [de-hh]
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-002
+  type: not_covered
+  language: de
+  question: "Wie melde ich mich in Köln um?"
+  context: {mode: state, state: de-nw}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Nordrhein-Westfalen is not covered"
+    - "Points to the state's own office"
+  expected_docs: []
+  not_covered: [de-nw]
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-003
+  type: not_covered
+  language: en
+  question: "I am moving from Berlin to Dresden. How do I deregister and register?"
+  context: {mode: move, fromState: de-be, toState: de-sn}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Sachsen is not covered"
+    - "Points to the state's own office"
+    - "Berlin: deregistration can be done in writing by post"
+  expected_docs: [berlin-120335]
+  not_covered: [de-sn]
+  source_urls: ["https://service.berlin.de/dienstleistung/120335/"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-004
+  type: not_covered
+  language: de
+  question: "Ich ziehe von Stuttgart nach München. Wie melde ich mich ab und an?"
+  context: {mode: move, fromState: de-bw, toState: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Baden-Württemberg is not covered"
+    - "Points to the state's own office"
+    - "Bavaria: register within two weeks after moving in"
+  expected_docs: [by-8444082781]
+  not_covered: [de-bw]
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-005
+  type: not_covered
+  language: en
+  question: "What is the registration deadline in Hesse when I move to Frankfurt?"
+  context: {mode: state, state: de-he}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Hessen is not covered"
+    - "Points to the state's own office"
+  expected_docs: []
+  not_covered: [de-he]
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-006
+  type: not_covered
+  language: de
+  question: "Ich ziehe von Hamburg nach Brandenburg. Was muss ich beim Rundfunkbeitrag beachten?"
+  context: {mode: move, fromState: de-hh, toState: de-bb}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Says Hamburg is not covered"
+    - "Points to the state's own office"
+    - "If a contribution account already exists, only the address change must be reported"
+  expected_docs: [de-rf-umzug]
+  not_covered: [de-hh]
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-007
+  type: not_covered
+  language: en
+  question: "I live in Bremen. How do I deregister before moving abroad?"
+  context: {mode: state, state: de-hb}
+  topic_key: abmeldung
+  expected_facts:
+    - "Says Bremen is not covered"
+    - "Points to the state's own office"
+  expected_docs: []
+  not_covered: [de-hb]
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-nc-008
+  type: not_covered
+  language: de
+  question: "Ich ziehe von Leipzig nach Hannover. Was muss ich in beiden Ländern erledigen?"
+  context: {mode: move, fromState: de-sn, toState: de-ni}
+  topic_key: anmeldung
+  expected_facts:
+    - "Says Sachsen is not covered"
+    - "Says Niedersachsen is not covered"
+    - "Points to the state's own office"
+  expected_docs: []
+  not_covered: [de-sn, de-ni]
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# ---------- type: needs_state ----------
+- id: mv-ns-001
+  type: needs_state
+  language: en
+  question: "How do I register my new flat?"
+  context: {mode: germany}
+  topic_key: anmeldung
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-ns-002
+  type: needs_state
+  language: de
+  question: "Wo kann ich mein Auto ummelden, wenn ich umgezogen bin?"
+  context: {mode: germany}
+  topic_key: car-registration
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-ns-003
+  type: needs_state
+  language: en
+  question: "I am a non-EU citizen. How do I get a residence permit?"
+  context: {mode: germany}
+  topic_key: residence-permit
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-ns-004
+  type: needs_state
+  language: de
+  question: "Wie melde ich mich in Deutschland ab, wenn ich ins Ausland ziehe?"
+  context: {mode: germany}
+  topic_key: abmeldung
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-ns-005
+  type: needs_state
+  language: en
+  question: "Where do I get my Aufenthaltstitel extended?"
+  context: {mode: germany}
+  topic_key: residence-permit
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-ns-006
+  type: needs_state
+  language: de
+  question: "Welche Frist habe ich für die Wohnsitzanmeldung und was kostet sie?"
+  context: {mode: germany}
+  topic_key: anmeldung
+  expected_facts:
+    - "Asks which state applies"
+    - "Says the procedure differs by state"
+  expected_docs: []
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+# ---------- type: unanswerable ----------
+- id: mv-un-001
+  type: unanswerable
+  language: de
+  question: "Wie hoch ist die Hundesteuer in Bremen?"
+  context: {mode: germany}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-un-002
+  type: unanswerable
+  language: en
+  question: "How much pension will I get if I worked 12 years in Germany and then move back to Spain?"
+  context: {mode: germany}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-un-003
+  type: unanswerable
+  language: en
+  question: "My landlord in Berlin refuses to sign the Wohnungsgeberbestätigung and is threatening to evict me. Can he legally do that?"
+  context: {mode: state, state: de-be}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-un-004
+  type: unanswerable
+  language: de
+  question: "Wie viele Termine sind diese Woche im Bürgeramt Spandau noch frei?"
+  context: {mode: state, state: de-be}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-un-005
+  type: unanswerable
+  language: en
+  question: "Can I deduct my moving costs from Bavaria to Berlin on my tax return, and how much?"
+  context: {mode: move, fromState: de-by, toState: de-be}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: mv-un-006
+  type: unanswerable
+  language: de
+  question: "Wie viel Elterngeld bekomme ich in Brandenburg, wenn ich zwei Kinder habe?"
+  context: {mode: state, state: de-bb}
+  expected_facts:
+    - "Says the pages do not answer this"
+    - "Points to the responsible office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)

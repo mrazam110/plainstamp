@@ -39,6 +39,7 @@ export interface AskRequest {
 
 export interface Citation {
   n: number;
+  docId: string;
   title: string;
   heading: string;
   url: string;

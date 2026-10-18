@@ -1,0 +1,241 @@
+- id: de-broadcasting-fee-001
+  type: answerable
+  language: en
+  question: "I just moved into a flat in Germany. Do I have to register for the broadcasting fee?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "You must register a flat with the Beitragsservice when you are its first resident"
+    - "Only one person per flat has to register and pay"
+    - "Registration is possible with an online form"
+    - "You get a nine-digit Beitragsnummer"
+  expected_docs: [de-rf-umzug, de-rf-anmelden]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-002
+  type: answerable
+  language: de
+  question: "Was passiert, wenn ich meine Wohnung nicht zum Rundfunkbeitrag anmelde?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Der Beitragsservice schreibt Sie an und bittet um Klärung der Beitragspflicht"
+    - "Ohne Reaktion wird die Wohnung automatisch angemeldet"
+    - "Die Anmeldung gilt rückwirkend ab dem Einzugsdatum aus den Meldedaten"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-003
+  type: answerable
+  language: en
+  question: "My flatmate already pays the broadcasting fee. Do I have to pay too?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "The fee is due only once per flat"
+    - "You should tell the Beitragsservice who pays for your flat"
+    - "You need the Aktenzeichen from the Beitragsservice letter to give the payer's Beitragsnummer online"
+    - "You can also use the reply form by post"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-004
+  type: answerable
+  language: de
+  question: "Mein Mitbewohner ist ausgezogen und ich bleibe in der Wohnung. Unter welcher Beitragsnummer zahle ich weiter?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Sie müssen die Wohnung selbst zum Rundfunkbeitrag anmelden"
+    - "Sie erhalten eine eigene Beitragsnummer"
+    - "Nicht unter der Beitragsnummer der ausgezogenen Person weiterzahlen"
+    - "Die Beitragsnummer ist an die Person gebunden, nicht an die Wohnung"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-005
+  type: answerable
+  language: en
+  question: "I already paid the broadcasting fee at my old address and now moved. What do I do?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "A Beitragskonto already exists in your name"
+    - "It is enough to tell the Beitragsservice your new address"
+    - "An online form is available for the address change"
+  expected_docs: [de-rf-umzug]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/worauf-muessen-sie-bei-einem-umzug-achten"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-006
+  type: answerable
+  language: en
+  question: "I receive Bürgergeld. Can I be exempted from the broadcasting fee, and how do I apply?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Exemption is possible if you receive social benefits such as Bürgergeld or BAföG"
+    - "Exemption is never automatic; you must apply"
+    - "Send the application with copies of proof by post to the Beitragsservice"
+    - "A Leistungsbescheid of the Jobcenter can serve as proof"
+  expected_docs: [de-rf-befreiung]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/befreiung-ermaessigung"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-007
+  type: answerable
+  language: de
+  question: "Wer bekommt eine Ermäßigung beim Rundfunkbeitrag und wie hoch ist sie?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Ermäßigung setzt das Merkzeichen RF im Schwerbehindertenausweis voraus"
+    - "Der Beitrag reduziert sich auf ein Drittel der regulären Höhe"
+    - "Ermäßigung muss beantragt werden"
+  expected_docs: [de-rf-befreiung]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/befreiung-ermaessigung"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-broadcasting-fee-008
+  type: answerable
+  language: en
+  question: "My exemption from the broadcasting fee is about to expire. What should I do, and does it cover my flatmates?"
+  context: {mode: germany}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "The exemption lasts only as long as the proof is valid"
+    - "There is no automatic extension; submit a follow-up proof in time"
+    - "The exemption covers spouse or registered partner and children under 25 in the same flat"
+    - "Flatmates are not covered by the exemption"
+  expected_docs: [de-rf-befreiung]
+  not_covered: []
+  source_urls: ["https://www.rundfunkbeitrag.de/presse-und-aktuelles/servicethemen/befreiung-ermaessigung"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-tax-id-001
+  type: answerable
+  language: en
+  question: "I lost my tax ID number. How can I get it again?"
+  context: {mode: germany}
+  topic_key: tax-id
+  expected_facts:
+    - "The IdNr is usually on the Einkommensteuerbescheid or the Lohnsteuerbescheinigung"
+    - "You can request it again via the BZSt online form or by letter"
+    - "The BZSt sends the IdNr only by post"
+  expected_docs: [de-bzst-idnr]
+  not_covered: []
+  source_urls: ["https://www.bzst.de/DE/Privatpersonen/SteuerlicheIdentifikationsnummer/steuerlicheidentifikationsnummer_node.html"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-tax-id-002
+  type: answerable
+  language: de
+  question: "Ändert sich meine Steuer-ID, wenn ich umziehe oder heirate?"
+  context: {mode: germany}
+  topic_key: tax-id
+  expected_facts:
+    - "Die IdNr ist elfstellig"
+    - "Sie ist dauerhaft gültig"
+    - "Sie ändert sich nicht durch Umzug, Namensänderung oder Änderung des Familienstandes"
+  expected_docs: [de-bzst-idnr]
+  not_covered: []
+  source_urls: ["https://www.bzst.de/DE/Privatpersonen/SteuerlicheIdentifikationsnummer/steuerlicheidentifikationsnummer_node.html"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-child-benefit-001
+  type: answerable
+  language: en
+  question: "How much is Kindergeld per child and who can get it?"
+  context: {mode: germany}
+  topic_key: child-benefit
+  expected_facts:
+    - "Kindergeld is 259 euros per child per month"
+    - "The child must be under 18 (adult children only under certain conditions)"
+    - "The child must live in your household and you must care for it regularly"
+    - "It does not depend on your income"
+    - "Only one person receives Kindergeld for a child"
+  expected_docs: [de-ba-kindergeld]
+  not_covered: []
+  source_urls: ["https://www.arbeitsagentur.de/familie-und-kinder/infos-rund-um-kindergeld/kindergeld-anspruch-hoehe-dauer"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-child-benefit-002
+  type: answerable
+  language: de
+  question: "Wie beantrage ich Kindergeld nach der Geburt und kann ich es rückwirkend bekommen?"
+  context: {mode: germany}
+  topic_key: child-benefit
+  expected_facts:
+    - "Der Kindergeld-Antrag kann online ausgefüllt werden"
+    - "Mit BundID kann der Online-Antrag ohne Unterschrift an die Familienkasse gesendet werden"
+    - "Kindergeld kann rückwirkend beantragt werden"
+    - "Die Frist für die rückwirkende Zahlung beträgt 6 Monate"
+  expected_docs: [de-ba-kindergeld]
+  not_covered: []
+  source_urls: ["https://www.arbeitsagentur.de/familie-und-kinder/infos-rund-um-kindergeld/kindergeld-anspruch-hoehe-dauer"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-child-benefit-003
+  type: answerable
+  language: en
+  question: "I applied for Kindergeld weeks ago and heard nothing. Who do I call, and how long should I wait?"
+  context: {mode: germany}
+  topic_key: child-benefit
+  expected_facts:
+    - "If you have heard nothing after 6 weeks you can call to ask about the status"
+    - "The general number is 0800 4 555530 (free of charge)"
+    - "A longer processing time does not change the amount of Kindergeld"
+  expected_docs: [de-ba-kindergeld]
+  not_covered: []
+  source_urls: ["https://www.arbeitsagentur.de/familie-und-kinder/infos-rund-um-kindergeld/kindergeld-anspruch-hoehe-dauer"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-unanswerable-001
+  type: unanswerable
+  language: en
+  question: "I am from India. How do I apply for a residence permit in Germany and what documents do I need?"
+  context: {mode: germany}
+  expected_facts:
+    - "The answer says the available pages do not cover residence permits"
+    - "The answer points to the responsible office (Ausländerbehörde)"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: de-unanswerable-002
+  type: unanswerable
+  language: de
+  question: "Wie melde ich mich bei einer gesetzlichen Krankenversicherung an und was kostet das?"
+  context: {mode: germany}
+  expected_facts:
+    - "The answer says the available pages do not cover health insurance"
+    - "The answer points to a health insurer or the responsible official office"
+  not_covered: []
+  source_urls: []
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)

@@ -1,0 +1,424 @@
+- id: by-anmeldung-001
+  type: answerable
+  language: en
+  question: "I just moved into a flat in Munich. How long do I have to register my address?"
+  context: {mode: state, state: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration is required within two weeks after moving in"
+    - "Registration is also required when moving within the same municipality"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-anmeldung-002
+  type: answerable
+  language: de
+  question: "Welche Unterlagen brauche ich für die Anmeldung meiner Wohnung in Bayern?"
+  context: {mode: state, state: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Ausgefüllter und unterschriebener Meldeschein"
+    - "Personalausweis oder Reisepass aller anzumeldenden Personen"
+    - "Bestätigung des Wohnungsgebers"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-anmeldung-003
+  type: answerable
+  language: en
+  question: "What does it cost to register my address in Bavaria, and what happens if I am late?"
+  context: {mode: state, state: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Registration costs nothing"
+    - "Late registration is an administrative offence"
+    - "The fine can be up to 1,000 euros"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-anmeldung-004
+  type: answerable
+  language: en
+  question: "I am a German citizen. Can I register my new address in Bavaria online?"
+  context: {mode: state, state: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Online registration is possible for German citizens"
+    - "It is only possible if the local authority has joined the online service"
+    - "Identification is by BayernID or BundID account with the ID card"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-anmeldung-005
+  type: answerable
+  language: en
+  question: "I am from Turkey and have an electronic residence permit (eAT). Can I do the Anmeldung online in Bavaria?"
+  context: {mode: state, state: de-by}
+  topic_key: anmeldung
+  expected_facts:
+    - "Online registration with the electronic residence permit for third-country nationals is still in planning"
+    - "Online registration is currently possible for German citizens and EU citizens with an eID card"
+  expected_docs: [by-8444082781]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-anmeldung-006
+  type: needs_state
+  language: en
+  question: "I moved to a new flat in Germany. Where and how do I register?"
+  context: {mode: germany}
+  topic_key: anmeldung
+  expected_facts:
+    - "Answer gives a general overview and asks which state the user lives in"
+  expected_docs: []
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-abmeldung-001
+  type: answerable
+  language: en
+  question: "I am leaving Germany for good. Do I have to deregister in Bavaria and how?"
+  context: {mode: state, state: de-by}
+  topic_key: abmeldung
+  expected_facts:
+    - "Deregistration is required when leaving without a new flat in Germany, for example moving abroad"
+    - "It can be done in person, in writing or electronically"
+    - "It must be done within two weeks after moving out"
+    - "It costs nothing"
+  expected_docs: [by-846323559210]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/846323559210"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-abmeldung-002
+  type: answerable
+  language: de
+  question: "Muss ich mich abmelden, wenn ich innerhalb von Deutschland in eine andere Stadt ziehe?"
+  context: {mode: state, state: de-by}
+  topic_key: abmeldung
+  expected_facts:
+    - "Es genügt die Anmeldung am neuen Wohnort"
+    - "Die Meldebehörde am neuen Wohnort informiert die frühere Gemeinde"
+  expected_docs: [by-846323559210]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/846323559210"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-meldebescheinigung-001
+  type: answerable
+  language: en
+  question: "How much does a registration certificate (Meldebescheinigung) cost in Bavaria?"
+  context: {mode: state, state: de-by}
+  topic_key: registration-certificate
+  expected_facts:
+    - "A written Meldebescheinigung costs 5 euros"
+    - "An electronic Meldebescheinigung is free"
+    - "An ID card or passport is needed"
+  expected_docs: [by-971310434493]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/971310434493"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-meldebescheinigung-002
+  type: answerable
+  language: en
+  question: "Is the confirmation I get at registration the same as a Meldebescheinigung? Can I request it again?"
+  context: {mode: state, state: de-by}
+  topic_key: registration-certificate
+  expected_facts:
+    - "The Meldebestätigung is issued automatically at registration or deregistration"
+    - "A Meldebestätigung cannot be requested, unlike a Meldebescheinigung"
+  expected_docs: [by-971310434493]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/971310434493"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-residence-permit-001
+  type: answerable
+  language: en
+  question: "What is the electronic residence permit (eAT) and how much does a new one cost if I get a new passport?"
+  context: {mode: state, state: de-by}
+  topic_key: residence-permit
+  expected_facts:
+    - "The eAT is a plastic card in credit card format with a contactless chip"
+    - "The chip stores personal data and biometric features (photo and two fingerprints)"
+    - "A new issue of the eAT, for example after getting a new passport, costs 67 euros"
+  expected_docs: [by-820087987498]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/820087987498"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-blue-card-001
+  type: answerable
+  language: en
+  question: "I am from India with a university degree and a job offer in Bavaria. How do I get an EU Blue Card and what documents do I need?"
+  context: {mode: state, state: de-by}
+  topic_key: blue-card
+  expected_facts:
+    - "The Blue Card is for non-EU nationals with an academic or equivalent qualification who intend to take up employment"
+    - "It must be applied for at the local Ausländerbehörde"
+    - "Documents usually include a valid passport and a biometric photo"
+    - "Documents usually include proof of health insurance, proof of the degree and proof of a job or job offer"
+  expected_docs: [by-786532433498]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/786532433498"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-blue-card-002
+  type: answerable
+  language: de
+  question: "Was kostet die Blaue Karte EU?"
+  context: {mode: state, state: de-by}
+  topic_key: blue-card
+  expected_facts:
+    - "Die Blaue Karte EU kostet 100 EUR"
+    - "Eine Verlängerung um mehr als drei Monate kostet 93 EUR"
+  expected_docs: [by-786532433498]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/786532433498"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-blue-card-003
+  type: answerable
+  language: en
+  question: "I am a citizen of Spain living in Bavaria. Do I need a Blue Card to work here?"
+  context: {mode: state, state: de-by}
+  topic_key: blue-card
+  expected_facts:
+    - "The Blue Card page is for non-EU nationals"
+  expected_docs: [by-786532433498]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/786532433498"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-tax-id-001
+  type: answerable
+  language: en
+  question: "I registered in Bavaria two weeks ago. How do I get my tax ID and what does it cost?"
+  context: {mode: state, state: de-by}
+  topic_key: tax-id
+  expected_facts:
+    - "New residents receive a tax ID automatically at first registration"
+    - "It is sent by post to the registered address"
+    - "It costs nothing"
+  expected_docs: [by-694749931600]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/694749931600"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-tax-id-002
+  type: answerable
+  language: en
+  question: "I lost my tax ID letter. Can I get it again by phone or email?"
+  context: {mode: state, state: de-by}
+  topic_key: tax-id
+  expected_facts:
+    - "A notification by phone or email is not possible for data protection reasons"
+    - "It can be requested again via the form of the Bundeszentralamt für Steuern"
+    - "It is also usually on the income tax assessment or the wage tax statement"
+  expected_docs: [by-694749931600]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/694749931600"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-driving-licence-exchange-001
+  type: answerable
+  language: de
+  question: "Wo und wie tausche ich meinen alten Papierführerschein in Bayern um, und was kostet das?"
+  context: {mode: state, state: de-by}
+  topic_key: driving-licence-exchange
+  expected_facts:
+    - "Der Umtausch wird bei der Fahrerlaubnisbehörde (Kreisverwaltungsbehörde) beantragt"
+    - "Nötig sind Ausweis oder Reisepass, biometrisches Lichtbild und der bisherige Führerschein"
+    - "Der Umtausch kostet ca. 25 EUR"
+  expected_docs: [by-4777651273]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/4777651273"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-car-registration-001
+  type: answerable
+  language: en
+  question: "I bought a new car in Bavaria. What documents do I need to register it and what are the fees?"
+  context: {mode: state, state: de-by}
+  topic_key: car-registration
+  expected_facts:
+    - "Needed: Zulassungsbescheinigung Teil II and the certificate of conformity (CoC)"
+    - "Needed: electronic insurance confirmation (eVB) and an official ID"
+    - "Needed: SEPA mandate for the vehicle tax"
+    - "The fee is 30.00 EUR for vehicles with EU type approval"
+    - "A personalised plate adds 10.20 EUR"
+  expected_docs: [by-3888675461]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/3888675461"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-car-registration-002
+  type: answerable
+  language: en
+  question: "I moved within Germany and have a car. Do I need to change my number plate, and what does the re-registration cost?"
+  context: {mode: state, state: de-by}
+  topic_key: car-registration
+  expected_facts:
+    - "On a move within Germany you can keep your current plate"
+    - "Moving with the same plate costs 23.60 EUR"
+    - "Re-registration without keeping the plate costs 30.00 EUR"
+  expected_docs: [by-0666452463]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/0666452463"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-car-registration-003
+  type: needs_state
+  language: en
+  question: "How do I register my car in Germany after buying it?"
+  context: {mode: germany}
+  topic_key: car-registration
+  expected_facts:
+    - "Answer gives a general overview and asks which state the user lives in"
+  expected_docs: []
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/0666452463"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-broadcasting-fee-001
+  type: answerable
+  language: en
+  question: "Do I have to pay the broadcasting fee (Rundfunkbeitrag) for my new flat in Bavaria, and how much is it?"
+  context: {mode: state, state: de-by}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "The fee is 18.36 EUR per month per flat"
+    - "It is per flat, regardless of how many people live there"
+    - "The flat must be registered from the start of the month in which you move in"
+    - "Registering the flat is free"
+  expected_docs: [by-3319892760231]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/3319892760231"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-broadcasting-fee-002
+  type: answerable
+  language: de
+  question: "Ich bekomme Bürgergeld. Kann ich mich vom Rundfunkbeitrag befreien lassen und bis wann rückwirkend?"
+  context: {mode: state, state: de-by}
+  topic_key: broadcasting-fee
+  expected_facts:
+    - "Bezieher von Bürgergeld werden auf Antrag befreit"
+    - "Rückwirkend maximal drei Jahre ab Antragstellung"
+    - "Nötig ist die Bestätigung der Sozialbehörde oder der Sozialleistungsbescheid"
+  expected_docs: [by-298756903450]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/298756903450"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-marriage-registration-001
+  type: answerable
+  language: en
+  question: "My partner is a foreign national and we want to marry in Bavaria. What do we need and how much does the registration cost?"
+  context: {mode: state, state: de-by}
+  topic_key: marriage-registration
+  expected_facts:
+    - "The marriage must be registered at the Standesamt, in person as a rule"
+    - "Foreigners must provide a certificate of legal capacity to marry (Ehefähigkeitszeugnis) from their home authority, except for a same-sex marriage"
+    - "The fee for checking capacity to marry is 55.00 EUR"
+    - "The fee rises by 30.00 EUR per person if foreign law applies"
+    - "The marriage must take place within six months of the notice from the registering Standesamt"
+  expected_docs: [by-23666151111]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/23666151111"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-birth-certificate-001
+  type: answerable
+  language: en
+  question: "How do I get a copy of my birth certificate and what does it cost?"
+  context: {mode: state, state: de-by}
+  topic_key: birth-certificate
+  expected_facts:
+    - "Apply at the Standesamt responsible for the place of birth"
+    - "The fee is 12.00 EUR"
+    - "Processing usually takes 2 to 10 days"
+    - "Bring an ID card or passport"
+  expected_docs: [by-0624583194180]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/0624583194180"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-child-benefit-001
+  type: answerable
+  language: en
+  question: "How much child benefit (Kindergeld) do I get in Bavaria, and how do I apply? I am a non-EU citizen with a settlement permit."
+  context: {mode: state, state: de-by}
+  topic_key: child-benefit
+  expected_facts:
+    - "Kindergeld is 259.00 EUR per child"
+    - "It can be applied for online via the Familienkasse eServices or in writing"
+    - "The tax ID of the child and of the applying parent is needed"
+    - "Non-EU citizens qualify with a valid settlement permit (Niederlassungserlaubnis) or certain other permits allowing work"
+    - "Kindergeld is paid retroactively for at most the last 6 months"
+  expected_docs: [by-141312744444]
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/141312744444"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-unanswerable-001
+  type: unanswerable
+  language: en
+  question: "What is the exact minimum salary I need for an EU Blue Card in Bavaria this year?"
+  context: {mode: state, state: de-by}
+  expected_facts:
+    - "The pages do not give the salary amount"
+    - "Points to the Ausländerbehörde or Make it in Germany"
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/786532433498"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)
+
+- id: by-unanswerable-002
+  type: unanswerable
+  language: en
+  question: "How many days will I wait for an Anmeldung appointment in Nuremberg, and what is the office address?"
+  context: {mode: state, state: de-by}
+  expected_facts:
+    - "The pages do not give appointment waiting times or office addresses for Nuremberg"
+    - "Points to the local Meldebehörde of the city"
+  not_covered: []
+  source_urls: ["https://www.bayernportal.de/dokumente/leistung/8444082781"]
+  verified_on: 2026-10-18
+  verified_by: eval-writer (pending human check)

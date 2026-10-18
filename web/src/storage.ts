@@ -20,6 +20,7 @@ export interface ChatMessage {
 
 export interface Citation {
   n: number;
+  docId?: string;
   title: string;
   heading: string;
   url: string;
