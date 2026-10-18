@@ -38,7 +38,7 @@ Done when: one command builds the pilot corpus and prints a short report. (Done 
 - [~] **Backend measurement** (ADR 0004; local Node proxy done on the real 11.5k-chunk Berlin portal, see SPIKE-RESULTS; real Worker/Neon/Vectorize runs open): full Berlin portal (~14k chunks) on real Worker with bundle (with and without topic prefilter) vs Postgres (Neon) vs Vectorize; record CPU, wall latency, limits; decide default
 - [x] Postgres backend (`core/retriever/postgres.ts`, passes the contract); Vectorize not tried
 - [~] LLM and embeddings interfaces; Gemini implementation written and tested with a fake fetch, no live call yet
-- [ ] Pipeline per ADRs 0005 and 0009: context modes, German rewrite + topic pick, per-region hybrid retrieval, unknown-state handling, move answers, "not covered" and "not answerable" handling
+- [x] Pipeline per ADRs 0005 and 0009 (`core/pipeline/ask.ts`, fake LLM/embedder tests; real model output untested): context modes, German rewrite + topic pick, per-region hybrid retrieval, unknown-state handling, move answers, "not covered" and "not answerable" handling
 - [ ] `POST /ask`: stateless, streaming, no body/IP logging
 - [ ] Rate limiting and Turnstile
 Done when: curl returns cited answers for single-state, Germany-only and a Brandenburg-to-Berlin move within limits.
