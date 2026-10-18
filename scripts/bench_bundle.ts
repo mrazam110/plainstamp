@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { BundleRetriever, loadBundle, type LoadedBundle } from "../core/retriever/bundle";
-import { fsSource } from "../core/retriever/node";
+import { fsSource } from "../core/retriever/fs-source";
 
 const TARGET = Number(process.argv[2] ?? 14000);
 const root = join(import.meta.dirname, "..", "data", "bundles");

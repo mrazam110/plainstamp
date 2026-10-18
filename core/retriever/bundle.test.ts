@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { BundleRetriever } from "./bundle";
 import { runRetrieverContract, FIXTURE } from "./contract";
 import { buildKeywordIndex } from "./testing";
-import { fsSource } from "./node";
+import { fsSource } from "./fs-source";
 
 async function writeFixture(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "plainstamp-bundle-"));

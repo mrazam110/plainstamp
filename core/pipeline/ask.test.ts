@@ -5,7 +5,7 @@ import { BundleRetriever } from "../retriever/bundle";
 import { FakeEmbedder, makeBundle } from "../retriever/testing";
 import type { Chunk } from "../retriever/types";
 import { ask } from "./ask";
-import { loadConfig } from "./config.node";
+import { loadConfig } from "./config-fs";
 import { AskError, type Config } from "./types";
 
 const embedder = new FakeEmbedder();

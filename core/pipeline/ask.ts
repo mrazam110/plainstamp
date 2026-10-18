@@ -1,5 +1,5 @@
 import type { Embedder } from "../embeddings/types";
-import type { LLM, Message } from "../llm/types";
+import type { GenerateRequest, LLM, Message } from "../llm/types";
 import type { Hit, Retriever } from "../retriever/types";
 import { flattenRegions, isCovered } from "./config";
 import { answerSystem, REWRITE_SCHEMA, rewriteSystem, type SourceBlock } from "./prompts";
@@ -56,7 +56,16 @@ function resolveRegions(req: AskRequest, config: Config) {
   };
 }
 
-export async function ask(req: AskRequest, deps: Deps): Promise<AskResponse> {
+export interface Prepared {
+  request: GenerateRequest;
+  sources: SourceBlock[];
+  language: string;
+  needsState: boolean;
+  notCovered: { id: string; name: string }[];
+}
+
+/** Steps 1-4: validate, rewrite, retrieve, build the answer prompt. No answer text yet. */
+export async function prepareAsk(req: AskRequest, deps: Deps): Promise<Prepared> {
   const question = req.question.trim();
   if (!question || question.length > MAX_QUESTION_CHARS) throw new AskError("question is empty or too long");
   const { config, llm, embedder, retriever } = deps;
@@ -105,9 +114,9 @@ export async function ask(req: AskRequest, deps: Deps): Promise<AskResponse> {
     for (const h of hits) sources.push({ n: sources.length + 1, regionName, chunk: h.chunk });
   }
 
-  // 5. cited answer
+  // 5. answer prompt
   const byName = (i: number) => states[i]?.name;
-  const result = await llm.generate({
+  const request: GenerateRequest = {
     system: answerSystem({
       language,
       selected: searched.map((r) => ({ id: r.id, name: r.name })),
@@ -122,23 +131,44 @@ export async function ask(req: AskRequest, deps: Deps): Promise<AskResponse> {
     messages: [...history, { role: "user", content: question }],
     temperature: 0.2,
     maxOutputTokens: 1200,
-  });
+  };
+  return { request, sources, language, needsState, notCovered };
+}
 
-  // 6. keep only citations that point at real sources
+/** Step 6: keep only citations that point at real sources. */
+export function finishAnswer(text: string, p: Prepared): AskResponse {
   const used = new Set<number>();
-  const answer = result.text.replace(/\[(\d+)\]/g, (m, d: string) => {
+  const answer = text.replace(/\[(\d+)\]/g, (m, d: string) => {
     const n = Number(d);
-    if (n >= 1 && n <= sources.length) {
+    if (n >= 1 && n <= p.sources.length) {
       used.add(n);
       return m;
     }
     return "";
   }).trim();
-  const citations: Citation[] = sources
+  const citations: Citation[] = p.sources
     .filter((s) => used.has(s.n))
     .map((s) => ({
       n: s.n, title: s.chunk.title, heading: s.chunk.heading, url: s.chunk.url,
       crawledAt: s.chunk.crawledAt, regionId: s.chunk.regionId, regionName: s.regionName,
     }));
-  return { answer, citations, answerable: citations.length > 0, needsState, notCovered, language };
+  return { answer, citations, answerable: citations.length > 0, needsState: p.needsState, notCovered: p.notCovered, language: p.language };
+}
+
+export async function ask(req: AskRequest, deps: Deps): Promise<AskResponse> {
+  const prepared = await prepareAsk(req, deps);
+  const result = await deps.llm.generate(prepared.request);
+  return finishAnswer(result.text, prepared);
+}
+
+/** Same as ask() but yields text deltas first; the final response (with cleaned citations) comes last. */
+export async function* askStream(req: AskRequest, deps: Deps): AsyncGenerator<{ delta: string } | { done: AskResponse } | { meta: Omit<Prepared, "request"> }> {
+  const prepared = await prepareAsk(req, deps);
+  yield { meta: { sources: prepared.sources, language: prepared.language, needsState: prepared.needsState, notCovered: prepared.notCovered } };
+  let text = "";
+  for await (const delta of deps.llm.stream(prepared.request)) {
+    text += delta;
+    yield { delta };
+  }
+  yield { done: finishAnswer(text, prepared) };
 }
