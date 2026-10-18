@@ -27,3 +27,16 @@ export async function postJson(
     await new Promise((r) => setTimeout(r, base * 2 ** attempt));
   }
 }
+
+/** JSON.parse whose failure carries a fixed message: V8 quotes part of the input, which may be prompt or answer text. */
+export function safeParse<T>(text: string): T {
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new ProviderError(502, "malformed provider response");
+  }
+}
+
+export async function readJson<T>(res: Response): Promise<T> {
+  return safeParse<T>(await res.text());
+}

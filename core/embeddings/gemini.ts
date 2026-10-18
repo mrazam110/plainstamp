@@ -1,4 +1,4 @@
-import { postJson, type Fetch } from "../http";
+import { postJson, readJson, type Fetch } from "../http";
 import { normalise, type Embedder } from "./types";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
@@ -49,7 +49,7 @@ export class GeminiEmbedder implements Embedder {
         this.o.fetch ?? fetch, `${BASE}/models/${this.o.model}:batchEmbedContents`, this.o.apiKey,
         { requests }, { baseDelayMs: this.o.baseDelayMs },
       );
-      const json = (await res.json()) as { embeddings?: { values: number[] }[] };
+      const json = await readJson<{ embeddings?: { values: number[] }[] }>(res);
       if (!json.embeddings || json.embeddings.length !== requests.length) throw new Error("unexpected embedding response");
       for (const e of json.embeddings) {
         if (e.values.length !== this.o.dimension) throw new Error(`expected ${this.o.dimension} dimensions, got ${e.values.length}`);

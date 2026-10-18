@@ -1,4 +1,4 @@
-import { postJson, type Fetch } from "../http";
+import { postJson, readJson, safeParse, type Fetch } from "../http";
 import type { GenerateRequest, GenerateResult, LLM } from "./types";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
@@ -37,7 +37,7 @@ export class GeminiLLM implements LLM {
       this.o.fetch ?? fetch, `${BASE}/models/${this.o.model}:generateContent`, this.o.apiKey, this.body(req),
       { baseDelayMs: this.o.baseDelayMs },
     );
-    const json = (await res.json()) as { candidates?: Candidate[] };
+    const json = await readJson<{ candidates?: Candidate[] }>(res);
     const c = json.candidates?.[0];
     return { text: textOf(c), finishReason: c?.finishReason };
   }
@@ -61,7 +61,7 @@ export class GeminiLLM implements LLM {
         if (!line.startsWith("data:")) continue;
         const payload = line.slice(5).trim();
         if (!payload || payload === "[DONE]") continue;
-        const text = textOf((JSON.parse(payload) as { candidates?: Candidate[] }).candidates?.[0]);
+        const text = textOf(safeParse<{ candidates?: Candidate[] }>(payload).candidates?.[0]);
         if (text) yield text;
       }
     }

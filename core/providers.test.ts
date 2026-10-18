@@ -98,6 +98,21 @@ describe("GeminiLLM", () => {
   });
 });
 
+describe("malformed provider replies", () => {
+  it("fail with a fixed message that does not quote the reply", async () => {
+    const llm = new GeminiLLM({ apiKey: "k", model: "m", fetch: fakeFetch([() => new Response("{Frage secret", { status: 200 })]).f });
+    const e1 = await llm.generate({ messages: [{ role: "user", content: "x" }] }).catch((e) => e);
+    expect(e1.message).toBe("malformed provider response");
+    const enc = new TextEncoder();
+    const body = new ReadableStream({ start(c) { c.enqueue(enc.encode("data: {Frage secret\n")); c.close(); } });
+    const streaming = new GeminiLLM({ apiKey: "k", model: "m", fetch: fakeFetch([() => new Response(body, { status: 200 })]).f });
+    const e2 = await (async () => { try { for await (const _ of streaming.stream({ messages: [{ role: "user", content: "x" }] })) void _; } catch (e) { return e as Error; } })();
+    expect(e2?.message).toBe("malformed provider response");
+    const emb = new GeminiEmbedder({ apiKey: "k", model: "gemini-embedding-2", dimension: 2, fetch: fakeFetch([() => new Response("{Frage secret", { status: 200 })]).f });
+    expect((await emb.embedQueries(["x"]).catch((e) => e)).message).toBe("malformed provider response");
+  });
+});
+
 describe("provider factory", () => {
   it("needs a key and rejects unknown providers", () => {
     expect(() => createLLM({})).toThrow(/GEMINI_API_KEY/);
