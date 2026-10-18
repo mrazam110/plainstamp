@@ -1,13 +1,17 @@
 # Topic taxonomy. state_specific: procedure differs per Land, so ask which state applies.
 # leika_keys are filled when sources provide them.
 topics:
-  - {key: anmeldung, label: Registering your address (Anmeldung), state_specific: true, leika_keys: []}
-  - {key: abmeldung, label: Deregistering your address (Abmeldung), state_specific: true, leika_keys: []}
-  - {key: residence-permit, label: Residence permit (Aufenthaltstitel), state_specific: true, leika_keys: []}
-  - {key: tax-id, label: Tax ID (Steuer-ID), state_specific: false, leika_keys: []}
-  - {key: health-insurance, label: Health insurance, state_specific: false, leika_keys: []}
-  - {key: kita, label: Childcare place (Kita), state_specific: true, leika_keys: []}
-  - {key: child-benefit, label: Child benefit (Kindergeld), state_specific: false, leika_keys: []}
-  - {key: driving-licence-exchange, label: Exchanging a foreign driving licence, state_specific: true, leika_keys: []}
-  - {key: car-registration, label: Registering a car (Kfz-Zulassung), state_specific: true, leika_keys: []}
-  - {key: broadcasting-fee, label: Broadcasting fee (Rundfunkbeitrag), state_specific: false, leika_keys: []}
+  - {key: anmeldung, label: Registering your address (Anmeldung), state_specific: true, leika_keys: [], title_pattern: '^Wohnsitz.*anmelden|^Wohnung.*anmelden|Anmeldung einer Wohnung'}
+  - {key: abmeldung, label: Deregistering your address (Abmeldung), state_specific: true, leika_keys: [], title_pattern: 'Abmeldung einer Wohnung|^Wohnsitz.*abmelden'}
+  - {key: residence-permit, label: Residence permit (Aufenthaltstitel), state_specific: true, leika_keys: [], title_pattern: 'Aufenthaltstitel|Aufenthaltserlaubnis|Niederlassungserlaubnis'}
+  - {key: tax-id, label: Tax ID (Steuer-ID), state_specific: false, leika_keys: [], title_pattern: 'Steueridentifikationsnummer'}
+  - {key: health-insurance, label: Health insurance, state_specific: false, leika_keys: [], title_pattern: 'Krankenversicherung'}
+  - {key: kita, label: Childcare place (Kita), state_specific: true, leika_keys: [], title_pattern: '\bKita\b|Kindertagesp|Kindertagesstätte'}
+  - {key: child-benefit, label: Child benefit (Kindergeld), state_specific: false, leika_keys: [], title_pattern: 'Kindergeld'}
+  - {key: driving-licence-exchange, label: Exchanging a foreign driving licence, state_specific: true, leika_keys: [], title_pattern: 'Fahrerlaubnis.*(Umschreibung|Umtausch)|ausländische.*(Führerschein|Fahrerlaubnis)'}
+  - {key: car-registration, label: Registering a car (Kfz-Zulassung), state_specific: true, leika_keys: [], title_pattern: 'Kraftfahrzeug.*(zulassung|ummelden|Umschreibung)|^Zulassung (eines|von)|Zulassungsbescheinigung'}
+  - {key: broadcasting-fee, label: Broadcasting fee (Rundfunkbeitrag), state_specific: false, leika_keys: [], title_pattern: 'Rundfunkbeitrag'}
+  - {key: blue-card, label: EU Blue Card (Blaue Karte EU), state_specific: true, leika_keys: [], title_pattern: 'Blaue Karte'}
+  - {key: marriage-registration, label: Getting married (Eheschließung anmelden), state_specific: true, leika_keys: [], title_pattern: 'Eheschließung'}
+  - {key: birth-certificate, label: Birth certificate (Geburtsurkunde), state_specific: true, leika_keys: [], title_pattern: 'Geburtsurkunde'}
+  - {key: registration-certificate, label: Registration certificate (Meldebescheinigung), state_specific: true, leika_keys: [], title_pattern: '\bMeldebescheinigung'}
