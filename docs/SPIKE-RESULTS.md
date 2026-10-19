@@ -134,3 +134,17 @@ Neon project in AWS eu-central-1 (Frankfurt), branch `production`, pgvector 0.8.
 
 ## Eval fact cross-check (2026-10-19)
 `scripts/check_eval_facts.ts` asked the text model, per question, whether each expected fact is clearly supported by the text of its expected pages. 294 facts checked, 10 flagged: 6 are behaviour facts on not-covered questions (no page can support them; the script now skips them), 3 were judge misses on facts that are in the pages (Brandenburg two-week deadline, Bavaria fine up to 1,000 EUR), and 1 was a real error (a Brandenburg ID-document fact the page does not contain), removed from `eval/de/moves.yaml`. Numbers in facts had been matched against the pages earlier. This lowers the chance of wrong facts but does not replace the check by someone who knows the states; the judge is the same model family that answers.
+
+## NVIDIA eval run (2026-10-19)
+Pilot corpus plus the topic-matched Berlin pages (127 documents, 1,588 chunks) embedded with `nvidia/nemotron-3-embed-1b` (2048-d) in a separate local pgvector database. Chat and judge: `nvidia/nemotron-3-super-120b-a12b`. 125 questions, 4 lost to transient network errors. Dev and eval only (ADR 0006).
+
+| metric | NVIDIA (1,588 chunks) | Gemini (463 chunks, 2026-10-18) |
+|---|---|---|
+| right page cited (answerable) | 0.83 | 0.93 |
+| fact recall (overall) | 0.74 | 0.71 |
+| false refusal (answerable) | 0.14 | 0.05 |
+| proper refusal (unanswerable) | 0.79 | 1.00 |
+| needs-state / not-covered | 1.00 / 1.00 | 1.00 / 1.00 |
+| leaks | 0 | 0 |
+
+The corpora differ, so this is not a clean model comparison: the larger Berlin set adds near-duplicate pages that can take the citation, and the weaker refusal numbers need a look at individual answers before blaming the model. Thresholds in `eval/thresholds.json` pass. Moves score lowest on facts (0.63).
