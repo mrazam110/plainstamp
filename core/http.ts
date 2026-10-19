@@ -11,14 +11,16 @@ export class ProviderError extends Error {
  * request body or the provider's reply, so prompts cannot end up in logs (stateless privacy rule).
  */
 export async function postJson(
-  fetchFn: Fetch, url: string, apiKey: string, body: unknown, opts: { retries?: number; baseDelayMs?: number } = {},
+  fetchFn: Fetch, url: string, apiKey: string, body: unknown,
+  opts: { retries?: number; baseDelayMs?: number; headers?: Record<string, string> } = {},
 ): Promise<Response> {
   const retries = opts.retries ?? 2;
   const base = opts.baseDelayMs ?? 300;
   for (let attempt = 0; ; attempt++) {
     const res = await fetchFn(url, {
       method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+      // Gemini takes the key in x-goog-api-key; OpenAI-compatible providers pass their own auth header.
+      headers: { "content-type": "application/json", ...(opts.headers ?? { "x-goog-api-key": apiKey }) },
       body: JSON.stringify(body),
     });
     if (res.ok) return res;
