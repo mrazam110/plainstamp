@@ -107,8 +107,9 @@ def cmd_embed(source: str) -> None:
         else:
             todo.append(i)
     print(f"{source}: {len(rows) - len(todo)} cached, {len(todo)} to embed with {emb.name}", flush=True)
-    for start in range(0, len(todo), 100):
-        batch = todo[start:start + 100]
+    size = max(1, min(100, int(os.environ.get("EMBEDDING_BATCH_SIZE", "100"))))  # small batches use up the last of a daily cap
+    for start in range(0, len(todo), size):
+        batch = todo[start:start + size]
         try:
             out_vecs = emb.embed_documents([(rows[i]["title"], rows[i]["text"]) for i in batch])
         except DailyQuotaExhausted:
@@ -121,7 +122,7 @@ def cmd_embed(source: str) -> None:
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(struct.pack(fmt, *v))
             vecs[i] = tuple(v)
-        print(f"  embedded {min(start + 100, len(todo))}/{len(todo)}", flush=True)
+        print(f"  embedded {min(start + size, len(todo))}/{len(todo)}", flush=True)
     d = DATA / "bundles" / source
     d.mkdir(parents=True, exist_ok=True)
     (d / "vectors.bin").write_bytes(b"".join(struct.pack(fmt, *v) for v in vecs))  # type: ignore[arg-type]

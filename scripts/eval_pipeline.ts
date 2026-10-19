@@ -10,8 +10,7 @@ import { parse } from "yaml";
 import { checkThresholds, effectiveFacts, judgeFacts, scoreStructure, summarize, type EvalQuestion, type QuestionScore } from "../core/eval/score";
 import { ask } from "../core/pipeline/ask";
 import { loadConfig } from "../core/pipeline/config-fs";
-import { ProviderError } from "../core/http";
-import type { GenerateRequest, LLM } from "../core/llm/types";
+import { paced } from "../core/eval/paced";
 import { createEmbedder, createLLM } from "../core/providers";
 import { PostgresRetriever } from "../core/retriever/postgres";
 
@@ -29,24 +28,6 @@ const env = process.env as Record<string, string | undefined>;
 if (!env.GEMINI_API_KEY || !env.DATABASE_URL) {
   console.error("GEMINI_API_KEY and DATABASE_URL are required (see .env.example).");
   process.exit(2);
-}
-/** Keeps under the per-minute quota and waits out a 429 instead of failing the question. */
-function paced(inner: LLM, perMinute: number): LLM {
-  const gap = 60000 / perMinute;
-  let next = 0;
-  const wait = async () => { const d = next - Date.now(); next = Math.max(next, Date.now()) + gap; if (d > 0) await new Promise((r) => setTimeout(r, d)); };
-  return {
-    async generate(req: GenerateRequest) {
-      for (let attempt = 0; ; attempt++) {
-        await wait();
-        try { return await inner.generate(req); } catch (e) {
-          if (!(e instanceof ProviderError) || e.status !== 429 || attempt >= 4) throw e;
-          await new Promise((r) => setTimeout(r, 30000));
-        }
-      }
-    },
-    stream: (req) => inner.stream(req),
-  };
 }
 const llm = paced(createLLM(env), rpm);
 const embedder = createEmbedder(env);

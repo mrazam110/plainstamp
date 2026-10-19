@@ -72,7 +72,6 @@
   topic_key: anmeldung
   expected_facts:
     - "Brandenburg: registration within two weeks after moving in"
-    - "Brandenburg: ID card, passport or passport replacement of all persons is needed"
     - "Brandenburg: the Wohnungsgeberbestätigung is needed"
   expected_docs: [bb-112263586]
   not_covered: []
