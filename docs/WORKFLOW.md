@@ -40,6 +40,13 @@ Code, tests and config are ready; these steps need the maintainer's accounts. Ne
 8. **Quotas (free tier)**: embeddings 100/min and about 1,000/day, text model about 15/min. Lower `GLOBAL_LIMITER` in `worker/wrangler.toml` (it is 60/min per location) to match what the key can serve, or enable billing on the Google project. **Cost cap**: set a spend or quota alert on the Gemini key in Google AI Studio. `GLOBAL_LIMITER` (60/min per Cloudflare location) is only a coarse brake.
 Local checks: `npm run dev:fakes` (no guards), `npm run dev:guarded` (guards with Cloudflare's published dummy Turnstile secret; use the dummy token `XXXX.DUMMY.TOKEN.XXXX`).
 
+## Deployed on 2026-10-19 (maintainer chose a public pilot, see ADR 0011)
+- API: Worker `plainstamp-api` at https://plainstamp-api.razadetechnologies.com (`npx wrangler deploy --config worker/wrangler.toml`). Guards on: per-client 4/min, global 6/min per location, Turnstile, fail-closed.
+- Page: Worker `plainstamp-web` (static assets) at https://plainstamp.razadetechnologies.com. Rebuild and redeploy: `npm run build && npx wrangler deploy --config worker/wrangler.web.toml`. The build reads `web/.env.production` (gitignored: `VITE_TURNSTILE_SITEKEY`, `VITE_API_URL`). Security headers and CSP are in `web/public/_headers`.
+- Data: Neon `plainstamp` (Frankfurt) holds the pilot corpus only (42 pages, 463 chunks). Refresh with `load-pg` per source, pointing `DATABASE_URL` at the unpooled owner URL; the Worker uses the read-only URL.
+- Cloudflare resources created: two Workers with custom domains (DNS records in the razadetechnologies.com zone), two rate-limit namespaces, Turnstile widget `Plainstamp`. Google: AI Studio project and key `Plainstamp`. Neon: project `plainstamp`.
+- To take the site down: `npx wrangler delete --config worker/wrangler.web.toml` and the same for `worker/wrangler.toml`.
+
 ## Public-flip checklist (private -> public)
 - [ ] Secret scan of full git history (gitleaks or trufflehog); rotate any key that ever appeared
 - [ ] No personal data, real user questions or private notes in repo or history

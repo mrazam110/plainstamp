@@ -12,3 +12,6 @@ Decision:
 - Re-read each Impressum and robots.txt at crawl time. Honour crawl-delay, use an identifying User-Agent, never fetch disallowed paths.
 
 Consequences: Phase 2 to 5 can run on real sources locally. Public launch waits for permissions. A portfolio can show code, architecture and eval results meanwhile. This is not legal advice; ask a lawyer before going public.
+
+## Maintainer decision, 2026-10-19: public deployment before permissions
+The maintainer chose to deploy the pilot publicly (page `plainstamp.razadetechnologies.com`, API `plainstamp-api.razadetechnologies.com`) while no source has granted public reuse, accepting the risk. Scouted terms at that date: Berlin allows copies for private use only and wants written approval for public use; BayernPortal reproduction needs consent; Brandenburg and the federal sites state no terms. Mitigations in the product: every answer links the official page with the crawl date, shows short passages only, says it is not affiliated with any authority, and the corpus is the pilot pages only. Follow-ups: send the permission requests (contacts in `sources/de/*.yaml`), remove a source on request, and re-check each Impressum. `allowed_public` stays `false` in the source files until written permission or a licence exists, so the flag keeps recording the real legal state. This is not legal advice.

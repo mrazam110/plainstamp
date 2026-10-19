@@ -1,0 +1,11 @@
+# The static chat page (web/dist) served by Cloudflare on its own domain. Build first: npm run build
+name = "plainstamp-web"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "plainstamp.razadetechnologies.com", custom_domain = true }]
+
+[assets]
+directory = "../web/dist"
+
+[observability]
+enabled = false
