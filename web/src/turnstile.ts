@@ -46,7 +46,7 @@ export function loadTurnstileScript(): Promise<TurnstileApi> {
     const s = document.createElement("script");
     s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     s.async = true;
-    s.referrerPolicy = "no-referrer";
+    s.referrerPolicy = "strict-origin";
     s.onload = () => (typeof w.turnstile?.render === "function" ? resolve(w.turnstile) : reject(new Error("turnstile_failed")));
     s.onerror = () => reject(new Error("turnstile_failed"));
     document.head.append(s);
