@@ -40,13 +40,14 @@ export function createTurnstile(sitekey: string, deps: TurnstileDeps) {
 /** Loads Cloudflare's script once. This is the only third-party request the page can make, and only with a site key. */
 export function loadTurnstileScript(): Promise<TurnstileApi> {
   const w = window as unknown as { turnstile?: TurnstileApi };
-  if (w.turnstile) return Promise.resolve(w.turnstile);
+  // An element with id="turnstile" would also show up as window.turnstile, so check for the real API.
+  if (typeof w.turnstile?.render === "function") return Promise.resolve(w.turnstile);
   return new Promise((resolve, reject) => {
     const s = document.createElement("script");
     s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     s.async = true;
     s.referrerPolicy = "no-referrer";
-    s.onload = () => (w.turnstile ? resolve(w.turnstile) : reject(new Error("turnstile_failed")));
+    s.onload = () => (typeof w.turnstile?.render === "function" ? resolve(w.turnstile) : reject(new Error("turnstile_failed")));
     s.onerror = () => reject(new Error("turnstile_failed"));
     document.head.append(s);
   });

@@ -7,7 +7,7 @@ import { createStore, type ChatMessage, type Settings } from "./storage";
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
 const API = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8787";
 const SITEKEY = (import.meta as any).env?.VITE_TURNSTILE_SITEKEY as string | undefined;
-const turnstile = SITEKEY ? createTurnstile(SITEKEY, { load: loadTurnstileScript, container: "#turnstile" }) : null;
+const turnstile = SITEKEY ? createTurnstile(SITEKEY, { load: loadTurnstileScript, container: "#bot-check" }) : null;
 const states = ((regionsJson as Region).children ?? []).filter((r) => r.level === "land");
 const stateName = (id: string) => states.find((s) => s.id === id)?.name ?? id;
 const covered = (r: Region) => r.coverage === "pilot" || r.coverage === "federal";
