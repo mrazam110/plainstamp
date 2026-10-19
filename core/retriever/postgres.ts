@@ -21,6 +21,16 @@ export function orQuery(text: string): string {
   return [...new Set(words)].join(" | ");
 }
 
+/**
+ * Postgres array literal for a text[] parameter, used with a ::text[] cast. The Workers setup turns off the
+ * driver's type lookup (one round trip less), and without it the driver has no array serializer and sends
+ * a JS array as plain text ("malformed array literal"). A string plus a cast works either way.
+ */
+export function textArray(values: string[]): string {
+  const quote = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  return `{${values.map(quote).join(",")}}`;
+}
+
 export class PostgresRetriever implements Retriever {
   /** `sql` should connect with a read-only role (the Worker never writes). */
   constructor(private sql: Sql) {}
@@ -32,17 +42,17 @@ export class PostgresRetriever implements Retriever {
 
     let topics: string[] | null = req.topicKeys?.length ? req.topicKeys : null;
     if (topics) {
-      const hit = await sql`SELECT 1 FROM documents WHERE region_id = ANY(${req.regionIds}) AND topic_key = ANY(${topics}) LIMIT 1`;
+      const hit = await sql`SELECT 1 FROM documents WHERE region_id = ANY(${textArray(req.regionIds)}::text[]) AND topic_key = ANY(${textArray(topics)}::text[]) LIMIT 1`;
       if (hit.length === 0) topics = null; // prefilter matched nothing: do not hide the region
     }
-    const topicFilter = topics ? sql`AND d.topic_key = ANY(${topics})` : sql``;
+    const topicFilter = topics ? sql`AND d.topic_key = ANY(${textArray(topics)}::text[])` : sql``;
 
     const lists: RankedList[] = [];
     for (const v of req.vectors) {
       const lit = `[${Array.from(v).join(",")}]`;
       const rows = await sql<Row[]>`
         SELECT ${sql.unsafe(COLUMNS)} FROM chunks c JOIN documents d ON d.id = c.document_id
-        WHERE d.region_id = ANY(${req.regionIds}) ${topicFilter}
+        WHERE d.region_id = ANY(${textArray(req.regionIds)}::text[]) ${topicFilter}
         ORDER BY c.embedding <=> ${lit}::halfvec LIMIT ${pool}`;
       lists.push({ chunks: rows.map(toChunk), weight: 1 });
     }
@@ -50,7 +60,7 @@ export class PostgresRetriever implements Retriever {
     if (q) {
       const rows = await sql<Row[]>`
         SELECT ${sql.unsafe(COLUMNS)} FROM chunks c JOIN documents d ON d.id = c.document_id
-        WHERE d.region_id = ANY(${req.regionIds}) ${topicFilter}
+        WHERE d.region_id = ANY(${textArray(req.regionIds)}::text[]) ${topicFilter}
           AND c.tsv @@ to_tsquery('german', ${q})
         ORDER BY ts_rank_cd(c.tsv, to_tsquery('german', ${q})) DESC LIMIT ${pool}`;
       lists.push({ chunks: rows.map(toChunk), weight: KEYWORD_WEIGHT });

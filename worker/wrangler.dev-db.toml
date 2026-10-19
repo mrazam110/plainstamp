@@ -1,0 +1,8 @@
+# Local check that the database driver works in the Workers runtime against Neon. Not deployed.
+name = "plainstamp-api-dev-db"
+main = "src/dev-db-check.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = false

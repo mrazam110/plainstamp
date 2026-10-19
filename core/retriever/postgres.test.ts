@@ -3,13 +3,15 @@ import { join } from "node:path";
 import postgres from "postgres";
 import { afterAll, describe, expect, it } from "vitest";
 import { FIXTURE, runRetrieverContract } from "./contract";
-import { PostgresRetriever, orQuery } from "./postgres";
+import { PostgresRetriever, orQuery, textArray } from "./postgres";
 
-const url = process.env.DATABASE_URL;
+/** A throwaway database (local Docker); never the production URL. */
+const url = process.env.TEST_DATABASE_URL;
 const SCHEMA = "contract_test";
 
 async function setup() {
-  const sql = postgres(url!, { onnotice: () => {}, connection: { search_path: `${SCHEMA},public` } });
+  // fetch_types: false is what the Worker uses, so the tests cover array parameters the same way
+  const sql = postgres(url!, { fetch_types: false, onnotice: () => {}, connection: { search_path: `${SCHEMA},public` } });
   await sql.unsafe(`DROP SCHEMA IF EXISTS ${SCHEMA} CASCADE; CREATE SCHEMA ${SCHEMA}`);
   const ddl = readFileSync(join(import.meta.dirname, "../../ingest/sql/schema.sql"), "utf8").replaceAll("{dim}", "4");
   await sql.unsafe(ddl);
@@ -25,6 +27,14 @@ async function setup() {
   }
   return sql;
 }
+
+describe("textArray", () => {
+  it("builds a quoted, escaped Postgres array literal", () => {
+    expect(textArray(["de-be", "de-bb"])).toBe('{"de-be","de-bb"}');
+    expect(textArray([])).toBe("{}");
+    expect(textArray(['a"b', "c\\d"])).toBe('{"a\\"b","c\\\\d"}');
+  });
+});
 
 describe("orQuery", () => {
   it("joins words with OR and drops punctuation", () => {
@@ -45,5 +55,5 @@ if (url) {
     }
   });
 } else {
-  describe("Retriever contract: postgres", () => it.skip("needs DATABASE_URL", () => expect(true).toBe(true)));
+  describe("Retriever contract: postgres", () => it.skip("needs TEST_DATABASE_URL", () => expect(true).toBe(true)));
 }
