@@ -20,3 +20,6 @@ __pycache__/
 worker/src/config.generated.json
 web/src/regions.generated.json
 web/dist/
+.neon
+.dev.vars
+.dev.vars.*

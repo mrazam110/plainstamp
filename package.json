@@ -11,9 +11,12 @@
     "dev:fakes": "npm run build:config && wrangler dev --config worker/wrangler.dev.toml",
     "web:dev": "npm run build:config && vite web --port 5173",
     "web:build": "npm run build:config && vite build web",
-    "dev:guarded": "npm run build:config && wrangler dev --config worker/wrangler.dev-guarded.toml"
+    "dev:guarded": "npm run build:config && wrangler dev --config worker/wrangler.dev-guarded.toml",
+    "build": "npm run build:config && tsc --noEmit && vite build web"
   },
   "devDependencies": {
+    "@neon/config": "^1.9.2",
+    "@neon/env": "^1.6.3",
     "@types/node": "^26.6.5",
     "snowball-stemmers": "^0.6.0",
     "tsx": "^4.23.15",
