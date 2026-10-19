@@ -20,6 +20,7 @@ function inline(s: string, citationNs: Set<number>): string {
  * citation links only for sources the answer really has, copy buttons for German terms.
  */
 export function renderAnswer(text: string, citations: Citation[] = []): string {
+  text = text.replace(/`([^`\n]+)`/g, "$1"); // models wrap German terms in backticks; show them as plain text
   const ns = new Set(citations.map((c) => c.n));
   const html: string[] = [];
   let list: "ul" | "ol" | null = null;

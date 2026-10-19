@@ -38,6 +38,11 @@ describe("renderAnswer", () => {
     expect(html).toContain('data-copy="Anmeldung"');
     expect(html).toContain("<ol><li>First</li><li>Second</li></ol>");
   });
+  it("removes backticks so German terms in them still get the copy button", () => {
+    const html = renderAnswer("Go to the citizen office (`Bürgeramt`) [1].", [cite(1)]);
+    expect(html).not.toContain("`");
+    expect(html).toContain('data-copy="Bürgeramt"');
+  });
   it("does not treat lowercase or long brackets as German terms", () => {
     expect(renderAnswer("see (the office) or (Das ist ein sehr langer Satz mit vielen Worten drin)")).not.toContain("class=\"term\"");
   });

@@ -142,7 +142,9 @@ export async function prepareAsk(req: AskRequest, deps: Deps): Promise<Prepared>
 /** Step 6: keep only citations that point at real sources. */
 export function finishAnswer(text: string, p: Prepared): AskResponse {
   const used = new Set<number>();
-  const answer = text.replace(/\[(\d+)\]/g, (m, d: string) => {
+  // models sometimes write [8, 12] or [8][12]: normalise to single [n] markers first
+  const flat = text.replace(/\[(\d+(?:\s*[,;]\s*\d+)+)\]/g, (_m, list: string) => list.split(/[,;]/).map((n) => `[${n.trim()}]`).join(""));
+  const answer = flat.replace(/\[(\d+)\]/g, (m, d: string) => {
     const n = Number(d);
     if (n >= 1 && n <= p.sources.length) {
       used.add(n);

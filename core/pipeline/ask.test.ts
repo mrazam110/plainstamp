@@ -151,6 +151,14 @@ describe("ask", () => {
     expect(seen[0]).toEqual(["anmeldung"]);
   });
 
+  it("splits [8, 12] style citations into single markers and drops unknown numbers", async () => {
+    const { finishAnswer } = await import("./ask");
+    const sources = [1, 2].map((n) => ({ n, regionName: "Berlin", chunk: { id: `c${n}`, docId: `d${n}`, title: "T", heading: "H", regionId: "de-be", topicKey: "anmeldung", leikaKey: null, url: "u", crawledAt: "d", text: "t" } }));
+    const r = finishAnswer("Do this [1, 2] and that [2, 9].", { request: { messages: [] }, sources, language: "en", needsState: false, notCovered: [] });
+    expect(r.answer).toBe("Do this [1][2] and that [2][].".replace("[]", ""));
+    expect(r.citations.map((c) => c.n)).toEqual([1, 2]);
+  });
+
   it("rejects bad input", async () => {
     const deps = { llm: new FakeLLM(), embedder, retriever: await retriever(), config };
     await expect(ask({ question: "  ", context: { mode: "germany" } }, deps)).rejects.toThrow(AskError);
