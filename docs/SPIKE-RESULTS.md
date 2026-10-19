@@ -148,3 +148,5 @@ Pilot corpus plus the topic-matched Berlin pages (127 documents, 1,588 chunks) e
 | leaks | 0 | 0 |
 
 The corpora differ, so this is not a clean model comparison: the larger Berlin set adds near-duplicate pages that can take the citation, and the weaker refusal numbers need a look at individual answers before blaming the model. Thresholds in `eval/thresholds.json` pass. Moves score lowest on facts (0.63).
+
+Reading the failures (NVIDIA run): all 7 false refusals were real answers whose citations the pipeline could not use. Nemotron wrote `【7†L1-L2】` markers, cited a source number that did not exist (`[7]` with fewer sources), or cited nothing. A missing citation is treated as no evidence on purpose, so the answer was dropped. The `【n†…】` style is now converted to `[n]` in `finishAnswer`; the other two cases stay refusals. Of 3 unanswerable misses, one is a hallucinated legal claim (`mv-un-003`) and two are partial answers next to a "contact the office" line. Not re-run after the fix.

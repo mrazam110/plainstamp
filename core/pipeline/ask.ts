@@ -143,7 +143,9 @@ export async function prepareAsk(req: AskRequest, deps: Deps): Promise<Prepared>
 export function finishAnswer(text: string, p: Prepared): AskResponse {
   const used = new Set<number>();
   // models sometimes write [8, 12] or [8][12]: normalise to single [n] markers first
-  const flat = text.replace(/\[(\d+(?:\s*[,;]\s*\d+)+)\]/g, (_m, list: string) => list.split(/[,;]/).map((n) => `[${n.trim()}]`).join(""));
+  // some models use their own style, e.g. 【7†L1-L2】: turn it into [7]
+  const plain = text.replace(/【\s*(\d+)[^】]*】/g, "[$1]");
+  const flat = plain.replace(/\[(\d+(?:\s*[,;]\s*\d+)+)\]/g, (_m, list: string) => list.split(/[,;]/).map((n) => `[${n.trim()}]`).join(""));
   const answer = flat.replace(/\[(\d+)\]/g, (m, d: string) => {
     const n = Number(d);
     if (n >= 1 && n <= p.sources.length) {
