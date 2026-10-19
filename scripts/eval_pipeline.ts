@@ -25,8 +25,8 @@ const rpm = Number(flag("rpm") ?? 12);
 const onlyLoaded = args.includes("--only-loaded");
 
 const env = process.env as Record<string, string | undefined>;
-if (!env.GEMINI_API_KEY || !env.DATABASE_URL) {
-  console.error("GEMINI_API_KEY and DATABASE_URL are required (see .env.example).");
+if (!env.DATABASE_URL) {
+  console.error("DATABASE_URL is required (see .env.example); the provider keys are checked by createLLM/createEmbedder.");
   process.exit(2);
 }
 const llm = paced(createLLM(env), rpm);
