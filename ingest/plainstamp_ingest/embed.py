@@ -89,8 +89,12 @@ def _quota_info(res) -> tuple[str, float | None]:
     return quota_id, delay
 
 
-class GeminiError(RuntimeError):
+class EmbeddingProviderError(RuntimeError):
     """Carries the HTTP status only: never the request text or the provider's reply."""
+
+
+class GeminiError(EmbeddingProviderError):
+    """Gemini embedding failure (same rule: status only)."""
 
 
 class DailyQuotaExhausted(GeminiError):
@@ -169,6 +173,63 @@ class GeminiEmbedder:
         return out
 
 
+class NvidiaEmbedder:
+    """NVIDIA API catalog embeddings (OpenAI-compatible /embeddings with input_type). Dev and eval only.
+
+    Mirrors core/embeddings/openai-compat.ts: batches of 50, L2-normalised output, errors carry the status only.
+    nvidia/nemotron-3-embed-1b returns 2048 dimensions and accepts no other size.
+    """
+
+    DIMENSION = 2048
+    BATCH = 50
+
+    def __init__(self, api_key: str, model: str = "nvidia/nemotron-3-embed-1b",
+                 base_url: str = "https://integrate.api.nvidia.com/v1", session=None,
+                 retries: int = 4, base_delay: float = 1.0):
+        if not api_key:
+            raise ValueError("NVIDIA_API_KEY is not set")
+        self.model, self.dimension = model, self.DIMENSION
+        self.name = f"nvidia:{model}:{self.DIMENSION}"
+        self._url = base_url.rstrip("/") + "/embeddings"
+        self._key, self._session = api_key, session or requests.Session()
+        self._retries, self._base = retries, base_delay
+
+    def embed_documents(self, items):
+        return self._run([f"{t}\n{x}" if t else x for t, x in items], "passage")
+
+    def embed_queries(self, texts):
+        return self._run(texts, "query")
+
+    def _post(self, body: dict) -> dict:
+        for attempt in range(self._retries + 1):
+            res = self._session.post(self._url, json=body, headers={"authorization": f"Bearer {self._key}"}, timeout=60)
+            if res.status_code == 200:
+                try:
+                    return res.json()
+                except ValueError:
+                    raise EmbeddingProviderError("malformed provider response") from None
+            retryable = res.status_code == 429 or res.status_code >= 500
+            if not retryable or attempt == self._retries:
+                raise EmbeddingProviderError(f"provider request failed with status {res.status_code}")
+            retry_after = res.headers.get("retry-after", "")
+            time.sleep(min(float(retry_after) if retry_after.replace(".", "", 1).isdigit() else self._base * 2 ** attempt, 60.0))
+        raise AssertionError("unreachable")
+
+    def _run(self, texts: list[str], input_type: str) -> list[list[float]]:
+        out: list[list[float]] = []
+        for i in range(0, len(texts), self.BATCH):
+            batch = texts[i:i + self.BATCH]
+            data = self._post({"model": self.model, "input": batch, "input_type": input_type,
+                               "encoding_format": "float", "truncate": "END"}).get("data")
+            if not data or len(data) != len(batch):
+                raise EmbeddingProviderError("unexpected embedding response")
+            for row in sorted(data, key=lambda r: r.get("index", 0)):
+                if len(row["embedding"]) != self.dimension:
+                    raise EmbeddingProviderError(f"expected {self.dimension} dimensions, got {len(row['embedding'])}")
+                out.append(normalise(row["embedding"]))
+        return out
+
+
 def get_embedder() -> Embedder:
     provider = os.environ.get("EMBEDDING_PROVIDER", "hash")
     if provider == "hash":
@@ -181,5 +242,15 @@ def get_embedder() -> Embedder:
             os.environ.get("EMBEDDING_MODEL", "gemini-embedding-2"),
             int(os.environ.get("EMBEDDING_DIMENSION", "768")),
             batch_delay=float(os.environ.get("EMBEDDING_BATCH_DELAY", "0")),
+        )
+    if provider == "nvidia":
+        if os.environ.get("ALLOW_TRIAL_PROVIDERS") != "1":
+            raise ValueError("nvidia is a trial provider for dev and eval only: set ALLOW_TRIAL_PROVIDERS=1 to use it")
+        if os.environ.get("EMBEDDING_DIMENSION", str(NvidiaEmbedder.DIMENSION)) != str(NvidiaEmbedder.DIMENSION):
+            raise ValueError(f"nvidia embeddings return {NvidiaEmbedder.DIMENSION} dimensions only")
+        return NvidiaEmbedder(
+            os.environ.get("NVIDIA_API_KEY", ""),
+            os.environ.get("EMBEDDING_MODEL", "nvidia/nemotron-3-embed-1b"),
+            os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"),
         )
     raise ValueError(f"unknown EMBEDDING_PROVIDER {provider!r}")
