@@ -491,8 +491,10 @@ function bindPopovers() {
   menu.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("button, a") && (e.target as HTMLElement).id !== "btn-theme") setMenu(false); });
   document.addEventListener("click", (e) => {
     const t = e.target as Node;
-    if (!menu.hidden && !menu.parentElement!.contains(t)) setMenu(false);
-    if ($("ctx").dataset.open === "true" && !wrap.contains(t)) setContextOpen(false);
+    // composedPath is fixed at dispatch; the chip rebuilds its children on click, so e.target may already be detached
+    const inside = (n: Node) => n.contains(t) || e.composedPath().includes(n);
+    if (!menu.hidden && !inside(menu.parentElement!)) setMenu(false);
+    if ($("ctx").dataset.open === "true" && !inside(wrap)) setContextOpen(false);
   });
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
