@@ -9,7 +9,6 @@ export const K_PER_REGION = 6;
 const MAX_QUESTION_CHARS = 2000;
 const MAX_HISTORY_TURNS = 6;
 const MAX_SITUATION_CHARS = 300;
-const LANGUAGE_CODE = /^[a-z]{2,3}$/;
 const FEDERAL = "de";
 
 export interface Deps {
@@ -37,7 +36,7 @@ function parseRewrite(text: string, question: string, validTopics: Set<string>):
     const queries = Array.isArray(j.queries) ? j.queries.filter((q): q is string => typeof q === "string" && q.trim() !== "").slice(0, 3) : [];
     const topicKeys = Array.isArray(j.topic_keys) ? j.topic_keys.filter((k): k is string => typeof k === "string" && validTopics.has(k)).slice(0, 3) : [];
     return {
-      language: typeof j.language === "string" && LANGUAGE_CODE.test(j.language) ? j.language : "en",
+      language: typeof j.language === "string" && /^[a-z]{2,3}$/.test(j.language) ? j.language : "en",
       queries: queries.length ? queries : [question],
       topicKeys,
     };
@@ -76,7 +75,6 @@ export interface Prepared {
 export async function prepareAsk(req: AskRequest, deps: Deps): Promise<Prepared> {
   const question = req.question.trim();
   if (!question || question.length > MAX_QUESTION_CHARS) throw new AskError("question is empty or too long");
-  if (req.context.language !== undefined && !LANGUAGE_CODE.test(req.context.language)) throw new AskError("invalid language");
   const situation = cleanSituation(req.context.situation);
   const { config, llm, embedder, retriever } = deps;
   const { states, searched, notCovered } = resolveRegions(req, config);
