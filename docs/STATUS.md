@@ -2,7 +2,7 @@
 
 Updated: 2026-10-20
 
-- Open-source readiness (2026-10-20): not ready. Code is sound (115 TS and 30 Python tests pass, typecheck clean, no-logging tests pass, no secrets or corpus in history). Git identity for this repo is now Muhammad Raza Master <mrazam110@gmail.com> (local config); older commits keep the old email until a pre-flip rewrite. Blockers are in the checklist in `docs/WORKFLOW.md`: real secret scan plus key rotation, no source permission yet, work email in 65 older commits, no SPDX headers, 125 eval facts unverified, name check unfinished. README, ARCHITECTURE, CONTRIBUTING, CLAUDE.md and `.env.example` brought up to date the same day.
+- Open-source readiness (2026-10-20): not ready. Code is sound (115 TS and 30 Python tests pass, typecheck clean, no-logging tests pass, no secrets or corpus in history). Git identity for this repo is now Muhammad Raza Master <mrazam110@gmail.com> (local config); older commits keep the old email until a pre-flip rewrite. Blockers are in the checklist in `docs/WORKFLOW.md`: NVIDIA key rotation (gitleaks is clean), no source permission yet, work email in 65 older commits, no SPDX headers, 125 eval facts unverified, name check unfinished. README, ARCHITECTURE, CONTRIBUTING, CLAUDE.md and `.env.example` brought up to date the same day.
 
 - Multiple chats (2026-10-20, not deployed yet): the page keeps up to 20 chats in localStorage (`plainstamp.v1.chats` + `.active`), sidebar on desktop and a drawer on phones with New chat, switch and delete. The old single history is migrated into the first chat. Switching away while an answer streams stops it. Each request still carries only the active chat's last turns. Rename and search not built.
 
