@@ -79,15 +79,20 @@ async function createRetriever(env: Env): Promise<Retriever> {
   return new PostgresRetriever(postgres(conn, { max: 1, fetch_types: false }));
 }
 
-let cached: Promise<Deps> | undefined;
+type Shared = Omit<Deps, "retriever">;
+let shared: Shared | undefined;
+let bundleRetriever: Promise<Retriever> | undefined;
 
-/** Built once per isolate; holds no per-request data. */
-export function getDeps(env: Env): Promise<Deps> {
-  cached ??= (async () => ({
-    llm: createLLM(env),
-    embedder: createEmbedder(env),
-    retriever: await createRetriever(env),
-    config,
-  }))().catch((e) => { cached = undefined; throw e; });
-  return cached;
+/**
+ * The model clients and config are built once per isolate and hold no per-request data. A Postgres
+ * connection cannot be reused: Workers tie a socket to the request that opened it, so a cached one
+ * fails on the next request ("Cannot perform I/O on behalf of a different request") and every second
+ * question got a 502. The Postgres retriever is therefore built per request. Bundle files are plain
+ * fetches, so that retriever is cached.
+ */
+export async function getDeps(env: Env): Promise<Deps> {
+  shared ??= { llm: createLLM(env), embedder: createEmbedder(env), config };
+  if ((env.RETRIEVER_BACKEND ?? "postgres") !== "bundle") return { ...shared, retriever: await createRetriever(env) };
+  bundleRetriever ??= createRetriever(env).catch((e) => { bundleRetriever = undefined; throw e; });
+  return { ...shared, retriever: await bundleRetriever };
 }
