@@ -1,6 +1,6 @@
 # Plainstamp (working folder: askmeanything)
 
-Open-source (AGPL-3.0), non-commercial RAG assistant that explains German bureaucracy to people with weak German.
+Open-source (AGPL-3.0-only), non-commercial RAG assistant that explains German bureaucracy to people with weak German.
 Scope: Germany-wide architecture (federal + 16 Länder), pilot coverage federal + Berlin + Brandenburg + Bavaria, users can pick a state, a from/to pair for moves, or Germany only (ADR 0009). Status and next steps: `docs/STATUS.md`. Full plan: `docs/PLAN.md`.
 
 ## Read order (stop as soon as you have enough)
