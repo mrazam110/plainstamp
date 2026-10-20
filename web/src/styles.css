@@ -61,8 +61,13 @@ a.ghost { display: inline-flex; align-items: center; min-height: 44px; padding: 
 .composer .stop { background: transparent; color: var(--ink); border-color: var(--line); }
 .composer button:disabled { opacity: .5; cursor: not-allowed; }
 .fine { max-width: 720px; margin: 6px auto 0; text-align: center; color: var(--muted); font-size: .78rem; }
+.fine a, .notice a { color: var(--accent); }
 .muted { color: var(--muted); }
 dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink); max-width: min(520px, 92vw); width: 100%; padding: 16px; }
+dialog[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); overflow: hidden; }
+dialog form { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+dialog ul { overflow-y: auto; min-height: 0; flex: 1 1 auto; scrollbar-gutter: stable; }
+dialog h2, dialog p, .dlg-actions { flex: none; }
 dialog::backdrop { background: rgba(0,0,0,.4); }
 dialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
 .dlg-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
