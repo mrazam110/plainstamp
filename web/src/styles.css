@@ -190,7 +190,7 @@ button.danger-solid { background: var(--bad); border-color: var(--bad); color: v
 @media (min-width: 640px) { .menu .narrow { display: none; } }
 
 #chat > .notice { margin: 0 auto 16px; max-width: 720px; align-items: flex-start; flex-wrap: wrap; padding: 10px 12px; font-size: .85rem; }
-.notice > span { flex: 1 1 260px; }
+.notice > span:not(.notice-ico) { flex: 1 1 260px; }
 #privacy-ok { margin-left: auto; border-color: currentColor; min-height: 40px; }
 
 .cite { position: relative; }
