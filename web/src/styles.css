@@ -155,6 +155,8 @@ dialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
 #question:not(:placeholder-shown) ~ .ph, #question:disabled ~ .ph { display: none; }
 
 /* ---------- responsive: header menu, notice, topics, touch, short screens ---------- */
+body { height: 100dvh; }
+.top, #chat, .composer-wrap { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
 .tools { flex-wrap: nowrap; align-items: center; gap: 2px; }
 .menu-wrap { position: relative; }
 .menu-btn { width: 44px; padding: 0; display: grid; place-items: center; }
@@ -171,3 +173,43 @@ button.danger-solid { background: var(--bad); border-color: var(--bad); color: v
 #chat > .notice { margin: 0 auto 16px; max-width: 720px; align-items: flex-start; flex-wrap: wrap; padding: 10px 12px; font-size: .85rem; }
 .notice > span { flex: 1 1 260px; }
 #privacy-ok { margin-left: auto; border-color: currentColor; min-height: 40px; }
+
+.cite { position: relative; }
+.cite::after { content: ""; position: absolute; inset: -10px -6px; }
+.field textarea { width: 100%; }
+
+@media (pointer: coarse) {
+  .topic li button { min-height: 44px; }
+  .actions button, .source .ghost { min-height: 44px !important; }
+  a.ghost, .fine a { min-height: 44px; }
+}
+
+@media (max-width: 559px) {
+  .context { padding: 12px; }
+  .context > * { flex: 1 1 100%; }
+  .context .seg { display: flex; }
+  .context .seg button { flex: 1; }
+  .composer-wrap { padding-top: 6px; }
+  .topics { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 82%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; margin: 0 -16px; padding: 4px 16px 12px; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .topics::-webkit-scrollbar { display: none; }
+  .topics .topic { scroll-snap-align: start; opacity: 1; transform: none; }
+  .hero { margin-top: 3vh; }
+  .trust { grid-template-columns: 1fr; gap: 10px; }
+}
+
+@media (min-width: 560px) and (max-width: 1023px) {
+  #chat { padding-top: 20px; }
+  .hero { margin-top: 4vh; }
+}
+
+@media (max-height: 520px) {
+  .top { padding-block: 2px; }
+  .top button, .top a.ghost { min-height: 40px; }
+  .hero { margin: 8px auto 16px; }
+  .hero .pill, .hero .hint { display: none; }
+  .hero h1 { font-size: clamp(1.8rem, 6vw, 2.4rem); margin-bottom: 4px; }
+  .composer-wrap { padding-top: 6px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+  .ctx-wrap .chip { min-height: 36px; margin-bottom: 6px; }
+  .fine { margin-top: 2px; }
+  .context { max-height: 60dvh; }
+}
