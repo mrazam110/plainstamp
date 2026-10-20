@@ -17,7 +17,7 @@ Scope: Germany-wide architecture (federal + 16 Länder), pilot coverage federal 
 - **Not legal advice:** the UI and answers say so. Never use official logos or imply affiliation.
 
 ## Stack
-Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (ADR 0003). Retrieval behind a `Retriever` interface with partitions per Land plus federal; backend (file bundle vs Postgres vs Vectorize) decided by a Phase 3 measurement, provisionally Postgres for state-sized data (ADR 0004). Pipeline: German rewrite, hybrid search, cited answers (ADR 0005). Gemini for embeddings and generation behind interfaces (ADR 0006). Offline ingestion in Python. Crawled data never goes in git (ADR 0007). CPU budget 10 ms per request: see `docs/ARCHITECTURE.md`.
+Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (ADR 0003). Retrieval behind a `Retriever` interface with partitions per Land plus federal; backend is Postgres (Neon, pgvector) in production, the file bundle backend is kept behind the same contract test (ADR 0004). Pipeline: German rewrite, hybrid search, cited answers (ADR 0005). Gemini for embeddings and generation behind interfaces (ADR 0006). Offline ingestion in Python. Crawled data never goes in git (ADR 0007). CPU budget 10 ms per request: see `docs/ARCHITECTURE.md`.
 
 ## Workflow: trunk-based, private repo for now
 - Work directly on `main`. Small commits, one logical change each, ideally under ~150 changed lines.
@@ -41,7 +41,7 @@ Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (AD
 ## Commands (fill in as they are created)
 - Re-embed everything with another model (no re-crawl): `EMBEDDING_PROVIDER=gemini GEMINI_API_KEY=... PYTHONPATH=ingest .venv/bin/python -m plainstamp_ingest embed-all`, then drop the chunks/documents tables and `load-pg` each source
 - Ingest, whole pilot: `PYTHONPATH=ingest EMBEDDING_PROVIDER=fastembed .venv/bin/python -m plainstamp_ingest pilot [--refresh]`; one source: `... fetch|build|embed|bundle|load-pg|report <source>` (venv: `python3 -m venv .venv && .venv/bin/pip install -r ingest/requirements.txt`)
-- Eval: `TODO`
+- Eval (needs key + loaded DB; writes to `data/eval/`, exits 1 below `eval/thresholds.json`): `npx tsx --env-file=.env scripts/eval_pipeline.ts [--limit N] [--file moves] [--no-judge]`; retrieval only: `scripts/eval_retrieval.py`; validate questions: `scripts/validate_eval.py`
 - Web dev: `npm run web:dev` (page on :5173; API base from VITE_API_URL, default http://localhost:8787; https required elsewhere); build `npm run web:build`
 - Worker dev: `npm run dev:fakes` (fake model and data, no keys) or `npm run dev` (needs GEMINI_API_KEY and a database); config JSON is built from the YAML by `npm run build:config`
 - Tests: `cd ingest && ../.venv/bin/python -m pytest -q`

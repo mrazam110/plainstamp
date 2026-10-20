@@ -48,16 +48,17 @@ Local checks: `npm run dev:fakes` (no guards), `npm run dev:guarded` (guards wit
 - To take the site down: `npx wrangler delete --config worker/wrangler.web.toml` and the same for `worker/wrangler.toml`.
 
 ## Public-flip checklist (private -> public)
-- [ ] Secret scan of full git history (gitleaks or trufflehog); rotate any key that ever appeared
-- [ ] No personal data, real user questions or private notes in repo or history
-- [ ] `git log` and PR history contain no LLM signatures (grep for `Co-Authored-By`, "Generated with", model and tool names); rewrite history before the flip if any exist
-- [ ] `LICENSE` is AGPL-3.0; source files carry SPDX header `AGPL-3.0-or-later` (if chosen)
-- [ ] Content audit: every committed corpus file has a licence note, otherwise remove it and keep only the crawler and source list
-- [ ] Terms recorded for every covered state's source; README and UI list exactly which states are covered and say others are not
-- [ ] `PRIVACY.md` matches real behaviour (verified by the no-logging test)
-- [ ] README: what it is, not-legal-advice, no affiliation with authorities, how to self-host, how to contribute
-- [ ] `.env.example` complete, no real values
-- [ ] Rate limiting, Turnstile and cost cap active on the public endpoint
-- [ ] Name/logo checked for trademark or official-look conflicts
-- [ ] Eval score documented, known limitations listed
+Audited 2026-10-20 (regex scan, tests, code read). `[x]` done, `[~]` partly, `[ ]` open.
+- [~] Secret scan of full git history: a regex scan of all commits (Gemini, NVIDIA, Postgres URL, `sk-` patterns) found nothing, but gitleaks/trufflehog have not been run. Run one, and rotate the NVIDIA key pasted in chat (STATUS) before the flip
+- [ ] No personal data in repo or history: commits from 2026-10-20 on use the maintainer's personal identity (repo-local git config, Muhammad Raza Master, mrazam110@gmail.com), but the 65 earlier commits still carry a work email (an old employer domain); rewrite author (`git filter-repo --mailmap`, then force-push the private repo) just before the flip, or accept. The live hostnames `*.razadetechnologies.com` are in `worker/*.toml`, ADR 0011 and docs; make them config or accept
+- [~] No LLM signatures: no `Co-Authored-By` or "Generated with" in history. 8 commit subjects name providers (Gemini, NVIDIA, OpenAI-compatible) as feature names; ADR 0010 says no model names, so reword or accept. The CI check (`.github/workflows/signatures.yml`) and the commit-msg hook are in place
+- [~] `LICENSE` is AGPL-3.0 (full text) and `package.json` says `AGPL-3.0-only`; no source file has an SPDX header (0 of 85). Add `SPDX-License-Identifier: AGPL-3.0-only` headers, or drop the requirement and say so in ADR 0001
+- [x] Content audit: no corpus, snapshots, bundles or `.env` are tracked; `data/`, `*.jsonl`, `*.bin` are ignored. Largest tracked files are source YAML lists and `package-lock.json`
+- [ ] Terms recorded for every covered source: recorded (all `terms.status: not-cleared`, `allowed_public: false`) but no permission has arrived, and the live site serves that text (ADR 0011 maintainer decision). Send the requests; README lists the covered states
+- [x] `PRIVACY.md` matches the code: no console calls while serving (tests in `handler.test.ts`, `guard.test.ts`), observability off, feedback stores only the vote, rate-limit key is a daily salted hash of the IP prefix
+- [x] README: what it is, not legal advice, no affiliation, run locally, limitations, contributing. Self-hosting steps are in this file (link from README)
+- [~] `.env.example` has no real values; Worker secrets and web build vars are now listed there as comments
+- [x] Rate limiting, Turnstile and fail-closed guards active on the public endpoint (verified live 2026-10-19/20). Cost cap on the Gemini key: confirm the alert exists in AI Studio
+- [ ] Name/logo checked: word-mark search only; repeat the DPMA search by hand and review classes 9, 41, 42 (ADR 0008)
+- [~] Eval score documented (README, SPIKE-RESULTS); all 125 expected facts still say "pending human check"
 - [ ] Branch protection and PR flow enabled (Phase 8 switch)

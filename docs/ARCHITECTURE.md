@@ -2,6 +2,8 @@
 
 Decisions live in `docs/adr/`. Measurements in `docs/SPIKE-RESULTS.md`. Scope: Germany-wide architecture, staged coverage (ADR 0009).
 
+Plainstamp is a retrieval-augmented generation (RAG) system: an offline pipeline turns official pages into searchable chunks, and an online pipeline retrieves chunks per question and has the model answer only from them, with citations.
+
 ## Two pipelines
 ```
 OFFLINE (laptop / GitHub Actions / self-hoster's machine)
@@ -29,7 +31,7 @@ Germany > Land (16). Optional later layer: city/district (e.g. Spandau offices).
 Every chunk has `topic_key` (our slug) and `leika_key` when the source offers it. `topics/de.yaml` lists topics, labels, a `state_specific` flag and known catalogue keys. Used to fetch the same procedure for two states in a move and to decide when to ask which state applies.
 
 ## Retrieval backends (ADR 0004)
-`Retriever.search(query, region_ids, k)` returns `{chunk, score}`. Backends: `bundle` (static files, in-Worker scoring), `postgres` (pgvector + German full-text), `vectorize`. Provisional: Postgres for state-sized partitions (~10-15k chunks each), bundles for small partitions. Final choice after the Phase 3 measurement on the full Berlin portal.
+`Retriever.search(query, region_ids, k)` returns `{chunk, score}`. Backends: `bundle` (static files, in-Worker scoring), `postgres` (pgvector + German full-text), `vectorize`. Deployed: Postgres (Neon, pgvector `halfvec` plus German `to_tsquery`, read-only role for the Worker); `bundle` stays as a second backend behind the same contract test (`RETRIEVER_BACKEND`, default `postgres`). Original note: Postgres for state-sized partitions (~10-15k chunks each), bundles for small partitions. Final choice after the Phase 3 measurement on the full Berlin portal.
 
 ### Bundle format (when used)
 ```
@@ -53,19 +55,29 @@ Crawled text, Markdown snapshots, bundles and database contents are build artifa
 ## Privacy by construction
 Worker holds no state and logs no request bodies or IPs. Browser keeps history and context (including selected states) in localStorage with a clear button. The database holds public documents only. LLM provider still sees prompts; tier and terms in PRIVACY.md (ADR 0002).
 
+## Worker (as built)
+- `POST /ask` streams the cited answer over SSE; `POST /feedback` takes `{vote: "up"|"down"}` and writes one Analytics Engine data point (no text, no IP).
+- `worker/src/guard.ts` runs before anything else: Turnstile check, a per-client rate limit keyed by a daily-salted hash of the IP prefix, and a global limit. With `REQUIRE_GUARDS=1` it answers 503 until the bindings and secrets exist. CORS is limited to `ALLOWED_ORIGINS`.
+- Providers sit behind `core/llm` and `core/embeddings`, chosen by env (`LLM_PROVIDER`, `EMBEDDING_PROVIDER`). An optional `LLM_FALLBACK_PROVIDER` takes over for one request when the first answers 402/403/429. NVIDIA is dev and eval only and stays off unless `ALLOW_TRIAL_PROVIDERS=1`. Embeddings have no fallback (index dimension must match).
+- A citation that points at no retrieved source counts as no evidence and the answer is dropped (`finishAnswer` in `core/pipeline/ask.ts`).
+- Tests assert the Worker makes no console calls while serving a request (`worker/src/handler.test.ts`, `guard.test.ts`); `[observability]` is off in `worker/wrangler.toml`.
+
 ## Prompt-injection note
 Crawled pages are untrusted data. Ingestion strips scripts and hidden elements; the answer prompt marks retrieved text as data.
 
 ## Repo layout
 ```
 core/       pipeline logic, llm/ embeddings/ retriever/ interfaces, prompts/
-worker/     Cloudflare Worker (/ask)
-web/        static chat page (TypeScript)
+worker/     Cloudflare Worker (/ask, /feedback, guards); wrangler*.toml for dev, guarded dev, API and page
+web/        static chat page and about/privacy pages (TypeScript, Vite)
 ingest/     Python: per-state adapters, clean, chunk, stem, embed, load backends, report
 regions/    region tree and coverage (YAML)
 topics/     topic taxonomy and cross-state keys (YAML)
 sources/    source lists per state (YAML, with terms notes)
-eval/       test questions per state and scenario (YAML)
+eval/       test questions per state and scenario (YAML), thresholds.json
+scripts/    eval runners, retrieval checks, benchmarks, config build, signature check
+.githooks/  commit-msg hook (rejects tool/LLM signature lines)
+.github/    CI: type check and unit tests
 docs/       PLAN, STATUS, ARCHITECTURE, WORKFLOW, SPIKE-RESULTS, adr/
 .claude/    agents
 ```
