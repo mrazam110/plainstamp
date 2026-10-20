@@ -35,6 +35,10 @@
   </header>
 
   <main id="chat" aria-live="polite">
+    <div id="privacy-note" role="note" class="notice" hidden>
+      <span>Please don't type names, addresses or ID numbers. Your question is sent to Google's Gemini API (free tier) to write the answer. Google may use it to improve its products, and people there may read it. Nothing is stored on our server. For adults only (18+). <a href="/privacy.html">Details</a></span>
+      <button id="privacy-ok" type="button" class="ghost">Got it</button>
+    </div>
     <section id="empty" class="empty">
       <div class="hero">
         <p class="pill reveal" style="--i:0"><span class="dot" aria-hidden="true"></span>Official pages only, with source and date</p>
@@ -55,10 +59,6 @@
   </main>
 
   <footer class="composer-wrap">
-    <div id="privacy-note" class="notice" hidden>
-      <span>Please don't type names, addresses or ID numbers. Your question is sent to Google's Gemini API (free tier) to write the answer. Google may use it to improve its products, and people there may read it. Nothing is stored on our server. For adults only (18+). <a href="/privacy.html">Details</a></span>
-      <button id="privacy-ok" type="button" class="ghost">Got it</button>
-    </div>
     <div id="bot-check"></div>
     <div class="ctx-wrap">
       <button id="ctx-toggle" type="button" class="chip" aria-expanded="false" aria-controls="ctx"></button>
