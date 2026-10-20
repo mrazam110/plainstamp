@@ -24,4 +24,4 @@ web/dist/
 .neon
 .dev.vars
 .dev.vars.*
-web/public/privacy.html
+web/privacy.html

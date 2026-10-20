@@ -157,7 +157,9 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
 .chip { display: flex; align-items: center; gap: 8px; }
 .chip .ico { width: 17px; height: 17px; flex: none; }
 .chip-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.chip .chev { transition: transform .25s; }
+.chip .chev { width: 28px; height: 28px; padding: 4px; margin-right: -6px; border-radius: 50%; background: var(--tint); color: var(--accent); stroke-width: 2.6; transition: transform .25s, background-color .2s; }
+.chip:hover .chev { background: var(--glow); }
+.chip { color: var(--ink); }
 .chip[aria-expanded="true"] .chev { transform: rotate(180deg); }
 @media (prefers-reduced-motion: no-preference) {
   .context { transition: opacity .2s, transform .25s cubic-bezier(.2,.7,.2,1), visibility 0s linear .25s; }
