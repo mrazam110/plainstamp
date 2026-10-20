@@ -314,14 +314,22 @@ function applyTheme() {
   $("btn-theme").textContent = `Theme: ${settings.theme}`;
 }
 
-/** Header menu: closes on outside click or Escape, and Escape returns focus to the button. */
+/** Header menu and the "Applies to" panel: close on outside click or Escape, Escape returns focus to the opener. */
 function bindPopovers() {
-  const menuBtn = $("btn-menu"), menu = $("menu");
+  const menuBtn = $("btn-menu"), menu = $("menu"), chip = $("ctx-toggle"), wrap = chip.parentElement!;
   const setMenu = (open: boolean) => { menu.hidden = !open; menuBtn.setAttribute("aria-expanded", String(open)); };
   menuBtn.addEventListener("click", () => setMenu(menu.hidden === true));
   menu.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("button, a") && (e.target as HTMLElement).id !== "btn-theme") setMenu(false); });
-  document.addEventListener("click", (e) => { if (!menu.hidden && !menu.parentElement!.contains(e.target as Node)) setMenu(false); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+  document.addEventListener("click", (e) => {
+    const t = e.target as Node;
+    if (!menu.hidden && !menu.parentElement!.contains(t)) setMenu(false);
+    if ($("ctx").dataset.open === "true" && !wrap.contains(t)) setContextOpen(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (!menu.hidden) { setMenu(false); menuBtn.focus(); }
+    else if ($("ctx").dataset.open === "true") { setContextOpen(false); chip.focus(); }
+  });
 }
 
 function init() {
@@ -354,7 +362,7 @@ function init() {
     if (clearDlg.returnValue !== "confirm") return;
     generation++; controller?.abort(); store.clearAll();
     settings = store.settings(); history = []; checklist = [];
-    renderContext(); renderMessages(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(true);
+    renderContext(); renderMessages(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(false);
   });
   bindPopovers();
 }

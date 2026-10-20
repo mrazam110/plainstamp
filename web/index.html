@@ -60,26 +60,28 @@
       <button id="privacy-ok" type="button" class="ghost">Got it</button>
     </div>
     <div id="bot-check"></div>
-    <button id="ctx-toggle" type="button" class="chip" aria-expanded="false" aria-controls="ctx"></button>
-    <div id="ctx" class="context" role="group" aria-label="Where does this apply?">
-      <div class="seg" role="radiogroup" aria-label="Location">
-        <button type="button" role="radio" data-mode="germany">Germany</button>
-        <button type="button" role="radio" data-mode="state">One state</button>
-        <button type="button" role="radio" data-mode="move">Moving</button>
+    <div class="ctx-wrap">
+      <button id="ctx-toggle" type="button" class="chip" aria-expanded="false" aria-controls="ctx"></button>
+      <div id="ctx" class="context" role="group" aria-label="Where does this apply?">
+        <div class="seg" role="radiogroup" aria-label="Location">
+          <button type="button" role="radio" data-mode="germany">Germany</button>
+          <button type="button" role="radio" data-mode="state">One state</button>
+          <button type="button" role="radio" data-mode="move">Moving</button>
+        </div>
+        <label id="state-field" hidden>State <select id="state"></select></label>
+        <label id="from-field" hidden>From <select id="from"></select></label>
+        <label id="to-field" hidden>To <select id="to"></select></label>
+        <label class="grow">Situation <input id="situation" type="text" maxlength="200" placeholder="Optional, e.g. EU citizen, starting a job"></label>
+        <label>Answer in
+          <select id="language">
+            <option value="">Same as question</option>
+            <option value="en">English</option><option value="de">Deutsch</option><option value="tr">Türkçe</option>
+            <option value="uk">Українська</option><option value="ru">Русский</option><option value="ar">العربية</option>
+            <option value="fa">فارسی</option><option value="pl">Polski</option><option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
       </div>
-      <label id="state-field" hidden>State <select id="state"></select></label>
-      <label id="from-field" hidden>From <select id="from"></select></label>
-      <label id="to-field" hidden>To <select id="to"></select></label>
-      <label class="grow">Situation <input id="situation" type="text" maxlength="200" placeholder="Optional, e.g. EU citizen, starting a job"></label>
-      <label>Answer in
-        <select id="language">
-          <option value="">Same as question</option>
-          <option value="en">English</option><option value="de">Deutsch</option><option value="tr">Türkçe</option>
-          <option value="uk">Українська</option><option value="ru">Русский</option><option value="ar">العربية</option>
-          <option value="fa">فارسی</option><option value="pl">Polski</option><option value="es">Español</option>
-          <option value="fr">Français</option>
-        </select>
-      </label>
     </div>
     <form id="composer" class="composer" autocomplete="off">
       <label for="question" class="sr-only">Your question</label>

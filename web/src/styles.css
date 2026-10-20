@@ -135,6 +135,18 @@ dialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
 .ph.writing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: text-bottom; background: var(--accent); }
 @media (prefers-reduced-motion: no-preference) { @keyframes caret { 50% { opacity: 0; } } .ph.writing::after { animation: caret 1s steps(1) infinite; } }
 
+/* context panel: an overlay card above the composer, so the footer keeps one height. Hidden state uses visibility so its fields leave the tab order. */
+.ctx-wrap { position: relative; max-width: 720px; margin: 0 auto; }
+.ctx-wrap .chip { margin: 0 0 8px; }
+.context { position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(100% + 6px); max-width: none; margin: 0; padding: 14px; max-height: min(70dvh, 460px); overflow: auto; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 16px 40px -16px rgba(0,0,0,.45); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(8px); }
+.context[data-open="true"] { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+.chip::after { display: inline-block; transition: transform .25s; }
+.chip[aria-expanded="true"]::after { content: " \25BE"; transform: rotate(180deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .context { transition: opacity .2s, transform .25s cubic-bezier(.2,.7,.2,1), visibility 0s linear .25s; }
+  .context[data-open="true"] { transition-delay: 0s; }
+}
+
 /* typewriter hint over the question box; the native placeholder stays transparent for screen readers */
 .field { position: relative; flex: 1; min-width: 0; display: flex; }
 .field textarea { flex: 1; }
