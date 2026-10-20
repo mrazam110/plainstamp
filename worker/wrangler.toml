@@ -26,6 +26,11 @@ namespace_id = "1002"
   limit = 6
   period = 60
 
+# Vote counts only (Helpful / Not helpful): one row with the word "up" or "down". No text, IP or id is written.
+[[analytics_engine_datasets]]
+binding = "FEEDBACK"
+dataset = "plainstamp_feedback"
+
 [vars]
 REQUIRE_GUARDS = "1"
 ALLOWED_ORIGINS = "https://plainstamp.razadetechnologies.com"

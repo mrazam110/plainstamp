@@ -16,6 +16,8 @@ export interface ChatMessage {
   notCovered?: { id: string; name: string }[];
   needsState?: boolean;
   answerable?: boolean;
+  /** Which button the visitor pressed; kept in this browser only so the buttons stay greyed after a reload. */
+  vote?: "up" | "down";
 }
 
 export interface Citation {

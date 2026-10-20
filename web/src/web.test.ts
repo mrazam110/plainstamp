@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { streamAsk, ApiError, assertSecureBase } from "./api";
+import { describe, expect, it, vi } from "vitest";
+import { streamAsk, sendVote, ApiError, assertSecureBase } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { parseSse } from "./sse";
 import { createTurnstile, type TurnstileApi } from "./turnstile";
@@ -194,5 +194,20 @@ describe("directory config", () => {
       expect(e.ask.length).toBeGreaterThan(5);
       if (e.link) expect(safeUrl(e.link)).toMatch(/^https:\/\//);
     }
+  });
+});
+
+describe("sendVote", () => {
+  it("posts only the vote word, without credentials", async () => {
+    const f = vi.fn(async () => new Response("{}", { status: 200 }));
+    await sendVote("https://api.test", "up", f as any, "tok");
+    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.test/feedback");
+    expect(init.body).toBe('{"vote":"up"}');
+    expect(init.credentials).toBe("omit");
+    expect((init.headers as Record<string, string>)["x-turnstile-token"]).toBe("tok");
+  });
+  it("throws when the server refuses", async () => {
+    await expect(sendVote("https://api.test", "down", (async () => new Response("{}", { status: 429 })) as any)).rejects.toBeInstanceOf(ApiError);
   });
 });

@@ -48,3 +48,16 @@ export async function* streamAsk(base: string, body: AskBody, signal?: AbortSign
     yield* events;
   }
 }
+
+/** Counts one Helpful / Not helpful vote. The body is the vote word only: no question, answer or id. */
+export async function sendVote(base: string, vote: "up" | "down", fetchFn: typeof fetch = fetch, turnstileToken?: string): Promise<void> {
+  assertSecureBase(base);
+  const res = await fetchFn(`${base}/feedback`, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...(turnstileToken ? { "x-turnstile-token": turnstileToken } : {}) },
+    body: JSON.stringify({ vote }),
+    cache: "no-store",
+    credentials: "omit",
+  });
+  if (!res.ok) throw new ApiError(`status_${res.status}`);
+}

@@ -132,3 +132,30 @@ describe("POST /ask", () => {
     spies.forEach((s) => s.mockRestore());
   });
 });
+
+describe("POST /feedback", () => {
+  const vote = (body: unknown, raw?: string) =>
+    new Request("https://api.test/feedback", { method: "POST", headers: { "content-type": "application/json", origin: "https://app.example" }, body: raw ?? JSON.stringify(body) });
+  it("counts a vote and passes nothing but the vote word", async () => {
+    const rec = vi.fn();
+    const res = await handle(vote({ vote: "down" }), async () => deps, { ...OPTS, recordVote: rec });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("access-control-allow-origin")).toBe("https://app.example");
+    expect(rec).toHaveBeenCalledExactlyOnceWith("down");
+  });
+  it("rejects anything but exactly {vote: up|down}, so no free text gets in", async () => {
+    const rec = vi.fn();
+    for (const body of [{ vote: "maybe" }, { vote: "up", comment: "my address is" }, { comment: "x" }, [], null]) {
+      expect((await handle(vote(body), async () => deps, { ...OPTS, recordVote: rec })).status).toBe(400);
+    }
+    expect((await handle(vote(null, "{not json"), async () => deps, { ...OPTS, recordVote: rec })).status).toBe(400);
+    expect((await handle(vote({ vote: "up", pad: "x".repeat(100) }), async () => deps, { ...OPTS, recordVote: rec })).status).toBe(413);
+    expect(rec).not.toHaveBeenCalled();
+  });
+  it("runs the guard first and still answers ok when the counter throws", async () => {
+    const blocked = await handle(vote({ vote: "up" }), async () => deps, { ...OPTS, guard: async () => ({ ok: false, status: 429, error: "rate_limited" }) });
+    expect(blocked.status).toBe(429);
+    const boom = await handle(vote({ vote: "up" }), async () => deps, { ...OPTS, recordVote: () => { throw new Error("x"); } });
+    expect(boom.status).toBe(200);
+  });
+});

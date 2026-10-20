@@ -11,6 +11,8 @@ export interface HandlerOptions {
   allowedOrigins: string[];
   /** Rate limit and bot check; runs before the body is read. Omitted only for local fakes. */
   guard?: (request: Request) => Promise<GuardResult>;
+  /** Counts one Helpful / Not helpful vote. Receives the vote word only: no text, no IP, no identifier. */
+  recordVote?: (vote: "up" | "down") => void;
 }
 
 function corsHeaders(req: Request, opts: HandlerOptions): Record<string, string> {
@@ -50,6 +52,27 @@ export function parseAskRequest(raw: unknown): AskRequest {
   };
 }
 
+/** Body must be exactly {"vote":"up"|"down"}; anything else is rejected so no free text can reach the counter. */
+async function feedback(request: Request, opts: HandlerOptions, cors: Record<string, string>): Promise<Response> {
+  let vote: unknown;
+  try {
+    const text = await request.text();
+    if (text.length > 64) return json(413, { error: "too_large" }, cors);
+    const b = JSON.parse(text) as Record<string, unknown> | null;
+    if (!b || Object.keys(b).length !== 1) return json(400, { error: "invalid_request" }, cors);
+    vote = b.vote;
+  } catch {
+    return json(400, { error: "invalid_request" }, cors);
+  }
+  if (vote !== "up" && vote !== "down") return json(400, { error: "invalid_request" }, cors);
+  try {
+    opts.recordVote?.(vote);
+  } catch {
+    // a counter failure must never surface as an error to the visitor
+  }
+  return json(200, { ok: true }, cors);
+}
+
 const sse = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 
 /**
@@ -61,7 +84,7 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
   const cors = corsHeaders(request, opts);
 
   if (url.pathname === "/health") return json(200, { ok: true });
-  if (url.pathname !== "/ask") return json(404, { error: "not_found" });
+  if (url.pathname !== "/ask" && url.pathname !== "/feedback") return json(404, { error: "not_found" });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (request.method !== "POST") return json(405, { error: "method_not_allowed" }, { ...cors, allow: "POST, OPTIONS" });
   if (!(request.headers.get("content-type") ?? "").includes("application/json")) return json(415, { error: "unsupported_media_type" }, cors);
@@ -70,6 +93,8 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
     const g = await opts.guard(request);
     if (!g.ok) return json(g.status, { error: g.error }, { ...cors, ...(g.retryAfter ? { "retry-after": String(g.retryAfter) } : {}) });
   }
+
+  if (url.pathname === "/feedback") return feedback(request, opts, cors);
 
   let body: AskRequest;
   try {

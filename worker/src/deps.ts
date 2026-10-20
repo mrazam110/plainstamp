@@ -13,9 +13,16 @@ export interface Env extends ProviderEnv, GuardEnv {
   RETRIEVER_BACKEND?: string;
   DATABASE_URL?: string;
   HYPERDRIVE?: { connectionString: string };
+  /** Workers Analytics Engine dataset (wrangler [[analytics_engine_datasets]]) holding vote counts only. */
+  FEEDBACK?: { writeDataPoint(point: { blobs?: string[]; doubles?: number[]; indexes?: string[] }): void };
   /** Static assets binding holding bundle folders (bundle backend only). */
   ASSETS?: { fetch(url: string): Promise<Response> };
 }
+
+/** One counter row per vote: the vote word and a 1. Analytics Engine adds a timestamp; nothing about the visitor is passed. */
+export const voteRecorder = (env: Env) => env.FEEDBACK
+  ? (vote: "up" | "down") => env.FEEDBACK!.writeDataPoint({ blobs: [vote], doubles: [1], indexes: [vote] })
+  : undefined;
 
 export const allowedOrigins = (env: Env) => (env.ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 

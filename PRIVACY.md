@@ -3,6 +3,7 @@
 Plainstamp is built so that the server cannot keep your questions.
 
 - The Worker holds no state. It does not log request bodies, answers or IP addresses, and there is no analytics on text.
+- The Helpful / Not helpful buttons send one word, "up" or "down", to the Worker, which adds one row to a Cloudflare Analytics Engine counter. The row has no question, answer, IP address or identifier, only the time it was added, and the Worker rejects any other content. Your choice is also kept in your browser so the buttons stay greyed out.
 - Your chat history and selected states stay in your browser (localStorage). The clear button deletes them.
 - The database holds public official documents only. There are no user tables.
 - Your question (and your short chat history, your selected states and the optional situation text) is sent to Google's Gemini API to write the answer, so Google sees it. Plainstamp uses Google's **free tier**. Under Google's terms for that tier, Google may use prompts and answers to improve its products, and human reviewers may read them after the data is detached from the account, key and project. Google's terms tell users not to submit sensitive, confidential or personal information to the free tier. We cannot change that without a paid plan. Retention is not stated in those terms for the free tier (checked 2026-10-19 at ai.google.dev/gemini-api/terms).

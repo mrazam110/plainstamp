@@ -1,5 +1,5 @@
 import regionsJson from "./regions.generated.json";
-import { ApiError, streamAsk, type AskBody } from "./api";
+import { ApiError, sendVote, streamAsk, type AskBody } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { PLACEHOLDERS, TOPICS } from "./topics";
@@ -109,6 +109,39 @@ async function copyText(text: string, btn: HTMLElement, done: string) {
   setTimeout(() => { btn.textContent = old; }, 1500);
 }
 
+const THUMB = "M7 11v9H4v-9h3zm2 9V11l4-8c1.3 0 2.2 1 2 2.3L14.8 9H20a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 18.6 20H9z";
+function voteButtons(m: ChatMessage): HTMLElement[] {
+  const make = (vote: "up" | "down", label: string) => {
+    const b = el("button", "vote");
+    b.type = "button";
+    const svg = document.createElementNS(SVG, "svg"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true");
+    if (vote === "down") svg.style.transform = "rotate(180deg)";
+    const path = document.createElementNS(SVG, "path"); path.setAttribute("d", THUMB); svg.append(path);
+    b.append(svg, document.createTextNode(label));
+    b.setAttribute("aria-pressed", String(m.vote === vote));
+    return b;
+  };
+  const up = make("up", "Helpful"), down = make("down", "Not helpful");
+  const note = el("span", "vote-note");
+  note.setAttribute("role", "status");
+  const lock = () => { up.disabled = down.disabled = true; };
+  if (m.vote) { lock(); note.textContent = "Thanks"; }
+  for (const [b, vote] of [[up, "up"], [down, "down"]] as const) {
+    b.addEventListener("click", async () => {
+      if (m.vote) return;
+      lock(); note.textContent = "";
+      try {
+        await sendVote(API, vote, fetch, turnstile ? await turnstile.getToken() : undefined);
+        m.vote = vote; store.saveHistory(history);
+        b.setAttribute("aria-pressed", "true"); note.textContent = "Thanks";
+      } catch {
+        up.disabled = down.disabled = false; note.textContent = "Could not send, try again";
+      }
+    });
+  }
+  return [up, down, note];
+}
+
 function buildAnswer(m: ChatMessage, question: string, isLast: boolean): HTMLElement {
   const wrap = el("div");
   if (m.notCovered?.length) {
@@ -131,6 +164,7 @@ function buildAnswer(m: ChatMessage, question: string, isLast: boolean): HTMLEle
     });
     actions.append(b);
   }
+  if (m.content && m.content !== "(stopped)") actions.prepend(...voteButtons(m));
   const report = el("button", undefined, "Report wrong answer");
   report.type = "button";
   report.title = "Copies a report to paste into an issue. Nothing is sent.";

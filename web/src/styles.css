@@ -227,3 +227,12 @@ button.danger-solid { background: var(--bad); border-color: var(--bad); color: v
   .fine { margin-top: 2px; }
   .context { max-height: 60dvh; }
 }
+
+/* Helpful / Not helpful */
+.actions .vote { display: inline-flex; align-items: center; gap: 6px; }
+.vote svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.actions .vote[aria-pressed="true"] { color: var(--accent); }
+.actions .vote[aria-pressed="true"] svg { fill: currentColor; }
+.actions .vote:disabled { cursor: default; }
+.actions .vote:disabled:not([aria-pressed="true"]) { opacity: .5; }
+.vote-note { align-self: center; color: var(--muted); font-size: .85rem; margin-right: 8px; }
