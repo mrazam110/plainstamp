@@ -121,3 +121,23 @@ describe("provider factory", () => {
     expect(createLLM({ GEMINI_API_KEY: "k" })).toBeDefined();
   });
 });
+
+describe("createLLM fallback", () => {
+  const base = { GEMINI_API_KEY: "g", LLM_FALLBACK_PROVIDER: "nvidia", NVIDIA_API_KEY: "n" };
+  it("stays a plain Gemini client without a fallback provider", () => {
+    expect(createLLM({ GEMINI_API_KEY: "g" })).toBeInstanceOf(GeminiLLM);
+  });
+  it("needs the trial flag before nvidia can be the fallback", () => {
+    expect(() => createLLM(base)).toThrow(/ALLOW_TRIAL_PROVIDERS/);
+  });
+  it("calls nvidia once gemini reports an exhausted quota", async () => {
+    const urls: string[] = [];
+    const f = (async (url: string) => {
+      urls.push(url);
+      return url.includes("googleapis") ? new Response("{}", { status: 429 }) : new Response(JSON.stringify({ choices: [{ message: { content: "ok" } }] }));
+    }) as unknown as typeof fetch;
+    const llm = createLLM({ ...base, ALLOW_TRIAL_PROVIDERS: "1" }, f);
+    expect((await llm.generate({ messages: [{ role: "user", content: "x" }] })).text).toBe("ok");
+    expect(urls.at(-1)).toContain("integrate.api.nvidia.com");
+  });
+});

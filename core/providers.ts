@@ -1,6 +1,7 @@
 import { GeminiEmbedder } from "./embeddings/gemini";
 import type { Embedder } from "./embeddings/types";
 import { OpenAICompatEmbedder } from "./embeddings/openai-compat";
+import { FallbackLLM } from "./llm/fallback";
 import { GeminiLLM } from "./llm/gemini";
 import { OpenAICompatLLM } from "./llm/openai-compat";
 import type { LLM } from "./llm/types";
@@ -9,6 +10,9 @@ import type { LLM } from "./llm/types";
 export interface ProviderEnv {
   LLM_PROVIDER?: string;
   LLM_MODEL?: string;
+  /** Optional second provider, used when the first runs out of quota (HTTP 402, 403, 429). */
+  LLM_FALLBACK_PROVIDER?: string;
+  LLM_FALLBACK_MODEL?: string;
   EMBEDDING_PROVIDER?: string;
   EMBEDDING_MODEL?: string;
   EMBEDDING_DIMENSION?: string;
@@ -27,18 +31,23 @@ function allowTrial(env: ProviderEnv, name: string) {
   if (!env.NVIDIA_API_KEY) throw new Error("NVIDIA_API_KEY is not set");
 }
 
-export function createLLM(env: ProviderEnv, fetchFn?: typeof fetch): LLM {
-  const provider = env.LLM_PROVIDER ?? "gemini";
+function buildLLM(env: ProviderEnv, provider: string, model: string | undefined, fetchFn?: typeof fetch): LLM {
   if (provider === "nvidia") {
     allowTrial(env, "nvidia");
     return new OpenAICompatLLM({
-      apiKey: env.NVIDIA_API_KEY!, model: env.LLM_MODEL ?? "nvidia/nemotron-3-super-120b-a12b",
+      apiKey: env.NVIDIA_API_KEY!, model: model ?? "nvidia/nemotron-3-super-120b-a12b",
       baseUrl: env.NVIDIA_BASE_URL ?? NVIDIA_URL, fetch: fetchFn, reasoningPadding: 2000,
     });
   }
-  if (provider !== "gemini") throw new Error(`unknown LLM_PROVIDER ${provider}`);
+  if (provider !== "gemini") throw new Error(`unknown LLM provider ${provider}`);
   if (!env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not set");
-  return new GeminiLLM({ apiKey: env.GEMINI_API_KEY, model: env.LLM_MODEL ?? "gemini-3.5-flash-lite", fetch: fetchFn });
+  return new GeminiLLM({ apiKey: env.GEMINI_API_KEY, model: model ?? "gemini-3.5-flash-lite", fetch: fetchFn });
+}
+
+export function createLLM(env: ProviderEnv, fetchFn?: typeof fetch): LLM {
+  const primary = buildLLM(env, env.LLM_PROVIDER ?? "gemini", env.LLM_MODEL, fetchFn);
+  if (!env.LLM_FALLBACK_PROVIDER) return primary;
+  return new FallbackLLM(primary, buildLLM(env, env.LLM_FALLBACK_PROVIDER, env.LLM_FALLBACK_MODEL, fetchFn));
 }
 
 export function createEmbedder(env: ProviderEnv, fetchFn?: typeof fetch): Embedder {
