@@ -260,3 +260,26 @@ button.with-ico { display: inline-flex; align-items: center; gap: 6px; }
 .coverage li { align-items: center; }
 .cov { display: inline-flex; align-items: center; gap: 6px; } .cov small { color: var(--muted); }
 .cov.yes { color: var(--accent); } .cov.no { color: var(--muted); opacity: .7; }
+
+/* ---------- chats sidebar ---------- */
+.top-left { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.top-left .icon-btn { margin-left: -10px; }
+.shell { position: relative; flex: 1; display: flex; min-height: 0; }
+.col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.side { width: 272px; flex: none; display: flex; flex-direction: column; gap: 8px; padding: 12px 10px; padding-left: max(10px, env(safe-area-inset-left)); border-right: 1px solid var(--line); background: var(--paper); min-height: 0; }
+body[data-side="closed"] .side { display: none; }
+.side-new { justify-content: center; width: 100%; border-color: var(--accent); color: var(--accent); font-weight: 600; flex: none; }
+.side-new:hover { background: var(--tint); }
+.chat-list { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 2px; }
+.chat-list li { display: flex; align-items: center; border-radius: 10px; }
+.chat-list li:hover, .chat-list li.current { background: var(--tint); }
+.chat-item { flex: 1; min-width: 0; border: 0; background: transparent; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; font-size: .92rem; }
+.chat-list li.current .chat-item { font-weight: 600; color: var(--accent); }
+.chat-list .icon-btn { flex: none; }
+.side-note { margin: 0; padding: 0 6px; font-size: .78rem; flex: none; }
+.side-backdrop { display: none; }
+@media (max-width: 899px) {
+  .side { position: absolute; z-index: 15; inset: 0 auto 0 0; width: min(300px, 86vw); background: var(--card); box-shadow: 0 16px 40px -8px rgba(0,0,0,.45); }
+  .side-backdrop { display: block; position: absolute; inset: 0; z-index: 14; background: rgba(0,0,0,.4); }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 899px) { @keyframes slide-in { from { transform: translateX(-16px); opacity: 0; } } .side { animation: slide-in .18s ease-out; } }

@@ -3,7 +3,7 @@ import { streamAsk, sendVote, ApiError, assertSecureBase } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { parseSse } from "./sse";
 import { createTurnstile, type TurnstileApi } from "./turnstile";
-import { createStore, DEFAULTS } from "./storage";
+import { chatTitle, createStore, DEFAULTS, type Chat } from "./storage";
 
 const cite = (n: number) => ({ n, title: "T", heading: "H", url: "https://x/" + n, crawledAt: "2026-10-18", regionId: "de", regionName: "Germany" });
 
@@ -87,6 +87,7 @@ describe("helpers", () => {
 });
 
 describe("store", () => {
+  const chat = (id: string, updatedAt: number, n: number): Chat => ({ id, title: id, updatedAt, messages: Array.from({ length: n }, (_, i) => ({ role: "user" as const, content: String(i) })) });
   const mem = () => {
     const m = new Map<string, string>();
     return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k), m };
@@ -97,17 +98,50 @@ describe("store", () => {
     expect(s.settings()).toEqual(DEFAULTS);
     s.saveSettings({ ...DEFAULTS, mode: "state", state: "de-be" });
     expect(createStore(kv).settings().state).toBe("de-be");
-    s.saveHistory(Array.from({ length: 100 }, (_, i) => ({ role: "user" as const, content: String(i) })));
-    expect(s.history()).toHaveLength(60);
+    s.saveChats([chat("a", 1, 100)]);
+    expect(s.chats()[0]!.messages).toHaveLength(60);
     s.saveChecklist([{ id: "1", text: "x", done: false }]);
     s.clearAll();
     expect(kv.m.size).toBe(0);
   });
+  it("keeps several chats newest first, caps them, and remembers the active one", () => {
+    const kv = mem();
+    const s = createStore(kv);
+    s.saveChats(Array.from({ length: 30 }, (_, i) => chat(String(i), i, 1)));
+    s.saveActiveId("7");
+    const back = createStore(kv);
+    expect(back.chats()).toHaveLength(20);
+    expect(back.chats()[0]!.updatedAt).toBeGreaterThan(back.chats()[1]!.updatedAt);
+    expect(back.activeId()).toBe("7");
+  });
+  it("turns the old single history into the first chat and drops the old key", () => {
+    const kv = mem();
+    kv.setItem("plainstamp.v1.history", JSON.stringify([{ role: "user", content: "How do I register?" }, { role: "model", content: "..." }]));
+    const s = createStore(kv);
+    const [first] = s.chats();
+    expect(first!.title).toBe("How do I register?");
+    expect(first!.messages).toHaveLength(2);
+    s.saveChats(s.chats());
+    expect(kv.getItem("plainstamp.v1.history")).toBeNull();
+  });
+  it("drops the oldest chats when the browser quota is hit", () => {
+    const kv = mem();
+    let calls = 0;
+    const tight = { ...kv, setItem: (k: string, v: string) => { if (k.endsWith("chats") && calls++ < 2) throw new Error("quota"); kv.setItem(k, v); } };
+    createStore(tight).saveChats([chat("a", 3, 1), chat("b", 2, 1), chat("c", 1, 1)]);
+    expect(createStore(kv).chats().map((c) => c.id)).toEqual(["a"]);
+  });
+  it("titles a chat by its first question", () => {
+    expect(chatTitle([])).toBe("New chat");
+    expect(chatTitle([{ role: "user", content: "  Hello\n  there " }])).toBe("Hello there");
+    expect(chatTitle([{ role: "user", content: "x".repeat(80) }])).toHaveLength(48);
+  });
   it("survives blocked or corrupt storage", () => {
     const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); }, removeItem: () => { throw new Error("blocked"); } };
     const s = createStore(broken);
-    expect(s.history()).toEqual([]);
-    expect(() => { s.saveHistory([]); s.clearAll(); }).not.toThrow();
+    expect(s.chats()).toEqual([]);
+    expect(s.activeId()).toBeNull();
+    expect(() => { s.saveChats([]); s.saveActiveId("x"); s.clearAll(); }).not.toThrow();
     const bad = { ...mem(), getItem: () => "{not json" };
     expect(createStore(bad).settings()).toEqual(DEFAULTS);
   });

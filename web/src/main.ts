@@ -8,7 +8,7 @@ import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { PLACEHOLDERS, TOPICS } from "./topics";
 import { hydrateIcons, icon, label, setIcon, type IconName } from "./icons";
-import { createStore, type ChatMessage, type Settings } from "./storage";
+import { chatTitle, createStore, NEW_CHAT_TITLE, type Chat, type ChatMessage, type Settings } from "./storage";
 
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
 const API = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8787";
@@ -22,7 +22,11 @@ const store = (() => {
   try { return createStore(localStorage); } catch { return createStore({ getItem: () => null, setItem: () => {}, removeItem: () => {} }); }
 })();
 let settings: Settings = store.settings();
-let history: ChatMessage[] = store.history();
+const newChat = (): Chat => ({ id: crypto.randomUUID(), title: NEW_CHAT_TITLE, updatedAt: Date.now(), messages: [] });
+let chats: Chat[] = store.chats(); // saved chats, newest first; an empty active chat is not in here yet
+let active: Chat = chats.find((c) => c.id === store.activeId()) ?? chats[0] ?? newChat();
+let history: ChatMessage[] = active.messages;
+if (chats.length) store.saveChats(chats); // writes an old single history out as the first chat, once
 let checklist = store.checklist();
 let controller: AbortController | null = null;
 let generation = 0; // bumped by Clear data so a stream that was in flight cannot write history back
@@ -36,6 +40,66 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
 };
 
 function save() { store.saveSettings(settings); }
+
+// ---------- chats ----------
+/** Writes every chat to this browser. The active chat joins the list with its first message. */
+function persist() {
+  if (active.messages.length && !chats.includes(active)) chats.unshift(active);
+  for (const c of chats) c.title = chatTitle(c.messages);
+  chats = chats.filter((c) => c.messages.length).sort((a, b) => b.updatedAt - a.updatedAt);
+  store.saveChats(chats);
+  store.saveActiveId(active.id);
+}
+function setActive(c: Chat) { active = c; history = c.messages; store.saveActiveId(c.id); }
+const narrow = () => matchMedia("(max-width: 899px)").matches;
+function setSide(open: boolean) {
+  document.body.dataset.side = open ? "open" : "closed";
+  $("btn-side").setAttribute("aria-expanded", String(open));
+  $("side-backdrop").hidden = !(open && narrow());
+}
+function openChat(c: Chat) {
+  if (c === active) { if (narrow()) setSide(false); return; }
+  controller?.abort(); // a running answer stops; what arrived so far stays in its chat
+  setActive(c);
+  renderMessages(); renderChats(); setContextOpen(false);
+  if (narrow()) setSide(false);
+}
+function startNewChat() {
+  if (narrow()) setSide(false);
+  if (!active.messages.length) { $("question").focus(); return; }
+  controller?.abort();
+  setActive(newChat());
+  renderMessages(); renderChats(); setContextOpen(false);
+  $("question").focus();
+}
+function removeChat(c: Chat) {
+  if (c === active) controller?.abort();
+  chats = chats.filter((x) => x !== c);
+  if (c === active) setActive(chats[0] ?? newChat());
+  persist();
+  renderMessages(); renderChats();
+}
+function renderChats() {
+  const ul = $("chat-list");
+  ul.replaceChildren();
+  for (const c of chats) {
+    const li = el("li", c === active ? "current" : "");
+    const open = el("button", "chat-item", c.title);
+    open.type = "button"; open.title = c.title;
+    if (c === active) open.setAttribute("aria-current", "true");
+    open.addEventListener("click", () => openChat(c));
+    const del = iconButton("trash", `Delete chat: ${c.title}`, "ghost icon-btn small", "Delete chat");
+    del.addEventListener("click", () => {
+      $("delchat-name").textContent = c.title;
+      const dlg = $("dlg-delchat") as HTMLDialogElement;
+      dlg.returnValue = ""; pendingDelete = c; dlg.showModal();
+    });
+    li.append(open, del);
+    ul.append(li);
+  }
+  $("chat-list-empty").hidden = chats.length > 0;
+}
+let pendingDelete: Chat | null = null;
 
 // ---------- context bar ----------
 function fillSelect(sel: HTMLSelectElement, value: string, placeholder: string) {
@@ -161,7 +225,7 @@ function voteButtons(m: ChatMessage): HTMLElement[] {
       lock(); note.textContent = "";
       try {
         await sendVote(API, vote, fetch, turnstile ? await turnstile.getToken() : undefined);
-        m.vote = vote; store.saveHistory(history);
+        m.vote = vote; persist();
         b.setAttribute("aria-pressed", "true"); note.textContent = "Thanks";
       } catch {
         up.disabled = down.disabled = false; note.textContent = "Could not send, try again";
@@ -315,23 +379,29 @@ async function send(question: string, retry = false) {
   question = question.trim();
   if (!question || controller) return;
   setContextOpen(false);
-  if (retry && history.at(-1)?.role === "model") history.pop(); // asking again after choosing a state
-  else history.push({ role: "user", content: question });
+  const chat = active, msgs = chat.messages; // the answer belongs to this chat even if the visitor switches away
+  const here = () => chat === active;
+  if (retry && msgs.at(-1)?.role === "model") msgs.pop(); // asking again after choosing a state
+  else msgs.push({ role: "user", content: question });
   const draft: ChatMessage = { role: "model", content: "" };
-  history.push(draft);
+  msgs.push(draft);
+  chat.updatedAt = Date.now();
+  if (!chats.includes(chat)) chats.unshift(chat); // show it in the sidebar now; it is saved once the answer is in
+  chat.title = chatTitle(msgs); renderChats();
   renderMessages();
   setBusy(true);
   controller = new AbortController();
   const myGeneration = generation;
   const live = $("messages").lastElementChild as HTMLElement;
   live.replaceChildren(typingDots());
-  const prior = history.slice(0, -2).filter((m) => m.content).slice(-6).map((m) => ({ role: m.role, content: m.content }));
+  const prior = msgs.slice(0, -2).filter((m) => m.content).slice(-6).map((m) => ({ role: m.role, content: m.content }));
   try {
     const token = turnstile ? await turnstile.getToken() : undefined;
     for await (const ev of streamAsk(API, { question, context: requestContext(), history: prior }, controller.signal, fetch, token)) {
       if (ev.event === "meta") { draft.notCovered = ev.data.notCovered; draft.needsState = ev.data.needsState; }
       else if (ev.event === "delta") {
         draft.content += ev.data.text;
+        if (!here()) continue;
         live.replaceChildren(el("div", "body"));
         (live.firstElementChild as HTMLElement).innerHTML = renderAnswer(draft.content, []);
         $("chat").scrollTop = $("chat").scrollHeight;
@@ -344,21 +414,23 @@ async function send(question: string, retry = false) {
     else {
       const code = e instanceof ApiError ? e.code : (e as Error).message === "turnstile_failed" ? "turnstile_failed" : "network";
       const msg = ERRORS[code] ?? ERRORS.upstream_error!;
-      history.pop();
-      if (draft.content) history.push(draft);
+      msgs.pop();
+      if (draft.content) msgs.push(draft);
+      controller = null; setBusy(false);
+      if (myGeneration !== generation) return;
+      persist(); renderChats();
+      if (!here()) return;
       renderMessages();
       const err = el("li", "msg model"); err.append(el("p", "error", msg));
       $("messages").append(err);
-      controller = null; setBusy(false);
-      if (myGeneration === generation) store.saveHistory(history);
       return;
     }
   }
   controller = null;
   setBusy(false);
   if (myGeneration !== generation) return; // cleared while streaming: leave the fresh state alone
-  store.saveHistory(history);
-  renderMessages();
+  persist(); renderChats();
+  if (here()) renderMessages();
   void showStats();
 }
 
@@ -415,13 +487,25 @@ function bindPopovers() {
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!menu.hidden) { setMenu(false); menuBtn.focus(); }
+    else if (narrow() && document.body.dataset.side === "open") { setSide(false); $("btn-side").focus(); }
     else if ($("ctx").dataset.open === "true") { setContextOpen(false); chip.focus(); }
   });
 }
 
 function init() {
   hydrateIcons();
-  renderContext(); bindContext(); renderChecklist(); renderCoverage(); applyTheme(); renderMessages();
+  renderContext(); bindContext(); renderChecklist(); renderCoverage(); applyTheme(); renderMessages(); renderChats();
+  setSide(!narrow());
+  $("btn-side").addEventListener("click", () => setSide(document.body.dataset.side !== "open"));
+  $("side-backdrop").addEventListener("click", () => setSide(false));
+  $("btn-new").addEventListener("click", startNewChat);
+  $("side-new").addEventListener("click", startNewChat);
+  const delDlg = $("dlg-delchat") as HTMLDialogElement;
+  delDlg.addEventListener("close", () => {
+    const c = pendingDelete; pendingDelete = null;
+    if (delDlg.returnValue === "confirm" && c) removeChat(c);
+  });
+  matchMedia("(max-width: 899px)").addEventListener("change", () => setSide(!narrow()));
   setContextOpen(false); // landing keeps the hero in view; the "Applies to" chip opens it
   $("privacy-note").hidden = settings.privacyNoticeDismissed;
   $("privacy-ok").addEventListener("click", () => { settings.privacyNoticeDismissed = true; save(); $("privacy-note").hidden = true; });
@@ -449,8 +533,8 @@ function init() {
   clearDlg.addEventListener("close", () => {
     if (clearDlg.returnValue !== "confirm") return;
     generation++; controller?.abort(); store.clearAll();
-    settings = store.settings(); history = []; checklist = [];
-    renderContext(); renderMessages(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(false);
+    settings = store.settings(); chats = []; setActive(newChat()); checklist = [];
+    renderContext(); renderMessages(); renderChats(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(false);
   });
   bindPopovers();
   void showStats();

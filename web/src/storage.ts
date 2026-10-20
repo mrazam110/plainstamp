@@ -20,6 +20,14 @@ export interface ChatMessage {
   vote?: "up" | "down";
 }
 
+/** One conversation. Lives in this browser only, like everything else. */
+export interface Chat {
+  id: string;
+  title: string;
+  updatedAt: number;
+  messages: ChatMessage[];
+}
+
 export interface Citation {
   n: number;
   docId?: string;
@@ -41,8 +49,18 @@ export const DEFAULTS: Settings = {
   mode: "germany", state: "", fromState: "", toState: "", situation: "", language: "", theme: "auto", privacyNoticeDismissed: false,
 };
 
-const KEYS = { settings: "plainstamp.v1.settings", history: "plainstamp.v1.history", checklist: "plainstamp.v1.checklist" } as const;
+// `history` is the single-conversation key from before chats existed; it is read once and migrated.
+const KEYS = { settings: "plainstamp.v1.settings", history: "plainstamp.v1.history", chats: "plainstamp.v1.chats", active: "plainstamp.v1.active", checklist: "plainstamp.v1.checklist" } as const;
 const MAX_MESSAGES = 60;
+const MAX_CHATS = 20;
+export const NEW_CHAT_TITLE = "New chat";
+
+/** A chat is named after its first question. */
+export function chatTitle(messages: ChatMessage[]): string {
+  const first = messages.find((m) => m.role === "user")?.content.replace(/\s+/g, " ").trim();
+  if (!first) return NEW_CHAT_TITLE;
+  return first.length > 48 ? `${first.slice(0, 47).trimEnd()}\u2026` : first;
+}
 
 type KV = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -64,16 +82,30 @@ export function createStore(kv: KV) {
       return [];
     }
   };
-  const write = (key: string, value: unknown) => {
+  const write = (key: string, value: unknown): boolean => {
     try {
       kv.setItem(key, JSON.stringify(value));
-    } catch { /* storage unavailable: the page still works for this session */ }
+      return true;
+    } catch { return false; /* storage unavailable: the page still works for this session */ }
   };
   return {
     settings: () => read<Settings>(KEYS.settings, { ...DEFAULTS }),
     saveSettings: (s: Settings) => write(KEYS.settings, s),
-    history: () => readList<ChatMessage>(KEYS.history),
-    saveHistory: (h: ChatMessage[]) => write(KEYS.history, h.slice(-MAX_MESSAGES)),
+    /** Newest first. Picks up an old single history once and turns it into the first chat. */
+    chats(): Chat[] {
+      const list = readList<Chat>(KEYS.chats).filter((c) => c && typeof c.id === "string" && Array.isArray(c.messages));
+      if (list.length) return list.sort((a, b) => b.updatedAt - a.updatedAt);
+      const legacy = readList<ChatMessage>(KEYS.history);
+      return legacy.length ? [{ id: crypto.randomUUID(), title: chatTitle(legacy), updatedAt: Date.now(), messages: legacy }] : [];
+    },
+    /** Keeps the newest chats; if the browser quota is hit, drops the oldest until it fits. */
+    saveChats(chats: Chat[]) {
+      let keep = chats.slice(0, MAX_CHATS).map((c) => ({ ...c, messages: c.messages.slice(-MAX_MESSAGES) }));
+      while (!write(KEYS.chats, keep) && keep.length > 1) keep = keep.slice(0, -1);
+      try { kv.removeItem(KEYS.history); } catch { /* ignore */ }
+    },
+    activeId: () => { try { return kv.getItem(KEYS.active); } catch { return null; } },
+    saveActiveId: (id: string) => { try { kv.setItem(KEYS.active, id); } catch { /* ignore */ } },
     checklist: () => readList<ChecklistItem>(KEYS.checklist),
     saveChecklist: (c: ChecklistItem[]) => write(KEYS.checklist, c),
     clearAll() {

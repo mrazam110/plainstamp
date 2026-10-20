@@ -21,6 +21,8 @@ export const ICONS = {
   dots: "M5 12h.01M12 12h.01M19 12h.01",
   circleCheck: "M12 21a9 9 0 100-18 9 9 0 000 18zM8 12.5l3 3 5-6",
   circleMinus: "M12 21a9 9 0 100-18 9 9 0 000 18zM8.5 12h7",
+  plus: "M12 5v14M5 12h14",
+  sidebar: "M4 5h16v14H4zM9 5v14",
 } as const;
 
 export type IconName = keyof typeof ICONS;
