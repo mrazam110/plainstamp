@@ -50,7 +50,7 @@ function persist() {
   store.saveChats(chats);
   store.saveActiveId(active.id);
 }
-function setActive(c: Chat) { active = c; history = c.messages; store.saveActiveId(c.id); }
+function setActive(c: Chat, remember = true) { active = c; history = c.messages; if (remember) store.saveActiveId(c.id); }
 const narrow = () => matchMedia("(max-width: 899px)").matches;
 function setSide(open: boolean) {
   document.body.dataset.side = open ? "open" : "closed";
@@ -533,7 +533,7 @@ function init() {
   clearDlg.addEventListener("close", () => {
     if (clearDlg.returnValue !== "confirm") return;
     generation++; controller?.abort(); store.clearAll();
-    settings = store.settings(); chats = []; setActive(newChat()); checklist = [];
+    settings = store.settings(); chats = []; setActive(newChat(), false); // false: Clear data must leave nothing behind in storage checklist = [];
     renderContext(); renderMessages(); renderChats(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(false);
   });
   bindPopovers();
