@@ -16,19 +16,17 @@
       <span>Plainstamp</span>
     </a>
     <nav class="tools" aria-label="Tools">
-      <button id="btn-checklist" type="button" class="ghost">Checklist <span id="checklist-count" class="count" hidden>0</span></button>
-      <button id="btn-coverage" type="button" class="ghost wide">Coverage</button>
-      <a href="/about.html" class="ghost wide">About</a>
+      <button id="btn-checklist" type="button" class="ghost icon-btn" data-icon="list" aria-label="My checklist" title="My checklist"><span id="checklist-count" class="count" hidden>0</span></button>
+      <button id="btn-coverage" type="button" class="ghost icon-btn wide" data-icon="pin" aria-label="Coverage" title="Coverage: which states are included"></button>
+      <a href="/about.html" class="ghost icon-btn wide" data-icon="info" aria-label="About" title="About"></a>
       <div class="menu-wrap">
-        <button id="btn-menu" type="button" class="ghost menu-btn" aria-label="More options" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></svg>
-        </button>
+        <button id="btn-menu" type="button" class="ghost icon-btn" data-icon="dots" aria-label="More options" title="More options" aria-haspopup="true" aria-expanded="false" aria-controls="menu"></button>
         <div id="menu" class="menu" hidden>
-          <button id="menu-coverage" type="button" class="narrow">Coverage</button>
-          <a href="/about.html" class="narrow">About</a>
-          <button id="btn-theme" type="button">Theme</button>
+          <button id="menu-coverage" type="button" class="narrow"><span data-icon="pin"></span>Coverage</button>
+          <a href="/about.html" class="narrow"><span data-icon="info"></span>About</a>
+          <button id="btn-theme" type="button"><span data-icon="auto"></span><span id="theme-label">Theme</span></button>
           <hr>
-          <button id="btn-clear" type="button" class="danger">Clear my data</button>
+          <button id="btn-clear" type="button" class="danger"><span data-icon="trash"></span>Clear my data</button>
         </div>
       </div>
     </nav>
@@ -36,7 +34,7 @@
 
   <main id="chat" aria-live="polite">
     <div id="privacy-note" role="note" class="notice" hidden>
-      <span>Please don't type names, addresses or ID numbers. Your question is sent to Google's Gemini API (free tier) to write the answer. Google may use it to improve its products, and people there may read it. Nothing is stored on our server. For adults only (18+). <a href="/privacy.html">Details</a></span>
+      <span data-icon="info" class="notice-ico"></span><span>Please don't type names, addresses or ID numbers. Your question is sent to Google's Gemini API (free tier) to write the answer. Google may use it to improve its products, and people there may read it. Nothing is stored on our server. For adults only (18+). <a href="/privacy.html">Details</a></span>
       <button id="privacy-ok" type="button" class="ghost">Got it</button>
     </div>
     <section id="empty" class="empty">
@@ -86,15 +84,16 @@
     <form id="composer" class="composer" autocomplete="off">
       <label for="question" class="sr-only">Your question</label>
       <div class="field"><textarea id="question" rows="1" maxlength="2000" placeholder="Ask a question…" enterkeyhint="send"></textarea><span id="ph" class="ph" aria-hidden="true"></span></div>
-      <button id="send" type="submit">Ask</button>
-      <button id="stop" type="button" class="stop" hidden>Stop</button>
+      <button id="send" type="submit" class="round" data-icon="send" aria-label="Ask" title="Ask (Enter)"></button>
+      <button id="stop" type="button" class="round stop" data-icon="stop" aria-label="Stop answering" title="Stop" hidden></button>
     </form>
     <p class="fine">General information from official pages, not legal advice. Check with the office before you act. <a href="/about.html">About</a> · <a href="/privacy.html">Privacy</a></p>
   </footer>
 
-  <dialog id="dlg-checklist"><form method="dialog"><h2>My checklist</h2><ul id="checklist" class="checklist"></ul><p id="checklist-empty" class="muted">Nothing saved yet. Use "Save steps" under an answer.</p><div class="dlg-actions"><button type="button" id="checklist-clear" class="ghost">Remove all</button><button value="close">Close</button></div></form></dialog>
-  <dialog id="dlg-coverage"><form method="dialog"><h2>Coverage</h2><p class="muted">Federal rules are covered. State rules only where marked.</p><ul id="coverage" class="coverage"></ul><div class="dlg-actions"><button value="close">Close</button></div></form></dialog>
+  <dialog id="dlg-checklist" aria-labelledby="checklist-title"><form method="dialog"><div class="dlg-head"><h2 id="checklist-title">My checklist</h2><button value="close" class="ghost icon-btn" data-icon="x" aria-label="Close" title="Close"></button></div><ul id="checklist" class="checklist"></ul><p id="checklist-empty" class="muted">Nothing saved yet. Tap the bookmark under an answer to save its steps.</p><div class="dlg-actions"><button type="button" id="checklist-clear" class="ghost with-ico" data-icon="trash"><span>Remove all</span></button></div></form></dialog>
+  <dialog id="dlg-coverage" aria-labelledby="coverage-title"><form method="dialog"><div class="dlg-head"><h2 id="coverage-title">Coverage</h2><button value="close" class="ghost icon-btn" data-icon="x" aria-label="Close" title="Close"></button></div><p class="muted">Federal rules are covered. State rules only where marked.</p><ul id="coverage" class="coverage"></ul></form></dialog>
   <dialog id="dlg-clear" aria-labelledby="clear-title"><form method="dialog"><h2 id="clear-title">Delete your data?</h2><p class="muted">This removes your chat history, checklist and settings from this browser. It cannot be undone.</p><div class="dlg-actions"><button value="cancel" autofocus>Cancel</button><button value="confirm" class="danger-solid">Delete everything</button></div></form></dialog>
+  <div id="sr-status" class="sr-only" role="status" aria-live="polite"></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

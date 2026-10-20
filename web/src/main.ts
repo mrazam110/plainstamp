@@ -1,8 +1,13 @@
+import "@fontsource-variable/fraunces/opsz.css";
+import "@fontsource-variable/fraunces/opsz-italic.css";
+import "@fontsource-variable/source-sans-3/wght.css";
+import "@fontsource-variable/source-sans-3/wght-italic.css";
 import regionsJson from "./regions.generated.json";
 import { ApiError, sendVote, streamAsk, type AskBody } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { PLACEHOLDERS, TOPICS } from "./topics";
+import { hydrateIcons, icon, label, setIcon, type IconName } from "./icons";
 import { createStore, type ChatMessage, type Settings } from "./storage";
 
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
@@ -47,14 +52,14 @@ function renderContext() {
   fillSelect($("to") as HTMLSelectElement, settings.toState, "Choose");
   ($("situation") as HTMLInputElement).value = settings.situation;
   ($("language") as HTMLSelectElement).value = settings.language;
-  $("ctx-toggle").textContent = summary();
+  setChip();
 }
 function bindContext() {
   document.querySelectorAll<HTMLButtonElement>(".seg button").forEach((b) =>
     b.addEventListener("click", () => { settings.mode = b.dataset.mode as Settings["mode"]; save(); renderContext(); }));
   $("ctx-toggle").addEventListener("click", () => setContextOpen($("ctx").dataset.open !== "true"));
   const on = (id: string, key: "state" | "fromState" | "toState" | "situation" | "language") =>
-    $(id).addEventListener("change", (e) => { settings[key] = (e.target as HTMLInputElement).value; save(); $("ctx-toggle").textContent = summary(); });
+    $(id).addEventListener("change", (e) => { settings[key] = (e.target as HTMLInputElement).value; save(); setChip(); });
   on("state", "state"); on("from", "fromState"); on("to", "toState"); on("situation", "situation"); on("language", "language");
 }
 /** What the Worker is told: incomplete choices fall back to the broader scope. */
@@ -71,10 +76,19 @@ function summary(): string {
   const lang = settings.language ? ($("language") as HTMLSelectElement).selectedOptions[0]?.text : "";
   return [place, settings.situation.trim() ? "situation set" : "", lang].filter(Boolean).join(" \u00B7 ");
 }
+/** Chip = pin icon + scope summary + chevron. "Applies to" is read by screen readers only. */
+function setChip() {
+  const chip = $("ctx-toggle");
+  const text = el("span", "chip-text", summary());
+  const hidden = el("span", "sr-only", "Applies to: ");
+  const chev = icon("chevron"); chev.classList.add("chev");
+  chip.replaceChildren(icon("pin"), hidden, text, chev);
+  chip.title = "Where does this apply? Change country, state or language";
+}
 function setContextOpen(open: boolean) {
   $("ctx").dataset.open = String(open);
   $("ctx-toggle").setAttribute("aria-expanded", String(open));
-  $("ctx-toggle").textContent = summary();
+  setChip();
 }
 
 // ---------- messages ----------
@@ -92,8 +106,7 @@ function sourceCards(m: ChatMessage): HTMLElement | null {
     title.href = safeUrl(c.url); title.target = "_blank"; title.rel = "noopener noreferrer";
     const meta = el("div", "meta");
     meta.append(el("span", "badge", c.regionName), document.createTextNode(`${c.heading} \u00B7 checked ${c.crawledAt}`));
-    const copy = el("button", "ghost", "Copy German title");
-    copy.type = "button";
+    const copy = iconButton("copy", "Copy German title", "ghost icon-btn small");
     copy.addEventListener("click", () => copyText(c.title, copy, "Copied"));
     text.append(title, meta);
     card.append(num, text, copy);
@@ -103,21 +116,37 @@ function sourceCards(m: ChatMessage): HTMLElement | null {
   return section;
 }
 
+/** A button that shows only an icon; the label is its accessible name and its hover tooltip. */
+function iconButton(name: IconName, text: string, cls = "", tip = text): HTMLButtonElement {
+  const b = el("button", cls || undefined);
+  b.type = "button";
+  setIcon(b, name);
+  label(b, text, tip);
+  return b;
+}
+function announce(text: string) { const s = $("sr-status"); s.textContent = ""; setTimeout(() => { s.textContent = text; }, 30); }
+
+/** Copies text and shows the result on the button: an icon button flips to a check (or an x) for a moment, a text button swaps its words. */
 async function copyText(text: string, btn: HTMLElement, done: string) {
+  let ok = true;
+  try { await navigator.clipboard.writeText(text); } catch { ok = false; }
+  const msg = ok ? done : "Copy failed";
+  announce(msg);
+  if (btn.dataset.icon) {
+    const was = { icon: btn.dataset.icon as IconName, label: btn.getAttribute("aria-label") ?? "", tip: btn.title };
+    setIcon(btn, ok ? "check" : "x"); label(btn, msg); btn.classList.add(ok ? "ok" : "fail");
+    setTimeout(() => { setIcon(btn, was.icon); label(btn, was.label, was.tip); btn.classList.remove("ok", "fail"); }, 1500);
+    return;
+  }
   const old = btn.textContent;
-  try { await navigator.clipboard.writeText(text); btn.textContent = done; } catch { btn.textContent = "Copy failed"; }
+  btn.textContent = msg;
   setTimeout(() => { btn.textContent = old; }, 1500);
 }
 
-const THUMB = "M7 11v9H4v-9h3zm2 9V11l4-8c1.3 0 2.2 1 2 2.3L14.8 9H20a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 18.6 20H9z";
 function voteButtons(m: ChatMessage): HTMLElement[] {
-  const make = (vote: "up" | "down", label: string) => {
-    const b = el("button", "vote");
-    b.type = "button";
-    const svg = document.createElementNS(SVG, "svg"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true");
-    if (vote === "down") svg.style.transform = "rotate(180deg)";
-    const path = document.createElementNS(SVG, "path"); path.setAttribute("d", THUMB); svg.append(path);
-    b.append(svg, document.createTextNode(label));
+  const make = (vote: "up" | "down", text: string) => {
+    const b = iconButton("thumb", text, "vote icon-btn small");
+    if (vote === "down") b.classList.add("down");
     b.setAttribute("aria-pressed", String(m.vote === vote));
     return b;
   };
@@ -156,18 +185,16 @@ function buildAnswer(m: ChatMessage, question: string, isLast: boolean): HTMLEle
   const actions = el("div", "actions");
   const steps = checklistItems(m.content);
   if (steps.length) {
-    const b = el("button", undefined, "Save steps");
-    b.type = "button";
+    const b = iconButton("bookmark", "Save steps", "icon-btn small", "Save these steps to my checklist");
     b.addEventListener("click", () => {
       for (const t of steps) if (!checklist.some((c) => c.text === t)) checklist.push({ id: crypto.randomUUID(), text: t, done: false });
-      store.saveChecklist(checklist); renderChecklist(); b.textContent = "Saved";
+      store.saveChecklist(checklist); renderChecklist();
+      setIcon(b, "check"); label(b, "Saved to my checklist"); b.classList.add("ok"); announce("Steps saved to your checklist");
     });
     actions.append(b);
   }
   if (m.content && m.content !== "(stopped)") actions.prepend(...voteButtons(m));
-  const report = el("button", undefined, "Report wrong answer");
-  report.type = "button";
-  report.title = "Copies a report to paste into an issue. Nothing is sent.";
+  const report = iconButton("flag", "Report wrong answer", "icon-btn small", "Report wrong answer: copies a report to paste into an issue. Nothing is sent.");
   report.addEventListener("click", () => copyText(reportText(question, m.content, m.citations ?? []), report, "Copied, paste it into an issue"));
   actions.append(report);
   wrap.append(actions);
@@ -214,9 +241,9 @@ function renderTopics() {
     const card = el("article", "topic"); card.style.setProperty("--i", String(i));
     const svg = document.createElementNS(SVG, "svg"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true");
     const path = document.createElementNS(SVG, "path"); path.setAttribute("d", t.icon); svg.append(path);
-    const icon = el("span", "topic-icon"); icon.append(svg);
+    const badge = el("span", "topic-icon"); badge.append(svg);
     const title = el("h3", undefined, t.title); const de = el("span", undefined, t.de); de.lang = "de"; title.append(de);
-    const head = el("div", "topic-head"); head.append(icon, title);
+    const head = el("div", "topic-head"); head.append(badge, title);
     const ul = el("ul");
     for (const q of t.questions) {
       const b = el("button", undefined, q.text); b.type = "button";
@@ -332,7 +359,7 @@ function renderChecklist() {
     const li = el("li", item.done ? "done" : "");
     const cb = el("input"); cb.type = "checkbox"; cb.checked = item.done; cb.setAttribute("aria-label", item.text);
     cb.addEventListener("change", () => { item.done = cb.checked; li.className = item.done ? "done" : ""; store.saveChecklist(checklist); });
-    const rm = el("button", "ghost", "Remove"); rm.type = "button";
+    const rm = iconButton("trash", `Remove: ${item.text}`, "ghost icon-btn small", "Remove");
     rm.addEventListener("click", () => { checklist = checklist.filter((c) => c.id !== item.id); store.saveChecklist(checklist); renderChecklist(); });
     li.append(cb, el("span", undefined, item.text), rm);
     ul.append(li);
@@ -340,18 +367,27 @@ function renderChecklist() {
   $("checklist-empty").hidden = checklist.length > 0;
   const count = $("checklist-count");
   count.hidden = checklist.length === 0;
-  count.textContent = String(checklist.filter((c) => !c.done).length);
+  const open = checklist.filter((c) => !c.done).length;
+  count.textContent = String(open);
+  label($("btn-checklist"), open ? `My checklist, ${open} open` : "My checklist", "My checklist");
 }
 function renderCoverage() {
   const ul = $("coverage");
   ul.replaceChildren();
-  const li0 = el("li"); li0.append(el("span", undefined, "Germany (federal)"), el("span", undefined, "covered")); ul.append(li0);
-  for (const s of states) { const li = el("li"); li.append(el("span", undefined, s.name), el("span", s.coverage === "pilot" ? "" : "muted", s.coverage === "pilot" ? "covered (pilot)" : "not yet")); ul.append(li); }
+  const status = (text: string, yes: boolean, note = "") => {
+    const s = el("span", yes ? "cov yes" : "cov no");
+    s.title = text; s.append(icon(yes ? "circleCheck" : "circleMinus"), el("span", "sr-only", text));
+    if (note) s.append(el("small", undefined, note));
+    return s;
+  };
+  const li0 = el("li"); li0.append(el("span", undefined, "Germany (federal)"), status("Covered", true)); ul.append(li0);
+  for (const s of states) { const li = el("li"); li.append(el("span", undefined, s.name), s.coverage === "pilot" ? status("Covered (pilot)", true, "pilot") : status("Not covered yet", false)); ul.append(li); }
 }
 function applyTheme() {
   if (settings.theme === "auto") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.dataset.theme = settings.theme;
-  $("btn-theme").textContent = `Theme: ${settings.theme}`;
+  $("theme-label").textContent = `Theme: ${settings.theme}`;
+  setIcon($("btn-theme").querySelector("[data-icon]") as HTMLElement, settings.theme === "auto" ? "auto" : settings.theme === "light" ? "sun" : "moon");
 }
 
 /** Header menu and the "Applies to" panel: close on outside click or Escape, Escape returns focus to the opener. */
@@ -373,6 +409,7 @@ function bindPopovers() {
 }
 
 function init() {
+  hydrateIcons();
   renderContext(); bindContext(); renderChecklist(); renderCoverage(); applyTheme(); renderMessages();
   setContextOpen(false); // landing keeps the hero in view; the "Applies to" chip opens it
   $("privacy-note").hidden = settings.privacyNoticeDismissed;
