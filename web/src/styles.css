@@ -141,3 +141,17 @@ dialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
 #question::placeholder { color: transparent; }
 .ph { position: absolute; left: 14px; right: 14px; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); opacity: .75; pointer-events: none; }
 #question:not(:placeholder-shown) ~ .ph, #question:disabled ~ .ph { display: none; }
+
+/* ---------- responsive: header menu, notice, topics, touch, short screens ---------- */
+.tools { flex-wrap: nowrap; align-items: center; gap: 2px; }
+.menu-wrap { position: relative; }
+.menu-btn { width: 44px; padding: 0; display: grid; place-items: center; }
+.menu { position: absolute; z-index: 20; right: 0; top: calc(100% + 6px); min-width: 220px; padding: 6px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 16px 40px -16px rgba(0,0,0,.45); }
+.menu button, .menu a { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); text-align: left; text-decoration: none; }
+.menu button:hover, .menu a:hover { background: var(--tint); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+.menu .danger { color: var(--bad); }
+button.danger-solid { background: var(--bad); border-color: var(--bad); color: var(--paper); font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) { @keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } } .menu:not([hidden]) { animation: pop .15s ease-out; transform-origin: top right; } }
+@media (max-width: 639px) { .tools .wide { display: none; } }
+@media (min-width: 640px) { .menu .narrow { display: none; } }

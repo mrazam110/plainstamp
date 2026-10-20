@@ -17,10 +17,20 @@
     </a>
     <nav class="tools" aria-label="Tools">
       <button id="btn-checklist" type="button" class="ghost">Checklist <span id="checklist-count" class="count" hidden>0</span></button>
-      <button id="btn-coverage" type="button" class="ghost">Coverage</button>
-      <a href="/about.html" class="ghost">About</a>
-      <button id="btn-theme" type="button" class="ghost" aria-label="Switch colour theme">Theme</button>
-      <button id="btn-clear" type="button" class="ghost">Clear data</button>
+      <button id="btn-coverage" type="button" class="ghost wide">Coverage</button>
+      <a href="/about.html" class="ghost wide">About</a>
+      <div class="menu-wrap">
+        <button id="btn-menu" type="button" class="ghost menu-btn" aria-label="More options" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></svg>
+        </button>
+        <div id="menu" class="menu" hidden>
+          <button id="menu-coverage" type="button" class="narrow">Coverage</button>
+          <a href="/about.html" class="narrow">About</a>
+          <button id="btn-theme" type="button">Theme</button>
+          <hr>
+          <button id="btn-clear" type="button" class="danger">Clear my data</button>
+        </div>
+      </div>
     </nav>
   </header>
 
@@ -82,6 +92,7 @@
 
   <dialog id="dlg-checklist"><form method="dialog"><h2>My checklist</h2><ul id="checklist" class="checklist"></ul><p id="checklist-empty" class="muted">Nothing saved yet. Use "Save steps" under an answer.</p><div class="dlg-actions"><button type="button" id="checklist-clear" class="ghost">Remove all</button><button value="close">Close</button></div></form></dialog>
   <dialog id="dlg-coverage"><form method="dialog"><h2>Coverage</h2><p class="muted">Federal rules are covered. State rules only where marked.</p><ul id="coverage" class="coverage"></ul><div class="dlg-actions"><button value="close">Close</button></div></form></dialog>
+  <dialog id="dlg-clear" aria-labelledby="clear-title"><form method="dialog"><h2 id="clear-title">Delete your data?</h2><p class="muted">This removes your chat history, checklist and settings from this browser. It cannot be undone.</p><div class="dlg-actions"><button value="cancel" autofocus>Cancel</button><button value="confirm" class="danger-solid">Delete everything</button></div></form></dialog>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

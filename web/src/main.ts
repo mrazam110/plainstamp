@@ -314,6 +314,16 @@ function applyTheme() {
   $("btn-theme").textContent = `Theme: ${settings.theme}`;
 }
 
+/** Header menu: closes on outside click or Escape, and Escape returns focus to the button. */
+function bindPopovers() {
+  const menuBtn = $("btn-menu"), menu = $("menu");
+  const setMenu = (open: boolean) => { menu.hidden = !open; menuBtn.setAttribute("aria-expanded", String(open)); };
+  menuBtn.addEventListener("click", () => setMenu(menu.hidden === true));
+  menu.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("button, a") && (e.target as HTMLElement).id !== "btn-theme") setMenu(false); });
+  document.addEventListener("click", (e) => { if (!menu.hidden && !menu.parentElement!.contains(e.target as Node)) setMenu(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+}
+
 function init() {
   renderContext(); bindContext(); renderChecklist(); renderCoverage(); applyTheme(); renderMessages();
   setContextOpen(false); // landing keeps the hero in view; the "Applies to" chip opens it
@@ -333,14 +343,19 @@ function init() {
     if (t.classList.contains("cite")) { e.preventDefault(); const c = document.getElementById(`src-${t.dataset.n}`); c?.scrollIntoView({ block: "center" }); c?.classList.add("flash"); setTimeout(() => c?.classList.remove("flash"), 1200); }
   });
   $("btn-checklist").addEventListener("click", () => ($("dlg-checklist") as HTMLDialogElement).showModal());
-  $("btn-coverage").addEventListener("click", () => ($("dlg-coverage") as HTMLDialogElement).showModal());
+  const openCoverage = () => ($("dlg-coverage") as HTMLDialogElement).showModal();
+  $("btn-coverage").addEventListener("click", openCoverage);
+  $("menu-coverage").addEventListener("click", openCoverage);
   $("checklist-clear").addEventListener("click", () => { checklist = []; store.saveChecklist(checklist); renderChecklist(); });
   $("btn-theme").addEventListener("click", () => { settings.theme = settings.theme === "auto" ? "light" : settings.theme === "light" ? "dark" : "auto"; save(); applyTheme(); });
-  $("btn-clear").addEventListener("click", () => {
-    if (!confirm("Delete your chat history, checklist and settings from this browser?")) return;
+  const clearDlg = $("dlg-clear") as HTMLDialogElement;
+  $("btn-clear").addEventListener("click", () => { clearDlg.returnValue = ""; clearDlg.showModal(); });
+  clearDlg.addEventListener("close", () => {
+    if (clearDlg.returnValue !== "confirm") return;
     generation++; controller?.abort(); store.clearAll();
     settings = store.settings(); history = []; checklist = [];
     renderContext(); renderMessages(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(true);
   });
+  bindPopovers();
 }
 init();
