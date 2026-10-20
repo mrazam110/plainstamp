@@ -22,6 +22,7 @@ export const ICONS = {
   circleCheck: "M12 21a9 9 0 100-18 9 9 0 000 18zM8 12.5l3 3 5-6",
   circleMinus: "M12 21a9 9 0 100-18 9 9 0 000 18zM8.5 12h7",
   plus: "M12 5v14M5 12h14",
+  pencil: "M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4",
   sidebar: "M4 5h16v14H4zM9 5v14",
 } as const;
 

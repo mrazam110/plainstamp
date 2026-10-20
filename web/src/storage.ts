@@ -25,6 +25,8 @@ export interface Chat {
   id: string;
   title: string;
   updatedAt: number;
+  /** Set once the visitor names the chat; the first question no longer renames it. */
+  renamed?: boolean;
   messages: ChatMessage[];
 }
 
@@ -54,6 +56,12 @@ const KEYS = { settings: "plainstamp.v1.settings", history: "plainstamp.v1.histo
 const MAX_MESSAGES = 60;
 const MAX_CHATS = 20;
 export const NEW_CHAT_TITLE = "New chat";
+export const MAX_TITLE = 60;
+
+/** A name typed by the visitor: spaces tidied, cut at MAX_TITLE. Empty means "name it after the first question again". */
+export function cleanTitle(raw: string): string {
+  return raw.replace(/\s+/g, " ").trim().slice(0, MAX_TITLE).trimEnd();
+}
 
 /** A chat is named after its first question. */
 export function chatTitle(messages: ChatMessage[]): string {

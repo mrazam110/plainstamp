@@ -3,7 +3,7 @@ import { streamAsk, sendVote, ApiError, assertSecureBase } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { parseSse } from "./sse";
 import { createTurnstile, type TurnstileApi } from "./turnstile";
-import { chatTitle, createStore, DEFAULTS, type Chat } from "./storage";
+import { chatTitle, cleanTitle, createStore, DEFAULTS, type Chat } from "./storage";
 
 const cite = (n: number) => ({ n, title: "T", heading: "H", url: "https://x/" + n, crawledAt: "2026-10-18", regionId: "de", regionName: "Germany" });
 
@@ -135,6 +135,16 @@ describe("store", () => {
     expect(chatTitle([])).toBe("New chat");
     expect(chatTitle([{ role: "user", content: "  Hello\n  there " }])).toBe("Hello there");
     expect(chatTitle([{ role: "user", content: "x".repeat(80) }])).toHaveLength(48);
+  });
+  it("cleans a typed chat name", () => {
+    expect(cleanTitle("  My   move \n to Berlin ")).toBe("My move to Berlin");
+    expect(cleanTitle("   ")).toBe("");
+    expect(cleanTitle("y".repeat(90))).toHaveLength(60);
+  });
+  it("keeps the renamed flag through a save", () => {
+    const kv = mem();
+    createStore(kv).saveChats([{ ...chat("a", 1, 1), renamed: true, title: "Mine" }]);
+    expect(createStore(kv).chats()[0]).toMatchObject({ renamed: true, title: "Mine" });
   });
   it("survives blocked or corrupt storage", () => {
     const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); }, removeItem: () => { throw new Error("blocked"); } };

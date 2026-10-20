@@ -8,7 +8,7 @@ import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { PLACEHOLDERS, TOPICS } from "./topics";
 import { hydrateIcons, icon, label, setIcon, type IconName } from "./icons";
-import { chatTitle, createStore, NEW_CHAT_TITLE, type Chat, type ChatMessage, type Settings } from "./storage";
+import { chatTitle, cleanTitle, createStore, MAX_TITLE, NEW_CHAT_TITLE, type Chat, type ChatMessage, type Settings } from "./storage";
 
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
 const API = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8787";
@@ -43,9 +43,11 @@ function save() { store.saveSettings(settings); }
 
 // ---------- chats ----------
 /** Writes every chat to this browser. The active chat joins the list with its first message. */
+/** A chat keeps the name its owner gave it; otherwise it is named after its first question. */
+function retitle(c: Chat) { if (!c.renamed) c.title = chatTitle(c.messages); }
 function persist() {
   if (active.messages.length && !chats.includes(active)) chats.unshift(active);
-  for (const c of chats) c.title = chatTitle(c.messages);
+  chats.forEach(retitle);
   chats = chats.filter((c) => c.messages.length).sort((a, b) => b.updatedAt - a.updatedAt);
   store.saveChats(chats);
   store.saveActiveId(active.id);
@@ -94,12 +96,20 @@ function renderChats() {
       const dlg = $("dlg-delchat") as HTMLDialogElement;
       dlg.returnValue = ""; pendingDelete = c; dlg.showModal();
     });
-    li.append(open, del);
+    const ren = iconButton("pencil", `Rename chat: ${c.title}`, "ghost icon-btn small", "Rename chat");
+    ren.addEventListener("click", () => {
+      const input = $("rename-input") as HTMLInputElement;
+      input.value = c.title; pendingRename = c;
+      ($("dlg-rename") as HTMLDialogElement).showModal();
+      input.select();
+    });
+    li.append(open, ren, del);
     ul.append(li);
   }
   $("chat-list-empty").hidden = chats.length > 0;
 }
 let pendingDelete: Chat | null = null;
+let pendingRename: Chat | null = null;
 
 // ---------- context bar ----------
 function fillSelect(sel: HTMLSelectElement, value: string, placeholder: string) {
@@ -387,7 +397,7 @@ async function send(question: string, retry = false) {
   msgs.push(draft);
   chat.updatedAt = Date.now();
   if (!chats.includes(chat)) chats.unshift(chat); // show it in the sidebar now; it is saved once the answer is in
-  chat.title = chatTitle(msgs); renderChats();
+  retitle(chat); renderChats();
   renderMessages();
   setBusy(true);
   controller = new AbortController();
@@ -500,6 +510,16 @@ function init() {
   $("side-backdrop").addEventListener("click", () => setSide(false));
   $("btn-new").addEventListener("click", startNewChat);
   $("side-new").addEventListener("click", startNewChat);
+  const renameDlg = $("dlg-rename") as HTMLDialogElement;
+  ($("rename-input") as HTMLInputElement).maxLength = MAX_TITLE;
+  renameDlg.querySelector("form")!.addEventListener("submit", (e) => {
+    const c = pendingRename; pendingRename = null;
+    if ((e as SubmitEvent).submitter?.getAttribute("value") !== "save" || !c) return;
+    const name = cleanTitle(($("rename-input") as HTMLInputElement).value);
+    c.renamed = name !== "";
+    c.title = name || chatTitle(c.messages); // empty goes back to the first question
+    persist(); renderChats();
+  });
   const delDlg = $("dlg-delchat") as HTMLDialogElement;
   delDlg.addEventListener("close", () => {
     const c = pendingDelete; pendingDelete = null;
