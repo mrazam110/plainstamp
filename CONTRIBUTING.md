@@ -18,3 +18,4 @@
 - `npm run dev:fakes` runs the Worker with a fake model and data; `npm run web:dev` serves the page.
 - Full-pipeline eval needs a key and a loaded database, so it is not in CI: `npx tsx --env-file=.env scripts/eval_pipeline.ts` (options in the script header). New questions go in `eval/de/` and are checked with `scripts/validate_eval.py`; every expected fact needs a person who knows that state to verify it.
 - Do not commit crawled text, snapshots, bundles or `.env` (ADR 0007). A new source needs its terms recorded in `sources/` first (ADR 0011).
+- CI runs gitleaks over the full history on every push and PR. To check locally: `gitleaks git --redact .` (`brew install gitleaks`). If it flags a real secret, rotate it first; removing it from the latest commit is not enough.
