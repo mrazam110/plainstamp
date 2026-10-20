@@ -2,6 +2,7 @@ import regionsJson from "./regions.generated.json";
 import { ApiError, streamAsk, type AskBody } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
+import { PLACEHOLDERS, TOPICS } from "./topics";
 import { createStore, type ChatMessage, type Settings } from "./storage";
 
 interface Region { id: string; name: string; level: string; coverage: string; children?: Region[] }
@@ -29,13 +30,6 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
   return e;
 };
 
-const EXAMPLES: { text: string; apply: Partial<Settings> }[] = [
-  { text: "How do I register my new flat in Berlin?", apply: { mode: "state", state: "de-be" } },
-  { text: "I'm moving from Brandenburg to Berlin. What do I need to do?", apply: { mode: "move", fromState: "de-bb", toState: "de-be" } },
-  { text: "Do I have to pay the broadcasting fee (Rundfunkbeitrag)?", apply: { mode: "germany" } },
-  { text: "How do I get my tax ID (Steuer-ID)?", apply: { mode: "germany" } },
-];
-
 function save() { store.saveSettings(settings); }
 
 // ---------- context bar ----------
@@ -58,7 +52,7 @@ function renderContext() {
 function bindContext() {
   document.querySelectorAll<HTMLButtonElement>(".seg button").forEach((b) =>
     b.addEventListener("click", () => { settings.mode = b.dataset.mode as Settings["mode"]; save(); renderContext(); }));
-  $("ctx-toggle").addEventListener("click", () => setContextOpen(Boolean($("ctx").hidden)));
+  $("ctx-toggle").addEventListener("click", () => setContextOpen($("ctx").dataset.open !== "true"));
   const on = (id: string, key: "state" | "fromState" | "toState" | "situation" | "language") =>
     $(id).addEventListener("change", (e) => { settings[key] = (e.target as HTMLInputElement).value; save(); $("ctx-toggle").textContent = summary(); });
   on("state", "state"); on("from", "fromState"); on("to", "toState"); on("situation", "situation"); on("language", "language");
@@ -78,7 +72,7 @@ function summary(): string {
   return [place, settings.situation.trim() ? "situation set" : "", lang].filter(Boolean).join(" \u00B7 ");
 }
 function setContextOpen(open: boolean) {
-  $("ctx").hidden = !open;
+  $("ctx").dataset.open = String(open);
   $("ctx-toggle").setAttribute("aria-expanded", String(open));
   $("ctx-toggle").textContent = summary();
 }
@@ -165,7 +159,52 @@ function renderMessages() {
     }
     list.append(li);
   });
-  $("chat").scrollTop = $("chat").scrollHeight;
+  if (history.length) $("chat").scrollTop = $("chat").scrollHeight;
+}
+
+// ---------- landing ----------
+const SVG = "http://www.w3.org/2000/svg";
+function typingDots(): HTMLElement {
+  const d = el("div", "typing body"); d.setAttribute("aria-label", "Looking up official pages");
+  d.append(el("i"), el("i"), el("i"));
+  return d;
+}
+function renderTopics() {
+  const grid = $("topics");
+  TOPICS.forEach((t, i) => {
+    const card = el("article", "topic"); card.style.setProperty("--i", String(i));
+    const svg = document.createElementNS(SVG, "svg"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(SVG, "path"); path.setAttribute("d", t.icon); svg.append(path);
+    const icon = el("span", "topic-icon"); icon.append(svg);
+    const title = el("h3", undefined, t.title); const de = el("span", undefined, t.de); de.lang = "de"; title.append(de);
+    const head = el("div", "topic-head"); head.append(icon, title);
+    const ul = el("ul");
+    for (const q of t.questions) {
+      const b = el("button", undefined, q.text); b.type = "button";
+      b.addEventListener("click", () => { settings = { ...settings, ...q.apply }; save(); renderContext(); send(q.text); });
+      const li = el("li"); li.append(b); ul.append(li);
+    }
+    card.append(head, ul); grid.append(card);
+  });
+  // reveal cards as they scroll into view
+  if (!("IntersectionObserver" in window)) { grid.querySelectorAll(".topic").forEach((c) => c.classList.add("in")); return; }
+  const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }, { root: $("chat"), threshold: 0.1 });
+  grid.querySelectorAll(".topic").forEach((c) => io.observe(c));
+}
+function rotatePlaceholder(q: HTMLTextAreaElement) {
+  const ph = $("ph");
+  let i = 0;
+  const show = (t: string) => { q.placeholder = t; ph.textContent = t; };
+  show(PLACEHOLDERS[0]!);
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const swap = async (t: string) => {
+    const opts = { duration: 260, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" as const };
+    await ph.animate([{ opacity: 0.75, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "translateY(-10px)", filter: "blur(3px)" }], opts).finished;
+    show(t);
+    await ph.animate([{ opacity: 0, transform: "translateY(10px)", filter: "blur(3px)" }, { opacity: 0.75, transform: "none", filter: "blur(0)" }], opts).finished;
+    ph.getAnimations().forEach((a) => a.cancel());
+  };
+  setInterval(() => { if (!q.value && document.activeElement !== q) void swap(PLACEHOLDERS[++i % PLACEHOLDERS.length]!); }, 3500);
 }
 
 // ---------- sending ----------
@@ -199,6 +238,7 @@ async function send(question: string, retry = false) {
   controller = new AbortController();
   const myGeneration = generation;
   const live = $("messages").lastElementChild as HTMLElement;
+  live.replaceChildren(typingDots());
   const prior = history.slice(0, -2).filter((m) => m.content).slice(-6).map((m) => ({ role: m.role, content: m.content }));
   try {
     const token = turnstile ? await turnstile.getToken() : undefined;
@@ -267,17 +307,13 @@ function applyTheme() {
 
 function init() {
   renderContext(); bindContext(); renderChecklist(); renderCoverage(); applyTheme(); renderMessages();
-  setContextOpen(history.length === 0);
+  setContextOpen(false); // landing keeps the hero in view; the "Applies to" chip opens it
   $("privacy-note").hidden = settings.privacyNoticeDismissed;
   $("privacy-ok").addEventListener("click", () => { settings.privacyNoticeDismissed = true; save(); $("privacy-note").hidden = true; });
-  const ex = $("examples");
-  for (const e of EXAMPLES) {
-    const b = el("button", undefined, e.text); b.type = "button";
-    b.addEventListener("click", () => { settings = { ...settings, ...e.apply }; save(); renderContext(); send(e.text); });
-    ex.append(b);
-  }
+  renderTopics();
   const q = $("question") as HTMLTextAreaElement;
   const grow = () => { q.style.height = "auto"; q.style.height = `${Math.min(q.scrollHeight, 160)}px`; };
+  rotatePlaceholder(q);
   q.addEventListener("input", grow);
   q.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ($("composer") as HTMLFormElement).requestSubmit(); } });
   $("composer").addEventListener("submit", (e) => { e.preventDefault(); const t = q.value; q.value = ""; grow(); send(t); });

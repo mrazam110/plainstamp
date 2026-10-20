@@ -26,9 +26,20 @@
 
   <main id="chat" aria-live="polite">
     <section id="empty" class="empty">
-      <h1>German bureaucracy, in plain words</h1>
-      <p>Ask about registering an address, residence permits, taxes and more. Answers come from official pages, with the source and the date it was checked.</p>
-      <div id="examples" class="examples"></div>
+      <div class="hero">
+        <p class="pill reveal" style="--i:0"><span class="dot" aria-hidden="true"></span>Official pages only, with source and date</p>
+        <h1 class="reveal" style="--i:1">German bureaucracy, <em>in plain words</em></h1>
+        <p class="de reveal" lang="de" style="--i:2">Behördendeutsch, einfach erklärt</p>
+        <p class="lede reveal" style="--i:3">Ask about registering an address, residence permits, taxes and more. Every answer links to the official page it came from.</p>
+        <p class="hint reveal" style="--i:4">Type below, or pick a topic.</p>
+      </div>
+      <h2 class="section-title">Browse by topic <span lang="de">Themen</span></h2>
+      <div id="topics" class="topics"></div>
+      <ul class="trust">
+        <li><strong>Official sources</strong> Every answer cites a government page and the date we checked it.</li>
+        <li><strong>Private by default</strong> Your chat stays in this browser. Nothing is stored on our server.</li>
+        <li><strong>Your language</strong> Ask in any language and get the answer in the same one.</li>
+      </ul>
     </section>
     <ol id="messages" class="messages"></ol>
   </main>
@@ -62,7 +73,7 @@
     </div>
     <form id="composer" class="composer" autocomplete="off">
       <label for="question" class="sr-only">Your question</label>
-      <textarea id="question" rows="1" maxlength="2000" placeholder="Ask a question…" enterkeyhint="send"></textarea>
+      <div class="field"><textarea id="question" rows="1" maxlength="2000" placeholder="Ask a question…" enterkeyhint="send"></textarea><span id="ph" class="ph" aria-hidden="true"></span></div>
       <button id="send" type="submit">Ask</button>
       <button id="stop" type="button" class="stop" hidden>Stop</button>
     </form>
