@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { ProviderError } from "../../core/http";
 import { FakeLLM } from "../../core/llm/fake";
 import type { GenerateRequest, LLM } from "../../core/llm/types";
 import type { Deps } from "../../core/pipeline/ask";
@@ -107,6 +108,16 @@ describe("POST /ask", () => {
     const text = await res.text();
     expect(text).not.toContain("secret-question-echo");
     expect(res.status === 502 || text.includes('"upstream_error"')).toBe(true);
+  });
+
+  it("reports at_capacity when the provider reports a spent quota", async () => {
+    const spent: LLM = {
+      async generate(req: GenerateRequest) { return req.json ? { text: "{}" } : { text: "x" }; },
+      async *stream() { throw new ProviderError(429, "x"); },
+    };
+    const res = await handle(post(valid), async () => ({ ...deps, llm: spent }), OPTS);
+    const text = await res.text();
+    expect(text).toContain("at_capacity");
   });
 
   it("stops the model stream when the client cancels", async () => {

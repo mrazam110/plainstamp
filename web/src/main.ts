@@ -265,6 +265,7 @@ const ERRORS: Record<string, string> = {
   invalid_request: "That question could not be processed. Try rewording it.",
   too_large: "That is too long. Please shorten it.",
   upstream_error: "The assistant is unavailable right now. Please try again in a moment.",
+  at_capacity: "The free daily capacity of this service is used up. Please try again later, or ask the responsible office directly.",
   network: "Can't reach the server. Check your connection and try again.",
   rate_limited: "Too many questions in a short time. Please wait a minute and try again.",
   turnstile_failed: "The bot check did not complete. Reload the page and try again.",

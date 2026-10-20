@@ -1,3 +1,4 @@
+import { isOutOfCredit } from "../../core/llm/fallback";
 import { askStream, type Deps } from "../../core/pipeline/ask";
 import { AskError, type AskRequest } from "../../core/pipeline/types";
 import type { GuardResult } from "./guard";
@@ -26,6 +27,10 @@ function corsHeaders(req: Request, opts: HandlerOptions): Record<string, string>
     vary: "Origin",
   };
 }
+
+/** A spent provider quota is told apart from a plain failure so the page can say so; only a fixed code goes out. */
+const upstreamCode = (e: unknown) => (isOutOfCredit(e) ? "at_capacity" : "upstream_error");
+const upstream = (e: unknown, cors: Record<string, string>) => json(upstreamCode(e) === "at_capacity" ? 503 : 502, { error: upstreamCode(e) }, cors);
 
 const json = (status: number, body: unknown, extra: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...extra } });
@@ -108,8 +113,8 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
   let stream: ReturnType<typeof askStream>;
   try {
     stream = askStream(body, await getDeps());
-  } catch {
-    return json(502, { error: "upstream_error" }, cors);
+  } catch (e) {
+    return upstream(e, cors);
   }
 
   // Run the first step (rewrite, retrieval) before committing to a stream, so request errors get a real status.
@@ -117,7 +122,7 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
   try {
     first = await stream.next();
   } catch (e) {
-    return e instanceof AskError ? json(400, { error: "invalid_request" }, cors) : json(502, { error: "upstream_error" }, cors);
+    return e instanceof AskError ? json(400, { error: "invalid_request" }, cors) : upstream(e, cors);
   }
 
   const enc = new TextEncoder();
@@ -136,8 +141,8 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
           if (n.done) break;
           emit(n.value);
         }
-      } catch {
-        send("error", { error: "upstream_error" });
+      } catch (e) {
+        send("error", { error: upstreamCode(e) });
       }
       try {
         controller.close();
