@@ -5,13 +5,14 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 /** German-looking term in brackets, e.g. "(Anmeldung)" or "(Wohnungsgeberbestätigung)": gets a copy button. */
 const TERM = /\(([A-ZÄÖÜ][\wäöüßÄÖÜ-]+(?: [\wäöüßÄÖÜ-]+){0,3})\)/g;
 
-function inline(s: string, citationNs: Set<number>): string {
+function inline(s: string, citationNs: Set<number>, terms = true): string {
   let out = esc(s);
-  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/(^|[\s(])\*([^*\s](?:[^*]*[^*\s])?)\*(?=$|[\s).,;:!?])/g, "$1<em>$2</em>");
   out = out.replace(/\[(\d+)\]/g, (m, d: string) =>
     citationNs.has(Number(d)) ? `<a class="cite" href="#src-${d}" data-n="${d}">${d}</a>` : "",
   );
-  out = out.replace(TERM, (_m, term: string) => `<button type="button" class="term" data-copy="${term}" title="Copy German term">(${term})</button>`);
+  if (terms) out = out.replace(TERM, (_m, term: string) => `<button type="button" class="term" data-copy="${term}" title="Copy German term">(${term})</button>`);
   return out;
 }
 
@@ -28,7 +29,12 @@ export function renderAnswer(text: string, citations: Citation[] = []): string {
   for (const raw of text.split("\n")) {
     const line = raw.trimEnd();
     const li = /^\s*(?:[-*]|(\d+)[.)])\s+(.*)$/.exec(line);
-    if (li) {
+    const h = /^\s{0,3}(#{1,6})\s+(.*?)\s*#*$/.exec(line);
+    if (h) {
+      close();
+      const level = Math.min(h[1]!.length + 1, 4); // answers sit under the page title: ### -> h4
+      html.push(`<h${level}>${inline(h[2]!, ns, false)}</h${level}>`); // region names in headings are not German terms
+    } else if (li) {
       const kind = li[1] ? "ol" : "ul";
       if (list !== kind) { close(); html.push(`<${kind}>`); list = kind; }
       html.push(`<li>${inline(li[2]!, ns)}</li>`);
@@ -48,7 +54,7 @@ export function checklistItems(text: string): string[] {
   return text.split("\n")
     .map((l) => /^\s*(?:[-*]|\d+[.)])\s+(.*)$/.exec(l)?.[1])
     .filter((x): x is string => !!x)
-    .map((x) => x.replace(/\[\d+\]/g, "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim())
+    .map((x) => x.replace(/\[\d+\]/g, "").replace(/\*\*/g, "").replace(/(^|\s)\*([^*]+)\*/g, "$1$2").replace(/\s+/g, " ").trim())
     .filter(Boolean);
 }
 

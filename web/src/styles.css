@@ -29,7 +29,13 @@ a.ghost { display: inline-flex; align-items: center; min-height: 44px; padding: 
 .messages { list-style: none; margin: 0 auto; padding: 0; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
 .msg { max-width: 100%; }
 .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: var(--radius) var(--radius) 4px var(--radius); max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; }
-.msg.model .body { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); overflow-wrap: anywhere; }
+.msg.model .body { overflow-wrap: anywhere; font-size: 1.05rem; line-height: 1.7; padding: 4px 2px; }
+.msg.model .body.typing { padding: 14px 16px; }
+.body h2, .body h3, .body h4 { font-family: var(--serif); font-weight: 600; line-height: 1.25; margin: 1.3em 0 .4em; }
+.body h2 { font-size: 1.5rem; } .body h3 { font-size: 1.25rem; } .body h4 { font-size: 1.12rem; }
+.body > :first-child { margin-top: 0; }
+.body em { font-style: italic; }
+.body li::marker { color: var(--accent); }
 .body p { margin: 0 0 .6em; } .body p:last-child, .body ul:last-child, .body ol:last-child { margin-bottom: 0; }
 .body ul, .body ol { margin: 0 0 .6em; padding-left: 1.3em; } .body li { margin: .2em 0; }
 .cite { display: inline-block; min-width: 1.4em; text-align: center; font-size: .75rem; line-height: 1.4em; border-radius: 999px; background: var(--accent); color: var(--accent-ink); text-decoration: none; vertical-align: super; margin: 0 1px; }
@@ -37,14 +43,22 @@ a.ghost { display: inline-flex; align-items: center; min-height: 44px; padding: 
 .term.copied { background: var(--accent); color: var(--accent-ink); }
 .banner { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: .92rem; }
 .error { color: var(--bad); }
-.sources { display: grid; gap: 8px; margin-top: 8px; }
-.source { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
+.sources-section { margin-top: 20px; }
+.sources-label { margin: 0 0 8px; font-family: inherit; font-size: .75rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.sources { display: grid; gap: 8px; }
+.source { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
+.source-n { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--tint); color: var(--accent); font-weight: 600; }
+.source-text { flex: 1; min-width: 0; }
+.source-title { display: block; color: var(--ink); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.source-title:hover { color: var(--accent); text-decoration: underline; }
+.source .ghost { flex: none; min-height: 32px; font-size: .82rem; }
+@media (max-width: 559px) { .source { flex-wrap: wrap; } .source .ghost { margin-left: 42px; padding-left: 0; } }
 .source.flash { outline: 2px solid var(--accent); }
-.badge { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); margin-right: 6px; }
+.badge { display: inline-block; font-size: .72rem; padding: 0 8px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); margin-right: 6px; }
 .source .meta { color: var(--muted); font-size: .85rem; }
-.source a { color: var(--accent); }
-.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.actions button { min-height: 36px; font-size: .88rem; padding: 0 10px; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.actions button { min-height: 36px; font-size: .88rem; padding: 0 10px; background: transparent; border-color: transparent; color: var(--muted); }
+.actions button:hover { color: var(--ink); background: var(--tint); }
 .state-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .composer-wrap { padding: 8px 16px 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--paper); }
 .notice { display: flex; gap: 8px; align-items: center; justify-content: space-between; background: var(--warn-bg); color: var(--warn-ink); border-radius: 10px; padding: 6px 10px; margin: 0 auto 8px; max-width: 720px; font-size: .88rem; }

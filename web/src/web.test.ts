@@ -48,9 +48,30 @@ describe("renderAnswer", () => {
   });
 });
 
+describe("renderAnswer markdown", () => {
+  it("turns ### lines into headings without copy buttons for region names", () => {
+    const html = renderAnswer("### 2) At the old place (Brandenburg)\nText");
+    expect(html).toContain("<h4>2) At the old place (Brandenburg)</h4>");
+    expect(html).not.toContain("###");
+    expect(html).not.toContain("class=\"term\"");
+  });
+  it("renders *italic* and keeps bold, and leaves list markers alone", () => {
+    const html = renderAnswer("**Fee** (*Beitragskonto*) is due\n* item *one*");
+    expect(html).toContain("<strong>Fee</strong>");
+    expect(html).toContain("<em>Beitragskonto</em>");
+    expect(html).toContain("<ul><li>item <em>one</em></li></ul>");
+  });
+});
+
 describe("helpers", () => {
   it("extracts checklist items without citations or bold", () => {
     expect(checklistItems("Intro\n- **Book** an appointment [1]\n2. Bring ID [2]\nnot a list")).toEqual(["Book an appointment", "Bring ID"]);
+  });
+  it("handles italic inside bold", () => {
+    expect(renderAnswer("* **Fee (*Rundfunkbeitrag*):** due")).toContain("<strong>Fee (<em>Rundfunkbeitrag</em>):</strong>");
+  });
+  it("strips italic markers from checklist items", () => {
+    expect(checklistItems("- Get the *Wohnungsgeberbestätigung* [1]")).toEqual(["Get the Wohnungsgeberbestätigung"]);
   });
   it("only allows http(s) links", () => {
     expect(safeUrl("https://a.test/x")).toBe("https://a.test/x");

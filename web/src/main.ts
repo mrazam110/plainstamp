@@ -80,22 +80,27 @@ function setContextOpen(open: boolean) {
 // ---------- messages ----------
 function sourceCards(m: ChatMessage): HTMLElement | null {
   if (!m.citations?.length) return null;
+  const section = el("section", "sources-section");
+  section.append(el("h3", "sources-label", "Official sources"));
   const wrap = el("div", "sources");
   for (const c of m.citations) {
     const card = el("div", "source");
     card.id = `src-${c.n}`;
-    const head = el("div");
-    head.append(el("span", "badge", c.regionName), el("strong", undefined, `[${c.n}] ${c.title}`));
-    const meta = el("div", "meta", `${c.heading} · checked ${c.crawledAt}`);
-    const a = el("a", undefined, "Open official page");
-    a.href = safeUrl(c.url); a.target = "_blank"; a.rel = "noopener noreferrer";
+    const num = el("span", "source-n", String(c.n));
+    const text = el("div", "source-text");
+    const title = el("a", "source-title", c.title);
+    title.href = safeUrl(c.url); title.target = "_blank"; title.rel = "noopener noreferrer";
+    const meta = el("div", "meta");
+    meta.append(el("span", "badge", c.regionName), document.createTextNode(`${c.heading} \u00B7 checked ${c.crawledAt}`));
     const copy = el("button", "ghost", "Copy German title");
-    copy.type = "button"; copy.style.minHeight = "32px";
+    copy.type = "button";
     copy.addEventListener("click", () => copyText(c.title, copy, "Copied"));
-    card.append(head, meta, a, document.createTextNode(" "), copy);
+    text.append(title, meta);
+    card.append(num, text, copy);
     wrap.append(card);
   }
-  return wrap;
+  section.append(wrap);
+  return section;
 }
 
 async function copyText(text: string, btn: HTMLElement, done: string) {
