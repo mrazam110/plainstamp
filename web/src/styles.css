@@ -126,3 +126,13 @@ dialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
 @media (prefers-reduced-motion: reduce) { .topic { opacity: 1; transform: none; } }
 @media (hover: hover) { .topic.in:hover, .topic:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 24px -14px var(--accent); } }
 
+
+.ph.writing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: text-bottom; background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { @keyframes caret { 50% { opacity: 0; } } .ph.writing::after { animation: caret 1s steps(1) infinite; } }
+
+/* typewriter hint over the question box; the native placeholder stays transparent for screen readers */
+.field { position: relative; flex: 1; min-width: 0; display: flex; }
+.field textarea { flex: 1; }
+#question::placeholder { color: transparent; }
+.ph { position: absolute; left: 14px; right: 14px; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); opacity: .75; pointer-events: none; }
+#question:not(:placeholder-shown) ~ .ph, #question:disabled ~ .ph { display: none; }

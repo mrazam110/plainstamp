@@ -191,20 +191,29 @@ function renderTopics() {
   const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }, { root: $("chat"), threshold: 0.1 });
   grid.querySelectorAll(".topic").forEach((c) => io.observe(c));
 }
+/** Question-box hint: types a line, holds it, deletes it, types the next. The native placeholder keeps the full line (transparent) for screen readers. */
 function rotatePlaceholder(q: HTMLTextAreaElement) {
   const ph = $("ph");
-  let i = 0;
-  const show = (t: string) => { q.placeholder = t; ph.textContent = t; };
-  show(PLACEHOLDERS[0]!);
+  q.placeholder = PLACEHOLDERS[0]!; ph.textContent = PLACEHOLDERS[0]!;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const swap = async (t: string) => {
-    const opts = { duration: 260, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" as const };
-    await ph.animate([{ opacity: 0.75, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "translateY(-10px)", filter: "blur(3px)" }], opts).finished;
-    show(t);
-    await ph.animate([{ opacity: 0, transform: "translateY(10px)", filter: "blur(3px)" }, { opacity: 0.75, transform: "none", filter: "blur(0)" }], opts).finished;
-    ph.getAnimations().forEach((a) => a.cancel());
-  };
-  setInterval(() => { if (!q.value && document.activeElement !== q) void swap(PLACEHOLDERS[++i % PLACEHOLDERS.length]!); }, 3500);
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const idle = () => q.value !== "" || document.activeElement === q;
+  (async () => {
+    let first = true;
+    for (let i = 0; ; i = (i + 1) % PLACEHOLDERS.length) {
+      const line = PLACEHOLDERS[i]!;
+      if (!first) {
+        q.placeholder = line;
+        ph.classList.add("writing");
+        for (let n = 0; n <= line.length; n++) { ph.textContent = line.slice(0, n); await sleep(n === 0 ? 350 : 38 + Math.random() * 40); }
+      }
+      first = false;
+      ph.classList.remove("writing");
+      do { await sleep(2200); } while (idle()); // hold; stay put while the user is in the box
+      ph.classList.add("writing");
+      for (let n = line.length; n >= 0; n--) { ph.textContent = line.slice(0, n); await sleep(18); if (idle()) { ph.textContent = line; ph.classList.remove("writing"); break; } }
+    }
+  })();
 }
 
 // ---------- sending ----------
