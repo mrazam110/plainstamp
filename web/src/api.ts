@@ -61,3 +61,12 @@ export async function sendVote(base: string, vote: "up" | "down", fetchFn: typeo
   });
   if (!res.ok) throw new ApiError(`status_${res.status}`);
 }
+
+/** Questions asked today across all visitors, or null when the server has no count. Sends nothing about the visitor. */
+export async function fetchQuestionsToday(base: string, fetchFn: typeof fetch = fetch): Promise<number | null> {
+  assertSecureBase(base);
+  const res = await fetchFn(`${base}/stats`, { cache: "no-store", credentials: "omit" });
+  if (!res.ok) return null;
+  const n = ((await res.json()) as { today?: unknown }).today;
+  return typeof n === "number" && Number.isFinite(n) ? n : null;
+}

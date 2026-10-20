@@ -3,7 +3,7 @@ import "@fontsource-variable/fraunces/opsz-italic.css";
 import "@fontsource-variable/source-sans-3/wght.css";
 import "@fontsource-variable/source-sans-3/wght-italic.css";
 import regionsJson from "./regions.generated.json";
-import { ApiError, sendVote, streamAsk, type AskBody } from "./api";
+import { ApiError, fetchQuestionsToday, sendVote, streamAsk, type AskBody } from "./api";
 import { checklistItems, renderAnswer, reportText, safeUrl } from "./format";
 import { createTurnstile, loadTurnstileScript } from "./turnstile";
 import { PLACEHOLDERS, TOPICS } from "./topics";
@@ -282,6 +282,16 @@ function rotatePlaceholder(q: HTMLTextAreaElement) {
   })();
 }
 
+// ---------- daily counter ----------
+async function showStats() {
+  try {
+    const n = await fetchQuestionsToday(API);
+    const el = $("stats");
+    el.hidden = n === null;
+    if (n !== null) el.textContent = n === 1 ? "1 question asked today" : `${n.toLocaleString()} questions asked today`;
+  } catch { /* the count is optional */ }
+}
+
 // ---------- sending ----------
 function setBusy(busy: boolean) {
   ($("send") as HTMLButtonElement).hidden = busy;
@@ -349,6 +359,7 @@ async function send(question: string, retry = false) {
   if (myGeneration !== generation) return; // cleared while streaming: leave the fresh state alone
   store.saveHistory(history);
   renderMessages();
+  void showStats();
 }
 
 // ---------- checklist, coverage, misc ----------
@@ -442,5 +453,6 @@ function init() {
     renderContext(); renderMessages(); renderChecklist(); applyTheme(); $("privacy-note").hidden = false; setContextOpen(false);
   });
   bindPopovers();
+  void showStats();
 }
 init();

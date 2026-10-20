@@ -31,6 +31,15 @@ namespace_id = "1002"
 binding = "FEEDBACK"
 dataset = "plainstamp_feedback"
 
+# Number of questions asked today: one Durable Object holding a date and an integer, nothing else.
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "DailyCounter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DailyCounter"]
+
 [vars]
 REQUIRE_GUARDS = "1"
 ALLOWED_ORIGINS = "https://plainstamp.razadetechnologies.com"

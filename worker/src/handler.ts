@@ -14,14 +14,18 @@ export interface HandlerOptions {
   guard?: (request: Request) => Promise<GuardResult>;
   /** Counts one Helpful / Not helpful vote. Receives the vote word only: no text, no IP, no identifier. */
   recordVote?: (vote: "up" | "down") => void;
+  /** Adds one to today's question count. Takes and receives nothing about the question. */
+  countQuestion?: () => void;
+  /** Today's question count, or null when it is not available. */
+  questionsToday?: () => Promise<number | null>;
 }
 
 function corsHeaders(req: Request, opts: HandlerOptions): Record<string, string> {
   const origin = req.headers.get("origin");
-  if (!origin || !opts.allowedOrigins.includes(origin)) return {};
+  if (!origin || !opts.allowedOrigins.includes(origin)) return { vary: "Origin" };
   return {
     "access-control-allow-origin": origin,
-    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-allow-headers": "content-type, x-turnstile-token",
     "access-control-max-age": "600",
     vary: "Origin",
@@ -89,6 +93,10 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
   const cors = corsHeaders(request, opts);
 
   if (url.pathname === "/health") return json(200, { ok: true });
+  if (url.pathname === "/stats" && request.method === "GET") {
+    const today = (await opts.questionsToday?.().catch(() => null)) ?? null;
+    return json(200, { today }, { ...cors, "cache-control": "public, max-age=30" });
+  }
   if (url.pathname !== "/ask" && url.pathname !== "/feedback") return json(404, { error: "not_found" });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (request.method !== "POST") return json(405, { error: "method_not_allowed" }, { ...cors, allow: "POST, OPTIONS" });
@@ -123,6 +131,12 @@ export async function handle(request: Request, getDeps: () => Promise<Deps>, opt
     first = await stream.next();
   } catch (e) {
     return e instanceof AskError ? json(400, { error: "invalid_request" }, cors) : upstream(e, cors);
+  }
+
+  try {
+    opts.countQuestion?.();
+  } catch {
+    // a counter failure must never surface as an error to the visitor
   }
 
   const enc = new TextEncoder();

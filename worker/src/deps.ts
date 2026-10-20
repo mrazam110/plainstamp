@@ -15,6 +15,11 @@ export interface Env extends ProviderEnv, GuardEnv {
   HYPERDRIVE?: { connectionString: string };
   /** Workers Analytics Engine dataset (wrangler [[analytics_engine_datasets]]) holding vote counts only. */
   FEEDBACK?: { writeDataPoint(point: { blobs?: string[]; doubles?: number[]; indexes?: string[] }): void };
+  /** Durable Object namespace for the daily question counter (wrangler [[durable_objects.bindings]]). */
+  COUNTER?: {
+    idFromName(name: string): unknown;
+    get(id: unknown): { fetch(url: string, init?: RequestInit): Promise<Response> };
+  };
   /** Static assets binding holding bundle folders (bundle backend only). */
   ASSETS?: { fetch(url: string): Promise<Response> };
 }
@@ -23,6 +28,32 @@ export interface Env extends ProviderEnv, GuardEnv {
 export const voteRecorder = (env: Env) => env.FEEDBACK
   ? (vote: "up" | "down") => env.FEEDBACK!.writeDataPoint({ blobs: [vote], doubles: [1], indexes: [vote] })
   : undefined;
+
+/** Calendar day in Germany's time zone, so "today" matches the visitors' day. */
+const germanDay = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(new Date());
+
+/** Counts questions per day. Both calls fail soft: a broken counter must never break answering. */
+let statsCache: { at: number; day: string; n: number } | undefined; // per isolate: keeps public /stats hits off the Durable Object
+
+export function questionCounter(env: Env): { count: () => Promise<void>; today: () => Promise<number | null> } | undefined {
+  if (!env.COUNTER) return undefined;
+  const stub = () => env.COUNTER!.get(env.COUNTER!.idFromName("questions"));
+  const url = () => `https://counter.invalid/?day=${germanDay()}`;
+  return {
+    count: async () => { try { await stub().fetch(url(), { method: "POST" }); } catch { /* counter is optional */ } },
+    today: async () => {
+      const day = germanDay();
+      if (statsCache && statsCache.day === day && Date.now() - statsCache.at < 15_000) return statsCache.n;
+      try {
+        const n = ((await (await stub().fetch(url())).json()) as { n: number }).n;
+        statsCache = { at: Date.now(), day, n };
+        return n;
+      } catch {
+        return null;
+      }
+    },
+  };
+}
 
 export const allowedOrigins = (env: Env) => (env.ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 

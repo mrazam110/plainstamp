@@ -170,3 +170,25 @@ describe("POST /feedback", () => {
     expect(boom.status).toBe(200);
   });
 });
+
+describe("question counter", () => {
+  it("serves today's count on GET /stats and counts a started answer", async () => {
+    let n = 41;
+    const o = { ...OPTS, countQuestion: () => { n++; }, questionsToday: async () => n };
+    const ok = await handle(post(valid), async () => deps, o);
+    await ok.text();
+    const res = await handle(new Request("https://api.test/stats"), async () => deps, o);
+    expect(await res.json()).toEqual({ today: 42 });
+  });
+  it("does not count a rejected request and still answers when the counter throws", async () => {
+    let n = 0;
+    const bad = await handle(post({ ...valid, question: "" }), async () => deps, { ...OPTS, countQuestion: () => { n++; } });
+    expect(bad.status).toBe(400);
+    expect(n).toBe(0);
+    const res = await handle(post(valid), async () => deps, { ...OPTS, countQuestion: () => { throw new Error("x"); } });
+    expect(res.status).toBe(200);
+  });
+  it("returns null when no counter is configured", async () => {
+    expect(await (await handle(new Request("https://api.test/stats"), async () => deps, OPTS)).json()).toEqual({ today: null });
+  });
+});
