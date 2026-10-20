@@ -1,0 +1,23 @@
+# Directory page: which office handles what, by topic. Keys match topics/de.yaml.
+# `link` only where the URL was checked by hand; leave it out otherwise. `ask` is the question the button sends.
+groups:
+  - {key: moving, label: Moving and registration, de: Umzug und Meldung}
+  - {key: residence, label: Residence and work, de: Aufenthalt und Arbeit}
+  - {key: money, label: Money and insurance, de: Geld und Versicherung}
+  - {key: family, label: Family and documents, de: Familie und Urkunden}
+  - {key: driving, label: Cars and driving, de: Auto und Führerschein}
+entries:
+  - {topic: anmeldung, group: moving, office: Bürgeramt / Einwohnermeldeamt, office_en: Residents' registration office, ask: How do I register my new flat (Anmeldung)?}
+  - {topic: abmeldung, group: moving, office: Bürgeramt / Einwohnermeldeamt, office_en: Residents' registration office, ask: How do I deregister my address (Abmeldung) when I leave Germany?}
+  - {topic: registration-certificate, group: moving, office: Bürgeramt / Einwohnermeldeamt, office_en: Residents' registration office, ask: How do I get a registration certificate (Meldebescheinigung)?}
+  - {topic: residence-permit, group: residence, office: Ausländerbehörde, office_en: Foreigners' authority, ask: How do I apply for a residence permit?}
+  - {topic: blue-card, group: residence, office: Ausländerbehörde, office_en: Foreigners' authority, ask: What is the EU Blue Card and who can get it?, link: 'https://www.make-it-in-germany.com/en/visa-residence/types/eu-blue-card', link_label: Make it in Germany}
+  - {topic: tax-id, group: money, office: Bundeszentralamt für Steuern, office_en: Federal Central Tax Office, ask: How do I get my tax ID (Steuer-ID)?, link: 'https://www.bzst.de/DE/Privatpersonen/SteuerlicheIdentifikationsnummer/steuerlicheidentifikationsnummer_node.html', link_label: BZSt}
+  - {topic: health-insurance, group: money, office: Krankenkasse, office_en: Health insurance fund, ask: Do I need health insurance in Germany?}
+  - {topic: broadcasting-fee, group: money, office: ARD ZDF Deutschlandradio Beitragsservice, office_en: Broadcasting fee service, ask: Do I have to pay the broadcasting fee (Rundfunkbeitrag)?, link: 'https://www.rundfunkbeitrag.de', link_label: rundfunkbeitrag.de}
+  - {topic: child-benefit, group: family, office: Familienkasse, office_en: Family benefits office, ask: How do I apply for child benefit (Kindergeld)?}
+  - {topic: kita, group: family, office: Jugendamt / Kita-Portal der Stadt, office_en: Youth office or city childcare portal, ask: How do I find a childcare place (Kita)?}
+  - {topic: marriage-registration, group: family, office: Standesamt, office_en: Civil registry office, ask: What do I need to get married in Germany?}
+  - {topic: birth-certificate, group: family, office: Standesamt, office_en: Civil registry office, ask: How do I get a birth certificate (Geburtsurkunde)?}
+  - {topic: driving-licence-exchange, group: driving, office: Führerscheinstelle, office_en: Driving licence office, ask: Can I use my foreign driving licence in Germany?}
+  - {topic: car-registration, group: driving, office: Kfz-Zulassungsstelle, office_en: Vehicle registration office, ask: How do I register a car (Kfz-Zulassung)?}

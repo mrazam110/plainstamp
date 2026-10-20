@@ -164,3 +164,14 @@ describe("turnstile", () => {
     expect(seen[1]!["x-turnstile-token"]).toBeUndefined();
   });
 });
+
+describe("directory config", () => {
+  it("only links to https pages and every entry has an ask question", async () => {
+    const d = (await import("./directory.generated.json")).default as { entries: { ask: string; link?: string }[] };
+    expect(d.entries.length).toBeGreaterThan(0);
+    for (const e of d.entries) {
+      expect(e.ask.length).toBeGreaterThan(5);
+      if (e.link) expect(safeUrl(e.link)).toMatch(/^https:\/\//);
+    }
+  });
+});

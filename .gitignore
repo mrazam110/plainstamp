@@ -19,6 +19,7 @@ __pycache__/
 .DS_Store
 worker/src/config.generated.json
 web/src/regions.generated.json
+web/src/directory.generated.json
 web/dist/
 .neon
 .dev.vars

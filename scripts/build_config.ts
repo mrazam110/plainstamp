@@ -1,6 +1,7 @@
 /* Builds worker/src/config.generated.json from regions/de.yaml and topics/de.yaml (run before wrangler). */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { parse } from "yaml";
 import { loadConfig } from "../core/pipeline/config-fs";
 
 const root = join(import.meta.dirname, "..");
@@ -8,6 +9,17 @@ const config = await loadConfig(root);
 const topics = config.topics.map(({ key, label, state_specific }) => ({ key, label, state_specific }));
 await writeFile(join(root, "worker", "src", "config.generated.json"), JSON.stringify({ regions: config.regions, topics }));
 await writeFile(join(root, "web", "src", "regions.generated.json"), JSON.stringify(config.regions));
+
+// directory page: join the entries with the topic taxonomy so the web page knows which topics differ per state
+const dir = parse(await readFile(join(root, "topics", "directory.yaml"), "utf8")) as { groups: { key: string }[]; entries: { topic: string; group: string }[] };
+const byKey = new Map(config.topics.map((t) => [t.key, t]));
+const groupKeys = new Set(dir.groups.map((g) => g.key));
+for (const e of dir.entries) {
+  if (!byKey.has(e.topic)) throw new Error(`directory: unknown topic ${e.topic}`);
+  if (!groupKeys.has(e.group)) throw new Error(`directory: unknown group ${e.group}`);
+}
+const entries = dir.entries.map((e) => ({ ...e, label: byKey.get(e.topic)!.label, state_specific: byKey.get(e.topic)!.state_specific }));
+await writeFile(join(root, "web", "src", "directory.generated.json"), JSON.stringify({ groups: dir.groups, entries }));
 
 // web/public/privacy.html is generated from PRIVACY.md so the page and the document cannot drift apart
 const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
