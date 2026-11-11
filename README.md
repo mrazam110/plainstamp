@@ -4,7 +4,7 @@ An open-source assistant that explains German bureaucracy in plain language to p
 
 It is a RAG (retrieval-augmented generation) system. The model does not answer from memory. For each question it rewrites the question into German search queries, retrieves matching chunks of official pages (vector plus keyword search, limited to the states you picked), and writes the answer only from those chunks. Every claim carries a citation. If no chunk supports an answer, the system says so and points to the responsible office. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-Licence: [AGPL-3.0-only](LICENSE). Non-commercial. Not legal advice, and not affiliated with any authority.
+Licence: [AGPL-3.0-only](LICENSE). The hosted pilot is a non-commercial civic project; the licence itself allows commercial use if you share your changes. Not legal advice, and not affiliated with any authority.
 
 Try it: https://plainstamp.razadetechnologies.com (pilot, free tier, may hit its daily quota).
 

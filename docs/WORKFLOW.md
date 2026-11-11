@@ -58,7 +58,7 @@ Audited 2026-10-20 (regex scan, tests, code read). `[x]` done, `[~]` partly, `[ 
 - [x] `PRIVACY.md` matches the code: no console calls while serving (tests in `handler.test.ts`, `guard.test.ts`), observability off, feedback stores only the vote, rate-limit key is a daily salted hash of the IP prefix
 - [x] README: what it is, not legal advice, no affiliation, run locally, limitations, contributing. Self-hosting steps are in this file (link from README)
 - [~] `.env.example` has no real values; Worker secrets and web build vars are now listed there as comments
-- [x] Rate limiting, Turnstile and fail-closed guards active on the public endpoint (verified live 2026-10-19/20). Cost cap on the Gemini key: confirm the alert exists in AI Studio
-- [ ] Name/logo checked: word-mark search only; repeat the DPMA search by hand and review classes 9, 41, 42 (ADR 0008)
+- [x] Rate limiting, Turnstile and fail-closed guards active on the public endpoint (verified live 2026-10-19/20). Checked 2026-11-11: the Gemini project (Plainstamp) has no billing set up, so it cannot exceed the free tier
+- [~] Name/logo checked: 2026-11-11 DPMAregister search (national, Union and international marks) for `*plainstamp*` and `plain*stamp*` returned no hits. Similar-sounding names and classes 9, 41, 42 were not reviewed individually; a trade mark attorney check is still advisable (ADR 0008)
 - [~] Eval score documented (README, SPIKE-RESULTS); all 125 expected facts still say "pending human check"
-- [ ] Branch protection and PR flow enabled (Phase 8 switch)
+- [ ] Branch protection and PR flow enabled (Phase 8 switch). The free GitHub plan only allows it on public repos, so turn it on right after the flip
