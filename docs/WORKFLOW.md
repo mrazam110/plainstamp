@@ -1,7 +1,7 @@
 # Workflow
 
 ## Trunk-based development (current phase)
-- Single branch: `main`. Private GitHub repo.
+- Single branch: `main`. Public GitHub repo (open since 2026-11-11).
 - One logical change per commit, small (aim under ~150 lines). Docs commits are separate from code commits.
 - Commit format: `type(scope): summary`. Types: `feat fix docs test chore refactor`. Use `git commit -s` (DCO).
 - Run tests/lint before commit. Push right after. `main` must always work.
@@ -47,7 +47,7 @@ Local checks: `npm run dev:fakes` (no guards), `npm run dev:guarded` (guards wit
 - Cloudflare resources created: two Workers with custom domains (DNS records in the razadetechnologies.com zone), two rate-limit namespaces, Turnstile widget `Plainstamp`. Google: AI Studio project and key `Plainstamp`. Neon: project `plainstamp`.
 - To take the site down: `npx wrangler delete --config worker/wrangler.web.toml` and the same for `worker/wrangler.toml`.
 
-## Public-flip checklist (private -> public)
+## Public-flip checklist (private -> public, flipped 2026-11-11)
 Audited 2026-10-20 (regex scan, tests, code read). `[x]` done, `[~]` partly, `[ ]` open.
 - [x] Secret scan of full git history: 2026-10-20 gitleaks 8.30.1 (`gitleaks git .` and `gitleaks dir` on an export of HEAD) scanned 67 commits and the tracked tree and found no leaks; it also runs in CI on every push and pull request (`.github/workflows/gitleaks.yml`, full history, pinned version with checksum check). Earlier the same day a regex scan of the working tree and 66 commits (Gemini, NVIDIA, Neon, Turnstile, GitHub, AWS, Slack and `sk-` key shapes, private keys, Postgres URLs with passwords, quoted key/secret/token assignments) found nothing. Every value in the local `.env`, `worker/.dev.vars` and `web/.env.production` was also searched for in the tree and in history: the only matches are non-secret config (model names, the localhost origin, the public API URL). Only `.env.example` was ever tracked; `.env*` and `.dev.vars` are gitignored. No account, zone or Neon project ids are committed. The NVIDIA key pasted in chat must still be rotated before the flip (it never reached git)
 - [~] No personal data in repo or history: all 70 commits (author, committer and `Signed-off-by`) use the maintainer's personal identity (Muhammad Raza Master / mrazam110@gmail.com) since the 2026-10-20 history rewrite (force-pushed to the private repo; no old email or employer domain remains in any commit or file). GitHub may keep the old commits reachable by direct hash for a while. The live hostnames `*.razadetechnologies.com` are in `worker/*.toml`, ADR 0011 and docs; make them config or accept

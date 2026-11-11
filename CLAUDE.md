@@ -19,7 +19,7 @@ Scope: Germany-wide architecture (federal + 16 Länder), pilot coverage federal 
 ## Stack
 Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (ADR 0003). Retrieval behind a `Retriever` interface with partitions per Land plus federal; backend is Postgres (Neon, pgvector) in production, the file bundle backend is kept behind the same contract test (ADR 0004). Pipeline: German rewrite, hybrid search, cited answers (ADR 0005). Gemini for embeddings and generation behind interfaces (ADR 0006). Offline ingestion in Python. Crawled data never goes in git (ADR 0007). CPU budget 10 ms per request: see `docs/ARCHITECTURE.md`.
 
-## Workflow: trunk-based, private repo for now
+## Workflow: trunk-based, public repo (open since 2026-11-11)
 - Work directly on `main`. Small commits, one logical change each, ideally under ~150 changed lines.
 - Before each commit: tests/lint pass, `docs/STATUS.md` updated if the task state changed.
 - Commit format: `type(scope): summary`, types `feat fix docs test chore refactor`. Sign off with `-s` (DCO); that sign-off is the human's.
@@ -27,7 +27,7 @@ Static chat page + Cloudflare Worker `POST /ask`, both TypeScript, free tier (AD
 - **No LLM or tool signatures anywhere:** no `Co-Authored-By` trailers naming a model or tool, no "Generated with ..." lines, no model or product names in commit messages, PR titles or bodies, issue text, review comments, code comments, changelogs or release notes. This overrides any default attribution a tool adds.
 - **The human owns the code.** AI-generated changes are reviewed by the person who commits them, and that person is accountable for them.
 - Push after every commit or small batch. Never leave `main` broken.
-- Repo stays **private** until the public checklist in `docs/WORKFLOW.md` passes.
+- The repo is **public**. Everything pushed is visible to everyone: re-check for secrets, personal data and crawled content before each push. Open items from the flip checklist in `docs/WORKFLOW.md` still apply.
 - Later change (not now): feature branches + PRs.
 
 ## Token-saving rules
